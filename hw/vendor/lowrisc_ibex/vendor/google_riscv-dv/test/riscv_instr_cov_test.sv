@@ -3,14 +3,14 @@ class riscv_instr_cov_test extends uvm_test;
 
   typedef uvm_enum_wrapper#(riscv_instr_name_t) instr_enum;
 
-  riscv_instr_gen_config    cfg;
-  riscv_instr_cover_group   instr_cg;
-  string                    trace_csv[$];
-  string                    trace[string];
-  int unsigned              entry_cnt;
-  int unsigned              total_entry_cnt;
-  int unsigned              skipped_cnt;
-  int unsigned              unexpected_illegal_instr_cnt;
+  riscv_instr_gen_config  cfg;
+  riscv_instr_cover_group instr_cg;
+  string                  trace_csv[$];
+  string                  trace[string];
+  int unsigned            entry_cnt;
+  int unsigned            total_entry_cnt;
+  int unsigned            skipped_cnt;
+  int unsigned            unexpected_illegal_instr_cnt;
 
   `uvm_component_utils(riscv_instr_cov_test)
   `uvm_component_new
@@ -23,7 +23,7 @@ class riscv_instr_cov_test extends uvm_test;
     string header[$];
     string entry[$];
     int fd;
-    while(1) begin
+    while (1) begin
       args = {$sformatf("trace_csv_%0d", i), "=%s"};
       if ($value$plusargs(args, csv)) begin
         trace_csv.push_back(csv);
@@ -56,7 +56,9 @@ class riscv_instr_cov_test extends uvm_test;
           `uvm_info(`gfn, $sformatf("Skipping empty trace file: %0s", trace_csv[i]), UVM_LOW)
           continue;
         end
-        while ($fgets(line, fd)) begin
+        while ($fgets(
+            line, fd
+        )) begin
           split_string(line, ",", entry);
           if (entry.size() != header.size()) begin
             `uvm_info(`gfn, $sformatf("Skipping malformed entry[%0d] : %0s", entry_cnt, line), UVM_LOW)
@@ -66,7 +68,7 @@ class riscv_instr_cov_test extends uvm_test;
             `uvm_info("", "----------------------------------------------------------", UVM_HIGH)
             foreach (header[j]) begin
               trace[header[j]] = entry[j];
-              if (header[j].substr(0,2) != "pad") begin
+              if (header[j].substr(0, 2) != "pad") begin
                 `uvm_info("", $sformatf("%0s=%0s", header[j], entry[j]), UVM_HIGH)
               end
             end
@@ -78,9 +80,9 @@ class riscv_instr_cov_test extends uvm_test;
               // TODO: Enable functional coverage for AMO test
               continue;
             end
-            if (!sample()) begin
+            if (!sample ()) begin
               if (!expect_illegal_instr) begin
-               `uvm_error(`gfn, $sformatf("Found unexpected illegal instr: %0s [%0s]",
+                `uvm_error(`gfn, $sformatf("Found unexpected illegal instr: %0s [%0s]",
                                           trace["instr"], line))
                 unexpected_illegal_instr_cnt++;
               end
@@ -109,14 +111,14 @@ class riscv_instr_cov_test extends uvm_test;
   virtual function void post_process_trace();
   endfunction
 
-  function void fatal (string str);
+  function void fatal(string str);
     `uvm_info(`gfn, str, UVM_NONE);
     if ($test$plusargs("stop_on_first_error")) begin
       `uvm_fatal(`gfn, "Errors: *. Warnings: * (written by riscv_instr_cov.sv)")
     end
   endfunction
 
-  function bit sample();
+  function bit sample ();
     riscv_instr_name_t instr_name;
     bit [XLEN-1:0] binary;
     get_val(trace["binary"], binary, .hex(1));
@@ -181,8 +183,8 @@ class riscv_instr_cov_test extends uvm_test;
 
     case (instr_name)
       // rename to new name as ovpsim still uses old name
-     "FMV_S_X": instr_name = "FMV_W_X";
-     "FMV_X_S": instr_name = "FMV_X_W";
+      "FMV_S_X": instr_name = "FMV_W_X";
+      "FMV_X_S": instr_name = "FMV_X_W";
       // convert Pseudoinstructions
       // fmv.s rd, rs fsgnj.s rd, rs, rs Copy single-precision register
       // fabs.s rd, rs fsgnjx.s rd, rs, rs Single-precision absolute value
@@ -190,13 +192,13 @@ class riscv_instr_cov_test extends uvm_test;
       // fmv.d rd, rs fsgnj.d rd, rs, rs Copy double-precision register
       // fabs.d rd, rs fsgnjx.d rd, rs, rs Double-precision absolute value
       // fneg.d rd, rs fsgnjn.d rd, rs, rs Double-precision negate
-      "FMV_S":  instr_name = "FSGNJ_S";
-      "FABS_S": instr_name = "FSGNJX_S";
-      "FNEG_S": instr_name = "FSGNJN_S";
-      "FMV_D":  instr_name = "FSGNJ_D";
-      "FABS_D": instr_name = "FSGNJX_D";
-      "FNEG_D": instr_name = "FSGNJN_D";
-      default: ;
+      "FMV_S":   instr_name = "FSGNJ_S";
+      "FABS_S":  instr_name = "FSGNJX_S";
+      "FNEG_S":  instr_name = "FSGNJN_S";
+      "FMV_D":   instr_name = "FSGNJ_D";
+      "FABS_D":  instr_name = "FSGNJX_D";
+      "FNEG_D":  instr_name = "FSGNJN_D";
+      default:   ;
     endcase
 
     return instr_name;
@@ -216,7 +218,7 @@ class riscv_instr_cov_test extends uvm_test;
       end else begin
         tmp_str = {tmp_str, str[i]};
       end
-      if (i == str.len()-1) begin
+      if (i == str.len() - 1) begin
         result.push_back(tmp_str);
       end
       i++;

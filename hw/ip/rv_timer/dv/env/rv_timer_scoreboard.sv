@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg),
-                                                        .RAL_T (rv_timer_reg_block),
-                                                        .COV_T (rv_timer_env_cov));
+class rv_timer_scoreboard extends cip_base_scoreboard#(
+    .CFG_T(rv_timer_env_cfg),
+    .RAL_T(rv_timer_reg_block),
+    .COV_T(rv_timer_env_cov)
+);
 
   `uvm_component_utils(rv_timer_scoreboard)
   `uvm_component_new
@@ -14,7 +16,7 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
   local uint64 step[NUM_HARTS];
   local uint64 timer_val[NUM_HARTS];
   local uint64 compare_val[NUM_HARTS][NUM_TIMERS];
-  local uint   num_clks[NUM_HARTS][NUM_TIMERS];
+  local uint num_clks[NUM_HARTS][NUM_TIMERS];
   local bit [NUM_HARTS-1:0][NUM_TIMERS-1:0] en_timers;
   local bit [NUM_HARTS-1:0][NUM_TIMERS-1:0] en_timers_prev;
   local bit [NUM_HARTS-1:0][NUM_TIMERS-1:0] en_interrupt;
@@ -36,9 +38,9 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
 
   virtual task process_tl_access(tl_seq_item item, tl_channels_e channel = DataChannel);
     uvm_reg csr;
-    string  csr_name;
-    bit     do_read_check   = 1'b1;
-    bit     write           = item.is_write();
+    string csr_name;
+    bit do_read_check = 1'b1;
+    bit write = item.is_write();
     uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
@@ -58,8 +60,7 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
               void'(csr.predict(.value(intr_status_exp[i]), .kind(UVM_PREDICT_READ)));
             end
             break;
-          end
-          else if (i == (NUM_HARTS - 1)) begin
+          end else if (i == (NUM_HARTS - 1)) begin
             `uvm_fatal(`gfn, $sformatf("invalid csr: %0s", csr.get_full_name()))
           end
         end
@@ -74,7 +75,9 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
 
       // process the csr req
       case (1)
-        (!uvm_re_match("ctrl*", csr_name)): begin
+        (!uvm_re_match(
+            "ctrl*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             for (int j = 0; j < NUM_TIMERS; j++) begin
               en_timers[i][j] = get_reg_fld_mirror_value(ral, "ctrl", $sformatf("active_%0d", j));
@@ -83,27 +86,35 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
             if (cfg.en_cov) cov.ctrl_reg_cov_obj[i].timer_active_cg.sample(en_timers[i]);
           end
         end
-        (!uvm_re_match("cfg*", csr_name)): begin
+        (!uvm_re_match(
+            "cfg*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
-            step[i]     = get_reg_fld_mirror_value(ral, $sformatf("cfg%0d", i), "step");
+            step[i] = get_reg_fld_mirror_value(ral, $sformatf("cfg%0d", i), "step");
             prescale[i] = get_reg_fld_mirror_value(ral, $sformatf("cfg%0d", i), "prescale");
           end
         end
-        (!uvm_re_match("timer_v_lower*", csr_name)): begin
+        (!uvm_re_match(
+            "timer_v_lower*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             timer_val[i][31:0] = get_reg_fld_mirror_value(
                                      ral, $sformatf("timer_v_lower%0d", i), "v");
             num_clk_update_due[i] = 1'b1;
           end
         end
-        (!uvm_re_match("timer_v_upper*", csr_name)): begin
+        (!uvm_re_match(
+            "timer_v_upper*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             timer_val[i][63:32] = get_reg_fld_mirror_value(
                                       ral, $sformatf("timer_v_upper%0d", i), "v");
             num_clk_update_due[i] = 1'b1;
           end
         end
-        (!uvm_re_match("compare_lower*", csr_name)): begin
+        (!uvm_re_match(
+            "compare_lower*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             for (int j = 0; j < NUM_TIMERS; j++) begin
               int timer_idx = i * NUM_TIMERS + j;
@@ -130,7 +141,9 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
             end
           end
         end
-        (!uvm_re_match("compare_upper*", csr_name)): begin
+        (!uvm_re_match(
+            "compare_upper*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             for (int j = 0; j < NUM_TIMERS; j++) begin
               int timer_idx = i * NUM_TIMERS + j;
@@ -165,7 +178,9 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
             end
           end
         end
-        (!uvm_re_match("intr_state*", csr_name)): begin
+        (!uvm_re_match(
+            "intr_state*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             string intr_state_str = $sformatf("intr_state%0d", i);
             if (csr_name == intr_state_str) begin
@@ -179,8 +194,7 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
                       cov.sticky_intr_cov[{"rv_timer_sticky_intr_pin",
                                           $sformatf("%0d", timer_idx)}].sample(1'b0);
                     end
-                  end
-                  else if (cfg.en_cov) begin // sticky interrupt
+                  end else if (cfg.en_cov) begin  // sticky interrupt
                     cov.sticky_intr_cov[{"rv_timer_sticky_intr_pin",
                                         $sformatf("%0d", timer_idx)}].sample(1'b1);
                   end
@@ -190,12 +204,14 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
             end
           end
         end
-        (!uvm_re_match("intr_test*", csr_name)): begin
+        (!uvm_re_match(
+            "intr_test*", csr_name
+        )): begin
           for (int i = 0; i < NUM_HARTS; i++) begin
             string intr_test_str = $sformatf("intr_test%0d", i);
             if (csr_name == intr_test_str) begin
               uint intr_test_val = item.a_data;
-              for (int j = 0 ; j < NUM_TIMERS; j++) begin
+              for (int j = 0; j < NUM_TIMERS; j++) begin
                 int intr_pin_idx = i * NUM_TIMERS + j;
                 if (intr_test_val[j]) intr_status_exp[i][j] = intr_test_val[j];
                 //Sample intr_test coverage for each bit of test reg
@@ -228,26 +244,24 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
             if (!uvm_re_match($sformatf("timer_v_*%0d", i), csr_name)) begin
               if (en_timers[i] == 0) begin
                 `DV_CHECK_EQ(csr.get_mirrored_value(), item.d_data)
-              end
-              else begin
+              end else begin
                 if (!uvm_re_match("timer_v_lower*", csr_name)) begin
                   timer_val[i][31:0] = item.d_data;
                   // on timer_val read update num_clks
                   num_clk_update_due[i] = 1'b1;
-                end
-                else begin
+                end else begin
                   timer_val[i][63:32] = item.d_data;
                 end
               end
               break;
-            end
-            else if (i == (NUM_HARTS - 1)) begin
+            end else if (i == (NUM_HARTS - 1)) begin
               `uvm_fatal(`gfn, $sformatf("invalid csr: %0s", csr.get_full_name()))
             end
           end
         end
         // Read happened for other registers
-        else if (do_read_check) begin
+        else
+        if (do_read_check) begin
           `DV_CHECK_EQ(csr.get_mirrored_value(), item.d_data)
         end
 
@@ -277,7 +291,7 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
             if (num_clk_update_due[i]) reset_count[i] = en_timers[i];
           end
           num_clk_update_due = '0;
-        end // compute_num_clks
+        end  // compute_num_clks
       end
     join_none
 
@@ -332,7 +346,7 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
           end
         join_none
       end
-    end // wait_for_interrupt
+    end  // wait_for_interrupt
   endtask : compute_and_check_interrupt
 
   // task : check_interrupt_pin
@@ -368,15 +382,15 @@ class rv_timer_scoreboard extends cip_base_scoreboard #(.CFG_T (rv_timer_env_cfg
   virtual function void reset(string kind = "HARD");
     super.reset(kind);
     // reset the local values
-    step            = '{default:1};
-    prescale        = '{default:0};
-    timer_val       = '{default:0};
-    compare_val     = '{default:'1};
-    en_timers       = '{default:0};
-    en_interrupt    = '{default:0};
-    intr_status_exp = '{default:0};
-    ignore_period   = '{default:0};
-    en_timers_prev  = '{default:0};
+    step = '{default: 1};
+    prescale = '{default: 0};
+    timer_val = '{default: 0};
+    compare_val = '{default: '1};
+    en_timers = '{default: 0};
+    en_interrupt = '{default: 0};
+    intr_status_exp = '{default: 0};
+    ignore_period = '{default: 0};
+    en_timers_prev = '{default: 0};
     ctimecmp_update_on_fly = 0;
   endfunction
 

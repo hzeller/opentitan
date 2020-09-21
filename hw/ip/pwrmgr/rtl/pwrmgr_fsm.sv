@@ -7,50 +7,52 @@
 
 `include "prim_assert.sv"
 
-module pwrmgr_fsm import pwrmgr_pkg::*; (
-  input clk_i,
-  input rst_ni,
+module pwrmgr_fsm
+import pwrmgr_pkg::*;
+(
+    input clk_i,
+    input rst_ni,
 
-  // interface with slow_fsm
-  input req_pwrup_i,
-  input pwrup_cause_e pwrup_cause_i,
-  output logic ack_pwrup_o,
-  output logic req_pwrdn_o,
-  input ack_pwrdn_i,
-  input low_power_entry_i,
-  input main_pd_ni,
-  input reset_req_i,
+    // interface with slow_fsm
+    input req_pwrup_i,
+    input pwrup_cause_e pwrup_cause_i,
+    output logic ack_pwrup_o,
+    output logic req_pwrdn_o,
+    input ack_pwrdn_i,
+    input low_power_entry_i,
+    input main_pd_ni,
+    input reset_req_i,
 
-  // consumed in pwrmgr
-  output logic wkup_o,        // generate wake interrupt
-  output logic wkup_record_o, // enable wakeup recording
-  output logic fall_through_o,
-  output logic abort_o,
-  output logic clr_hint_o,
-  output logic clr_cfg_lock_o,
+    // consumed in pwrmgr
+    output logic wkup_o,  // generate wake interrupt
+    output logic wkup_record_o,  // enable wakeup recording
+    output logic fall_through_o,
+    output logic abort_o,
+    output logic clr_hint_o,
+    output logic clr_cfg_lock_o,
 
-  // rstmgr
-  output pwr_rst_req_t pwr_rst_o,
-  input pwr_rst_rsp_t pwr_rst_i,
+    // rstmgr
+    output pwr_rst_req_t pwr_rst_o,
+    input  pwr_rst_rsp_t pwr_rst_i,
 
-  // clkmgr
-  output logic ips_clk_en_o,
-  input clk_en_status_i,
+    // clkmgr
+    output logic ips_clk_en_o,
+    input clk_en_status_i,
 
-  // otp
-  output logic otp_init_o,
-  input otp_done_i,
-  input otp_idle_i,
+    // otp
+    output logic otp_init_o,
+    input otp_done_i,
+    input otp_idle_i,
 
-  // lc
-  output logic lc_init_o,
-  input lc_done_i,
-  input lc_idle_i,
+    // lc
+    output logic lc_init_o,
+    input lc_done_i,
+    input lc_idle_i,
 
-  // flash
-  output logic flash_init_o,
-  input flash_done_i,
-  input flash_idle_i
+    // flash
+    output logic flash_init_o,
+    input flash_done_i,
+    input flash_idle_i
 );
 
   // state enum
@@ -104,8 +106,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
   assign pd_n_rsts_asserted = pwr_rst_i.rst_lc_src_n[PowerDomains-1:1] == '0 &
                               pwr_rst_i.rst_sys_src_n[PowerDomains-1:1] == '0;
 
-  assign all_rsts_asserted = pwr_rst_i.rst_lc_src_n == '0 &
-                             pwr_rst_i.rst_sys_src_n == '0;
+  assign all_rsts_asserted = pwr_rst_i.rst_lc_src_n == '0 & pwr_rst_i.rst_sys_src_n == '0;
 
   // when in low power path, resets are controlled by domain power down
   // when in reset path, all resets must be asserted
@@ -155,7 +156,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
     reset_cause_d = reset_cause_q;
     flash_init_d = 1'b0;
 
-    unique case(state_q)
+    unique case (state_q)
 
       StLowPower: begin
         if (req_pwrup_i || reset_ongoing_q) begin
@@ -174,7 +175,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
       StReleaseLcRst: begin
         rst_lc_req_d = '0;  // release rst_lc_n for all power domains
 
-        if (&pwr_rst_i.rst_lc_src_n) begin // once all resets are released
+        if (&pwr_rst_i.rst_lc_src_n) begin  // once all resets are released
           state_d = StOtpInit;
         end
       end
@@ -314,8 +315,8 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
         ip_clk_en_d = 1'b0;
       end
 
-    endcase // unique case (state_q)
-  end // always_comb
+    endcase  // unique case (state_q)
+  end  // always_comb
 
   assign ack_pwrup_o = ack_pwrup_q;
   assign req_pwrdn_o = req_pwrdn_q;
@@ -329,13 +330,13 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
   assign ips_clk_en_o = ip_clk_en_q;
 
   prim_flop #(
-    .Width(1),
-    .ResetValue(1'b1)
+      .Width(1),
+      .ResetValue(1'b1)
   ) u_reg_idle (
-    .clk_i,
-    .rst_ni,
-    .d_i(flash_init_d),
-    .q_o(flash_init_o)
+      .clk_i,
+      .rst_ni,
+      .d_i(flash_init_d),
+      .q_o(flash_init_o)
   );
 
 

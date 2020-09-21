@@ -15,323 +15,209 @@ package flash_ctrl_reg_pkg;
   // Typedefs for registers //
   ////////////////////////////
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } prog_empty;
-    struct packed {
-      logic        q;
-    } prog_lvl;
-    struct packed {
-      logic        q;
-    } rd_full;
-    struct packed {
-      logic        q;
-    } rd_lvl;
-    struct packed {
-      logic        q;
-    } op_done;
-    struct packed {
-      logic        q;
-    } op_error;
+    struct packed {logic q;} prog_empty;
+    struct packed {logic q;} prog_lvl;
+    struct packed {logic q;} rd_full;
+    struct packed {logic q;} rd_lvl;
+    struct packed {logic q;} op_done;
+    struct packed {logic q;} op_error;
   } flash_ctrl_reg2hw_intr_state_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } prog_empty;
-    struct packed {
-      logic        q;
-    } prog_lvl;
-    struct packed {
-      logic        q;
-    } rd_full;
-    struct packed {
-      logic        q;
-    } rd_lvl;
-    struct packed {
-      logic        q;
-    } op_done;
-    struct packed {
-      logic        q;
-    } op_error;
+    struct packed {logic q;} prog_empty;
+    struct packed {logic q;} prog_lvl;
+    struct packed {logic q;} rd_full;
+    struct packed {logic q;} rd_lvl;
+    struct packed {logic q;} op_done;
+    struct packed {logic q;} op_error;
   } flash_ctrl_reg2hw_intr_enable_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } prog_empty;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } prog_lvl;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } rd_full;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } rd_lvl;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } op_done;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } op_error;
   } flash_ctrl_reg2hw_intr_test_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } start;
-    struct packed {
-      logic [1:0]  q;
-    } op;
-    struct packed {
-      logic        q;
-    } prog_sel;
-    struct packed {
-      logic        q;
-    } erase_sel;
-    struct packed {
-      logic        q;
-    } partition_sel;
-    struct packed {
-      logic        q;
-    } info_sel;
-    struct packed {
-      logic [11:0] q;
-    } num;
+    struct packed {logic q;} start;
+    struct packed {logic [1:0] q;} op;
+    struct packed {logic q;} prog_sel;
+    struct packed {logic q;} erase_sel;
+    struct packed {logic q;} partition_sel;
+    struct packed {logic q;} info_sel;
+    struct packed {logic [11:0] q;} num;
   } flash_ctrl_reg2hw_control_reg_t;
 
-  typedef struct packed {
-    logic [31:0] q;
-  } flash_ctrl_reg2hw_addr_reg_t;
+  typedef struct packed {logic [31:0] q;} flash_ctrl_reg2hw_addr_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } en;
-    struct packed {
-      logic        q;
-    } rd_en;
-    struct packed {
-      logic        q;
-    } prog_en;
-    struct packed {
-      logic        q;
-    } erase_en;
-    struct packed {
-      logic        q;
-    } scramble_en;
-    struct packed {
-      logic [8:0]  q;
-    } base;
-    struct packed {
-      logic [9:0] q;
-    } size;
+    struct packed {logic q;} en;
+    struct packed {logic q;} rd_en;
+    struct packed {logic q;} prog_en;
+    struct packed {logic q;} erase_en;
+    struct packed {logic q;} scramble_en;
+    struct packed {logic [8:0] q;} base;
+    struct packed {logic [9:0] q;} size;
   } flash_ctrl_reg2hw_mp_region_cfg_mreg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } en;
-    struct packed {
-      logic        q;
-    } rd_en;
-    struct packed {
-      logic        q;
-    } prog_en;
-    struct packed {
-      logic        q;
-    } erase_en;
-    struct packed {
-      logic        q;
-    } scramble_en;
+    struct packed {logic q;} en;
+    struct packed {logic q;} rd_en;
+    struct packed {logic q;} prog_en;
+    struct packed {logic q;} erase_en;
+    struct packed {logic q;} scramble_en;
   } flash_ctrl_reg2hw_bank0_info0_page_cfg_mreg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } en;
-    struct packed {
-      logic        q;
-    } rd_en;
-    struct packed {
-      logic        q;
-    } prog_en;
-    struct packed {
-      logic        q;
-    } erase_en;
-    struct packed {
-      logic        q;
-    } scramble_en;
+    struct packed {logic q;} en;
+    struct packed {logic q;} rd_en;
+    struct packed {logic q;} prog_en;
+    struct packed {logic q;} erase_en;
+    struct packed {logic q;} scramble_en;
   } flash_ctrl_reg2hw_bank0_info1_page_cfg_mreg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } en;
-    struct packed {
-      logic        q;
-    } rd_en;
-    struct packed {
-      logic        q;
-    } prog_en;
-    struct packed {
-      logic        q;
-    } erase_en;
-    struct packed {
-      logic        q;
-    } scramble_en;
+    struct packed {logic q;} en;
+    struct packed {logic q;} rd_en;
+    struct packed {logic q;} prog_en;
+    struct packed {logic q;} erase_en;
+    struct packed {logic q;} scramble_en;
   } flash_ctrl_reg2hw_bank1_info0_page_cfg_mreg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } en;
-    struct packed {
-      logic        q;
-    } rd_en;
-    struct packed {
-      logic        q;
-    } prog_en;
-    struct packed {
-      logic        q;
-    } erase_en;
-    struct packed {
-      logic        q;
-    } scramble_en;
+    struct packed {logic q;} en;
+    struct packed {logic q;} rd_en;
+    struct packed {logic q;} prog_en;
+    struct packed {logic q;} erase_en;
+    struct packed {logic q;} scramble_en;
   } flash_ctrl_reg2hw_bank1_info1_page_cfg_mreg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } rd_en;
-    struct packed {
-      logic        q;
-    } prog_en;
-    struct packed {
-      logic        q;
-    } erase_en;
-    struct packed {
-      logic        q;
-    } scramble_en;
+    struct packed {logic q;} rd_en;
+    struct packed {logic q;} prog_en;
+    struct packed {logic q;} erase_en;
+    struct packed {logic q;} scramble_en;
   } flash_ctrl_reg2hw_default_region_reg_t;
 
-  typedef struct packed {
-    logic        q;
-  } flash_ctrl_reg2hw_mp_bank_cfg_mreg_t;
+  typedef struct packed {logic q;} flash_ctrl_reg2hw_mp_bank_cfg_mreg_t;
+
+  typedef struct packed {logic [31:0] q;} flash_ctrl_reg2hw_scratch_reg_t;
 
   typedef struct packed {
-    logic [31:0] q;
-  } flash_ctrl_reg2hw_scratch_reg_t;
-
-  typedef struct packed {
-    struct packed {
-      logic [4:0]  q;
-    } prog;
-    struct packed {
-      logic [4:0]  q;
-    } rd;
+    struct packed {logic [4:0] q;} prog;
+    struct packed {logic [4:0] q;} rd;
   } flash_ctrl_reg2hw_fifo_lvl_reg_t;
 
-  typedef struct packed {
-    logic        q;
-  } flash_ctrl_reg2hw_fifo_rst_reg_t;
+  typedef struct packed {logic q;} flash_ctrl_reg2hw_fifo_rst_reg_t;
 
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prog_empty;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prog_lvl;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } rd_full;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } rd_lvl;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } op_done;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } op_error;
   } flash_ctrl_hw2reg_intr_state_reg_t;
 
-  typedef struct packed {
-    logic        d;
-  } flash_ctrl_hw2reg_ctrl_regwen_reg_t;
+  typedef struct packed {logic d;} flash_ctrl_hw2reg_ctrl_regwen_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } start;
   } flash_ctrl_hw2reg_control_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } done;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } err;
   } flash_ctrl_hw2reg_op_status_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } rd_full;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } rd_empty;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prog_full;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prog_empty;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } init_wip;
     struct packed {
-      logic [8:0]  d;
-      logic        de;
+      logic [8:0] d;
+      logic de;
     } error_addr;
   } flash_ctrl_hw2reg_status_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } init_wip;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prog_normal_avail;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prog_repair_avail;
   } flash_ctrl_hw2reg_phy_status_reg_t;
 
@@ -340,82 +226,82 @@ package flash_ctrl_reg_pkg;
   // Register to internal design logic //
   ///////////////////////////////////////
   typedef struct packed {
-    flash_ctrl_reg2hw_intr_state_reg_t intr_state; // [395:390]
-    flash_ctrl_reg2hw_intr_enable_reg_t intr_enable; // [389:384]
-    flash_ctrl_reg2hw_intr_test_reg_t intr_test; // [383:372]
-    flash_ctrl_reg2hw_control_reg_t control; // [371:353]
-    flash_ctrl_reg2hw_addr_reg_t addr; // [352:321]
-    flash_ctrl_reg2hw_mp_region_cfg_mreg_t [7:0] mp_region_cfg; // [320:129]
-    flash_ctrl_reg2hw_bank0_info0_page_cfg_mreg_t [3:0] bank0_info0_page_cfg; // [128:109]
-    flash_ctrl_reg2hw_bank0_info1_page_cfg_mreg_t [3:0] bank0_info1_page_cfg; // [108:89]
-    flash_ctrl_reg2hw_bank1_info0_page_cfg_mreg_t [3:0] bank1_info0_page_cfg; // [88:69]
-    flash_ctrl_reg2hw_bank1_info1_page_cfg_mreg_t [3:0] bank1_info1_page_cfg; // [68:49]
-    flash_ctrl_reg2hw_default_region_reg_t default_region; // [48:45]
-    flash_ctrl_reg2hw_mp_bank_cfg_mreg_t [1:0] mp_bank_cfg; // [44:43]
-    flash_ctrl_reg2hw_scratch_reg_t scratch; // [42:11]
-    flash_ctrl_reg2hw_fifo_lvl_reg_t fifo_lvl; // [10:1]
-    flash_ctrl_reg2hw_fifo_rst_reg_t fifo_rst; // [0:0]
+    flash_ctrl_reg2hw_intr_state_reg_t intr_state;  // [395:390]
+    flash_ctrl_reg2hw_intr_enable_reg_t intr_enable;  // [389:384]
+    flash_ctrl_reg2hw_intr_test_reg_t intr_test;  // [383:372]
+    flash_ctrl_reg2hw_control_reg_t control;  // [371:353]
+    flash_ctrl_reg2hw_addr_reg_t addr;  // [352:321]
+    flash_ctrl_reg2hw_mp_region_cfg_mreg_t [7:0] mp_region_cfg;  // [320:129]
+    flash_ctrl_reg2hw_bank0_info0_page_cfg_mreg_t [3:0] bank0_info0_page_cfg;  // [128:109]
+    flash_ctrl_reg2hw_bank0_info1_page_cfg_mreg_t [3:0] bank0_info1_page_cfg;  // [108:89]
+    flash_ctrl_reg2hw_bank1_info0_page_cfg_mreg_t [3:0] bank1_info0_page_cfg;  // [88:69]
+    flash_ctrl_reg2hw_bank1_info1_page_cfg_mreg_t [3:0] bank1_info1_page_cfg;  // [68:49]
+    flash_ctrl_reg2hw_default_region_reg_t default_region;  // [48:45]
+    flash_ctrl_reg2hw_mp_bank_cfg_mreg_t [1:0] mp_bank_cfg;  // [44:43]
+    flash_ctrl_reg2hw_scratch_reg_t scratch;  // [42:11]
+    flash_ctrl_reg2hw_fifo_lvl_reg_t fifo_lvl;  // [10:1]
+    flash_ctrl_reg2hw_fifo_rst_reg_t fifo_rst;  // [0:0]
   } flash_ctrl_reg2hw_t;
 
   ///////////////////////////////////////
   // Internal design logic to register //
   ///////////////////////////////////////
   typedef struct packed {
-    flash_ctrl_hw2reg_intr_state_reg_t intr_state; // [44:39]
-    flash_ctrl_hw2reg_ctrl_regwen_reg_t ctrl_regwen; // [38:39]
-    flash_ctrl_hw2reg_control_reg_t control; // [38:20]
-    flash_ctrl_hw2reg_op_status_reg_t op_status; // [19:20]
-    flash_ctrl_hw2reg_status_reg_t status; // [19:20]
-    flash_ctrl_hw2reg_phy_status_reg_t phy_status; // [19:20]
+    flash_ctrl_hw2reg_intr_state_reg_t intr_state;  // [44:39]
+    flash_ctrl_hw2reg_ctrl_regwen_reg_t ctrl_regwen;  // [38:39]
+    flash_ctrl_hw2reg_control_reg_t control;  // [38:20]
+    flash_ctrl_hw2reg_op_status_reg_t op_status;  // [19:20]
+    flash_ctrl_hw2reg_status_reg_t status;  // [19:20]
+    flash_ctrl_hw2reg_phy_status_reg_t phy_status;  // [19:20]
   } flash_ctrl_hw2reg_t;
 
   // Register Address
-  parameter logic [7:0] FLASH_CTRL_INTR_STATE_OFFSET = 8'h 0;
-  parameter logic [7:0] FLASH_CTRL_INTR_ENABLE_OFFSET = 8'h 4;
-  parameter logic [7:0] FLASH_CTRL_INTR_TEST_OFFSET = 8'h 8;
-  parameter logic [7:0] FLASH_CTRL_CTRL_REGWEN_OFFSET = 8'h c;
-  parameter logic [7:0] FLASH_CTRL_CONTROL_OFFSET = 8'h 10;
-  parameter logic [7:0] FLASH_CTRL_ADDR_OFFSET = 8'h 14;
-  parameter logic [7:0] FLASH_CTRL_REGION_CFG_REGWEN_OFFSET = 8'h 18;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_0_OFFSET = 8'h 1c;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_1_OFFSET = 8'h 20;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_2_OFFSET = 8'h 24;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_3_OFFSET = 8'h 28;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_4_OFFSET = 8'h 2c;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_5_OFFSET = 8'h 30;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_6_OFFSET = 8'h 34;
-  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_7_OFFSET = 8'h 38;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_0_OFFSET = 8'h 3c;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_1_OFFSET = 8'h 40;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_2_OFFSET = 8'h 44;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_3_OFFSET = 8'h 48;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_0_OFFSET = 8'h 4c;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_1_OFFSET = 8'h 50;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_2_OFFSET = 8'h 54;
-  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_3_OFFSET = 8'h 58;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_0_OFFSET = 8'h 5c;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_1_OFFSET = 8'h 60;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_2_OFFSET = 8'h 64;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_3_OFFSET = 8'h 68;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_0_OFFSET = 8'h 6c;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_1_OFFSET = 8'h 70;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_2_OFFSET = 8'h 74;
-  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_3_OFFSET = 8'h 78;
-  parameter logic [7:0] FLASH_CTRL_DEFAULT_REGION_OFFSET = 8'h 7c;
-  parameter logic [7:0] FLASH_CTRL_BANK_CFG_REGWEN_OFFSET = 8'h 80;
-  parameter logic [7:0] FLASH_CTRL_MP_BANK_CFG_OFFSET = 8'h 84;
-  parameter logic [7:0] FLASH_CTRL_OP_STATUS_OFFSET = 8'h 88;
-  parameter logic [7:0] FLASH_CTRL_STATUS_OFFSET = 8'h 8c;
-  parameter logic [7:0] FLASH_CTRL_PHY_STATUS_OFFSET = 8'h 90;
-  parameter logic [7:0] FLASH_CTRL_SCRATCH_OFFSET = 8'h 94;
-  parameter logic [7:0] FLASH_CTRL_FIFO_LVL_OFFSET = 8'h 98;
-  parameter logic [7:0] FLASH_CTRL_FIFO_RST_OFFSET = 8'h 9c;
+  parameter logic [7:0] FLASH_CTRL_INTR_STATE_OFFSET = 8'h0;
+  parameter logic [7:0] FLASH_CTRL_INTR_ENABLE_OFFSET = 8'h4;
+  parameter logic [7:0] FLASH_CTRL_INTR_TEST_OFFSET = 8'h8;
+  parameter logic [7:0] FLASH_CTRL_CTRL_REGWEN_OFFSET = 8'hc;
+  parameter logic [7:0] FLASH_CTRL_CONTROL_OFFSET = 8'h10;
+  parameter logic [7:0] FLASH_CTRL_ADDR_OFFSET = 8'h14;
+  parameter logic [7:0] FLASH_CTRL_REGION_CFG_REGWEN_OFFSET = 8'h18;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_0_OFFSET = 8'h1c;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_1_OFFSET = 8'h20;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_2_OFFSET = 8'h24;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_3_OFFSET = 8'h28;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_4_OFFSET = 8'h2c;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_5_OFFSET = 8'h30;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_6_OFFSET = 8'h34;
+  parameter logic [7:0] FLASH_CTRL_MP_REGION_CFG_7_OFFSET = 8'h38;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_0_OFFSET = 8'h3c;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_1_OFFSET = 8'h40;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_2_OFFSET = 8'h44;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO0_PAGE_CFG_3_OFFSET = 8'h48;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_0_OFFSET = 8'h4c;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_1_OFFSET = 8'h50;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_2_OFFSET = 8'h54;
+  parameter logic [7:0] FLASH_CTRL_BANK0_INFO1_PAGE_CFG_3_OFFSET = 8'h58;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_0_OFFSET = 8'h5c;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_1_OFFSET = 8'h60;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_2_OFFSET = 8'h64;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO0_PAGE_CFG_3_OFFSET = 8'h68;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_0_OFFSET = 8'h6c;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_1_OFFSET = 8'h70;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_2_OFFSET = 8'h74;
+  parameter logic [7:0] FLASH_CTRL_BANK1_INFO1_PAGE_CFG_3_OFFSET = 8'h78;
+  parameter logic [7:0] FLASH_CTRL_DEFAULT_REGION_OFFSET = 8'h7c;
+  parameter logic [7:0] FLASH_CTRL_BANK_CFG_REGWEN_OFFSET = 8'h80;
+  parameter logic [7:0] FLASH_CTRL_MP_BANK_CFG_OFFSET = 8'h84;
+  parameter logic [7:0] FLASH_CTRL_OP_STATUS_OFFSET = 8'h88;
+  parameter logic [7:0] FLASH_CTRL_STATUS_OFFSET = 8'h8c;
+  parameter logic [7:0] FLASH_CTRL_PHY_STATUS_OFFSET = 8'h90;
+  parameter logic [7:0] FLASH_CTRL_SCRATCH_OFFSET = 8'h94;
+  parameter logic [7:0] FLASH_CTRL_FIFO_LVL_OFFSET = 8'h98;
+  parameter logic [7:0] FLASH_CTRL_FIFO_RST_OFFSET = 8'h9c;
 
   // Window parameter
-  parameter logic [7:0] FLASH_CTRL_PROG_FIFO_OFFSET = 8'h a0;
-  parameter logic [7:0] FLASH_CTRL_PROG_FIFO_SIZE   = 8'h 4;
-  parameter logic [7:0] FLASH_CTRL_RD_FIFO_OFFSET = 8'h a4;
-  parameter logic [7:0] FLASH_CTRL_RD_FIFO_SIZE   = 8'h 4;
+  parameter logic [7:0] FLASH_CTRL_PROG_FIFO_OFFSET = 8'ha0;
+  parameter logic [7:0] FLASH_CTRL_PROG_FIFO_SIZE = 8'h4;
+  parameter logic [7:0] FLASH_CTRL_RD_FIFO_OFFSET = 8'ha4;
+  parameter logic [7:0] FLASH_CTRL_RD_FIFO_SIZE = 8'h4;
 
   // Register Index
   typedef enum int {

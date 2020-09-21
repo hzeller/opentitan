@@ -9,27 +9,27 @@
 `include "prim_assert.sv"
 
 module otp_ctrl_parity_reg #(
-  parameter  int Width = 32, // bit
-  parameter  int Depth = 128,
-  localparam int Aw    = prim_util_pkg::vbits(Depth) // derived parameter
+    parameter  int Width = 32, // bit
+    parameter  int Depth = 128,
+    localparam int Aw    = prim_util_pkg::vbits(Depth) // derived parameter
 ) (
-  input  logic                        clk_i,
-  input  logic                        rst_ni,
+    input logic clk_i,
+    input logic rst_ni,
 
-  input  logic                        wren_i,
-  input  logic [Aw-1:0]               addr_i,
-  input  logic [Width-1:0]            wdata_i,
+    input logic             wren_i,
+    input logic [   Aw-1:0] addr_i,
+    input logic [Width-1:0] wdata_i,
 
-  // Concurrent output of the register state.
-  output logic [Depth-1:0][Width-1:0] data_o,
-  // Concurrent parity check error is flagged via this signal.
-  output logic                        parity_err_o
+    // Concurrent output of the register state.
+    output logic [Depth-1:0][Width-1:0] data_o,
+    // Concurrent parity check error is flagged via this signal.
+    output logic                        parity_err_o
 );
 
   // Integration checks for parameters.
   `ASSERT_INIT(WidthMustBeByteAligned_A, Width % 8 == 0)
 
-  logic [Depth-1:0][Width-1:0]   data_d, data_q;
+  logic [Depth-1:0][Width-1:0] data_d, data_q;
   logic [Depth-1:0][Width/8-1:0] parity_d, parity_q;
 
   if (Depth == 1) begin : gen_one_word_only
@@ -75,10 +75,10 @@ module otp_ctrl_parity_reg #(
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
       parity_q <= '0;
-      data_q   <= '0;
+      data_q <= '0;
     end else begin
       parity_q <= parity_d;
-      data_q   <= data_d;
+      data_q <= data_d;
     end
   end
 

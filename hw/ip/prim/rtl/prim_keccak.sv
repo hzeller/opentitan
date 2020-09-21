@@ -5,36 +5,36 @@
 // prim_keccak is single round permutation module
 `include "prim_assert.sv"
 module prim_keccak #(
-  parameter int Width = 1600, // b= {25, 50, 100, 200, 400, 800, 1600}
+    parameter int Width = 1600,  // b= {25, 50, 100, 200, 400, 800, 1600}
 
-  // Derived
-  localparam int W        = Width/25,
-  localparam int L        = $clog2(W),
-  localparam int MaxRound = 12 + 2*L, // Keccak-f only
-  localparam int RndW     = $clog2(MaxRound+1) // Representing up to MaxRound
+    // Derived
+    localparam int W        = Width / 25,
+    localparam int L        = $clog2 (W),
+    localparam int MaxRound = 12 + 2 * L,  // Keccak-f only
+    localparam int RndW     = $clog2 (MaxRound + 1)  // Representing up to MaxRound
 ) (
-  input        [RndW-1:0]  rnd_i,   // Current Round
-  input        [Width-1:0] s_i,
-  output logic [Width-1:0] s_o
+    input        [ RndW-1:0] rnd_i,  // Current Round
+    input        [Width-1:0] s_i,
+    output logic [Width-1:0] s_o
 );
   ///////////
   // Types //
   ///////////
   //             x    y    z
-  typedef logic [4:0][4:0][W-1:0] box_t;   // (x,y,z) state
-  typedef logic           [W-1:0] lane_t;  // (z)
-  typedef logic [4:0]     [W-1:0] plane_t; // (x,z)
-  typedef logic [4:0][4:0]        slice_t; // (x,y)
-  typedef logic      [4:0][W-1:0] sheet_t; // (y,z) identical to plane_t
-  typedef logic [4:0]             row_t;   // (x)
-  typedef logic      [4:0]        col_t;   // (y) identical to row_t
+  typedef logic [4:0][4:0][W-1:0] box_t;  // (x,y,z) state
+  typedef logic [W-1:0] lane_t;  // (z)
+  typedef logic [4:0][W-1:0] plane_t;  // (x,z)
+  typedef logic [4:0][4:0] slice_t;  // (x,y)
+  typedef logic [4:0][W-1:0] sheet_t;  // (y,z) identical to plane_t
+  typedef logic [4:0] row_t;  // (x)
+  typedef logic [4:0] col_t;  // (y) identical to row_t
 
   //////////////
   // Keccak_f //
   //////////////
   box_t state_in, keccak_f;
   box_t theta_data, rho_data, pi_data, chi_data, iota_data;
-  assign state_in = bitarray_to_box(s_i);
+  assign state_in   = bitarray_to_box(s_i);
   assign theta_data = theta(state_in);
   // Commented out rho function as vcs complains z-Offset%W isn't constant
   //assign rho_data   = rho(theta_data);
@@ -55,10 +55,10 @@ module prim_keccak #(
     '{  28,  55, 153,  21, 120},// 3
     '{  91, 276, 231, 136,  78} // 4
   };
-  for (genvar x = 0 ; x < 5 ; x++) begin : gen_rho_x
-    for (genvar y = 0 ; y < 5 ; y++) begin : gen_rho_y
-      localparam int Offset = RhoOffset[x][y]%W;
-      localparam int ShiftAmt = W- Offset;
+  for (genvar x = 0; x < 5; x++) begin : gen_rho_x
+    for (genvar y = 0; y < 5; y++) begin : gen_rho_y
+      localparam int Offset = RhoOffset[x][y] % W;
+      localparam int ShiftAmt = W - Offset;
       if (Offset == 0) begin : gen_offset0
         assign rho_data[x][y][W-1:0] = theta_data[x][y][W-1:0];
       end else begin : gen_others
@@ -75,7 +75,7 @@ module prim_keccak #(
   `ASSERT_INIT(ValidWidth_A, Width inside {25, 50, 100, 200, 400, 800, 1600})
   `ASSERT_INIT(ValidW_A, W inside {1, 2, 4, 8, 16, 32, 64})
   `ASSERT_INIT(ValidL_A, L inside {0, 1, 2, 3, 4, 5, 6})
-  `ASSERT_INIT(ValidRound_A, MaxRound <= 24) // Keccak-f only
+  `ASSERT_INIT(ValidRound_A, MaxRound <= 24)  // Keccak-f only
 
   ///////////////
   // Functions //
@@ -127,13 +127,13 @@ module prim_keccak #(
                 ^ state[x][2][z] ^ state[x][3][z] ^ state[x][4][z];
       end
     end
-    for (int x = 0 ; x < 5 ; x++) begin
+    for (int x = 0; x < 5; x++) begin
       int index_x1, index_x2;
-      index_x1 = (x == 0) ? 4 : x-1; // (x-1)%5
-      index_x2 = (x == 4) ? 0 : x+1; // (x+1)%5
-      for (int z = 0 ; z < W ; z++) begin
+      index_x1 = (x == 0) ? 4 : x - 1;  // (x-1)%5
+      index_x2 = (x == 4) ? 0 : x + 1;  // (x+1)%5
+      for (int z = 0; z < W; z++) begin
         int index_z;
-        index_z = (z == 0) ? W-1 : z-1; // (z+1)%W
+        index_z = (z == 0) ? W - 1 : z - 1;  // (z+1)%W
         d[x][z] = c[index_x1][z] ^ c[index_x2][index_z];
       end
     end
@@ -198,8 +198,8 @@ module prim_keccak #(
   };
   function automatic box_t pi(box_t state);
     box_t result;
-    for (int x = 0 ; x < 5 ; x++) begin
-      for (int y = 0 ; y < 5 ; y++) begin
+    for (int x = 0; x < 5; x++) begin
+      for (int y = 0; y < 5; y++) begin
         int index_x;
         result[x][y][W-1:0] = state[PiRotate[x][y]][x][W-1:0];
       end
@@ -211,10 +211,10 @@ module prim_keccak #(
   // chi[x,y,z] = state[x,y,z] ^ ((state[x+1,y,z] ^ 1) & state[x+2,y,z])
   function automatic box_t chi(box_t state);
     box_t result;
-    for (int x = 0 ; x < 5 ; x++) begin
+    for (int x = 0; x < 5; x++) begin
       int index_x1, index_x2;
-      index_x1 = (x == 4) ? 0 : x+1;
-      index_x2 = (x >= 3) ? x-3 : x+2;
+      index_x1 = (x == 4) ? 0 : x + 1;
+      index_x2 = (x >= 3) ? x - 3 : x + 2;
       for (int y = 0 ; y < 5 ; y++) begin
         for (int z = 0 ; z < W ; z++) begin
           result[x][y][z] = state[x][y][z] ^

@@ -5,20 +5,22 @@
 // Faux Flash Erase Control
 //
 
-module flash_ctrl_erase import flash_ctrl_pkg::*; (
-  // Software Interface
-  input                       op_start_i,
-  input flash_erase_e         op_type_i,
-  input [BusAddrW-1:0]        op_addr_i,
-  output logic                op_done_o,
-  output logic                op_err_o,
+module flash_ctrl_erase
+import flash_ctrl_pkg::*;
+(
+    // Software Interface
+    input                               op_start_i,
+    input  flash_erase_e                op_type_i,
+    input                [BusAddrW-1:0] op_addr_i,
+    output logic                        op_done_o,
+    output logic                        op_err_o,
 
-  // Flash Macro Interface
-  output logic                flash_req_o,
-  output logic [BusAddrW-1:0] flash_addr_o,
-  output flash_erase_e        flash_op_o,
-  input                       flash_done_i,
-  input                       flash_error_i
+    // Flash Macro Interface
+    output logic                        flash_req_o,
+    output logic         [BusAddrW-1:0] flash_addr_o,
+    output flash_erase_e                flash_op_o,
+    input                               flash_done_i,
+    input                               flash_error_i
 );
 
   import flash_ctrl_pkg::*;
@@ -33,7 +35,7 @@ module flash_ctrl_erase import flash_ctrl_pkg::*; (
   // PageAddrMask would be 0xF_FFFF_0000
   // BankAddrMask would be 0xF_0000_0000
   //
-  localparam logic[BusAddrW-1:0] PageAddrMask = ~(('h1 << WordsBitWidth) - 1'b1);
+  localparam logic [BusAddrW-1:0] PageAddrMask = ~(('h1 << WordsBitWidth) - 1'b1);
   localparam logic[BusAddrW-1:0] BankAddrMask = ~(('h1 << (PagesBitWidth + WordsBitWidth)) - 1'b1);
 
   // IO assignments
@@ -51,4 +53,4 @@ module flash_ctrl_erase import flash_ctrl_pkg::*; (
   logic [WordsBitWidth-1:0] unused_addr_i;
   assign unused_addr_i = op_addr_i[WordsBitWidth-1:0];
 
-endmodule // flash_ctrl_erase
+endmodule  // flash_ctrl_erase

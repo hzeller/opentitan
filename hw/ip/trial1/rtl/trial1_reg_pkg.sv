@@ -9,276 +9,214 @@ package trial1_reg_pkg;
   ////////////////////////////
   // Typedefs for registers //
   ////////////////////////////
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_rwtype0_reg_t;
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_rwtype0_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } field0;
-    struct packed {
-      logic        q;
-    } field1;
-    struct packed {
-      logic        q;
-    } field4;
-    struct packed {
-      logic [7:0]  q;
-    } field15_8;
+    struct packed {logic q;} field0;
+    struct packed {logic q;} field1;
+    struct packed {logic q;} field4;
+    struct packed {logic [7:0] q;} field15_8;
   } trial1_reg2hw_rwtype1_reg_t;
 
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_rwtype2_reg_t;
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_rwtype2_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic [15:0] q;
-    } field0;
-    struct packed {
-      logic [15:0] q;
-    } field1;
+    struct packed {logic [15:0] q;} field0;
+    struct packed {logic [15:0] q;} field1;
   } trial1_reg2hw_rwtype3_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic [15:0] q;
-    } field0;
-    struct packed {
-      logic [15:0] q;
-    } field1;
+    struct packed {logic [15:0] q;} field0;
+    struct packed {logic [15:0] q;} field1;
   } trial1_reg2hw_rwtype4_reg_t;
 
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_rotype0_reg_t;
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_rotype0_reg_t;
+
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_w1ctype0_reg_t;
 
   typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_w1ctype0_reg_t;
-
-  typedef struct packed {
-    struct packed {
-      logic [15:0] q;
-    } field0;
-    struct packed {
-      logic [15:0] q;
-    } field1;
+    struct packed {logic [15:0] q;} field0;
+    struct packed {logic [15:0] q;} field1;
   } trial1_reg2hw_w1ctype1_reg_t;
 
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_w1ctype2_reg_t;
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_w1ctype2_reg_t;
+
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_w1stype2_reg_t;
+
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_w0ctype2_reg_t;
+
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_r0w1ctype2_reg_t;
+
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_rctype0_reg_t;
+
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_wotype0_reg_t;
 
   typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_w1stype2_reg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_w0ctype2_reg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_r0w1ctype2_reg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_rctype0_reg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_wotype0_reg_t;
-
-  typedef struct packed {
-    struct packed {
-      logic [3:0]  q;
-    } field0;
-    struct packed {
-      logic [3:0]  q;
-    } field1;
-    struct packed {
-      logic [3:0]  q;
-    } field2;
-    struct packed {
-      logic [3:0]  q;
-    } field3;
-    struct packed {
-      logic [3:0]  q;
-    } field4;
-    struct packed {
-      logic [3:0]  q;
-    } field5;
-    struct packed {
-      logic [3:0]  q;
-    } field6;
-    struct packed {
-      logic [3:0]  q;
-    } field7;
+    struct packed {logic [3:0] q;} field0;
+    struct packed {logic [3:0] q;} field1;
+    struct packed {logic [3:0] q;} field2;
+    struct packed {logic [3:0] q;} field3;
+    struct packed {logic [3:0] q;} field4;
+    struct packed {logic [3:0] q;} field5;
+    struct packed {logic [3:0] q;} field6;
+    struct packed {logic [3:0] q;} field7;
   } trial1_reg2hw_mixtype0_reg_t;
 
   typedef struct packed {
     logic [31:0] q;
-    logic        qe;
+    logic qe;
   } trial1_reg2hw_rwtype5_reg_t;
 
   typedef struct packed {
     logic [31:0] q;
-    logic        qe;
+    logic qe;
   } trial1_reg2hw_rwtype6_reg_t;
 
-  typedef struct packed {
-    logic [31:0] q;
-  } trial1_reg2hw_rotype1_reg_t;
+  typedef struct packed {logic [31:0] q;} trial1_reg2hw_rotype1_reg_t;
 
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_rwtype2_reg_t;
 
   typedef struct packed {
     struct packed {
       logic [15:0] d;
-      logic        de;
+      logic de;
     } field0;
     struct packed {
       logic [15:0] d;
-      logic        de;
+      logic de;
     } field1;
   } trial1_hw2reg_rwtype3_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_rotype0_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_w1ctype2_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_w1stype2_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_w0ctype2_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_r0w1ctype2_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_rctype0_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic [3:0]  d;
-      logic        de;
+      logic [3:0] d;
+      logic de;
     } field1;
     struct packed {
-      logic [3:0]  d;
-      logic        de;
+      logic [3:0] d;
+      logic de;
     } field3;
     struct packed {
-      logic [3:0]  d;
-      logic        de;
+      logic [3:0] d;
+      logic de;
     } field4;
     struct packed {
-      logic [3:0]  d;
-      logic        de;
+      logic [3:0] d;
+      logic de;
     } field5;
     struct packed {
-      logic [3:0]  d;
-      logic        de;
+      logic [3:0] d;
+      logic de;
     } field6;
   } trial1_hw2reg_mixtype0_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } trial1_hw2reg_rwtype5_reg_t;
 
-  typedef struct packed {
-    logic [31:0] d;
-  } trial1_hw2reg_rwtype6_reg_t;
+  typedef struct packed {logic [31:0] d;} trial1_hw2reg_rwtype6_reg_t;
 
-  typedef struct packed {
-    logic [31:0] d;
-  } trial1_hw2reg_rotype1_reg_t;
+  typedef struct packed {logic [31:0] d;} trial1_hw2reg_rotype1_reg_t;
 
 
   ///////////////////////////////////////
   // Register to internal design logic //
   ///////////////////////////////////////
   typedef struct packed {
-    trial1_reg2hw_rwtype0_reg_t rwtype0; // [556:525]
-    trial1_reg2hw_rwtype1_reg_t rwtype1; // [524:514]
-    trial1_reg2hw_rwtype2_reg_t rwtype2; // [513:482]
-    trial1_reg2hw_rwtype3_reg_t rwtype3; // [481:450]
-    trial1_reg2hw_rwtype4_reg_t rwtype4; // [449:418]
-    trial1_reg2hw_rotype0_reg_t rotype0; // [417:386]
-    trial1_reg2hw_w1ctype0_reg_t w1ctype0; // [385:354]
-    trial1_reg2hw_w1ctype1_reg_t w1ctype1; // [353:322]
-    trial1_reg2hw_w1ctype2_reg_t w1ctype2; // [321:290]
-    trial1_reg2hw_w1stype2_reg_t w1stype2; // [289:258]
-    trial1_reg2hw_w0ctype2_reg_t w0ctype2; // [257:226]
-    trial1_reg2hw_r0w1ctype2_reg_t r0w1ctype2; // [225:194]
-    trial1_reg2hw_rctype0_reg_t rctype0; // [193:162]
-    trial1_reg2hw_wotype0_reg_t wotype0; // [161:130]
-    trial1_reg2hw_mixtype0_reg_t mixtype0; // [129:98]
-    trial1_reg2hw_rwtype5_reg_t rwtype5; // [97:65]
-    trial1_reg2hw_rwtype6_reg_t rwtype6; // [64:32]
-    trial1_reg2hw_rotype1_reg_t rotype1; // [31:0]
+    trial1_reg2hw_rwtype0_reg_t rwtype0;  // [556:525]
+    trial1_reg2hw_rwtype1_reg_t rwtype1;  // [524:514]
+    trial1_reg2hw_rwtype2_reg_t rwtype2;  // [513:482]
+    trial1_reg2hw_rwtype3_reg_t rwtype3;  // [481:450]
+    trial1_reg2hw_rwtype4_reg_t rwtype4;  // [449:418]
+    trial1_reg2hw_rotype0_reg_t rotype0;  // [417:386]
+    trial1_reg2hw_w1ctype0_reg_t w1ctype0;  // [385:354]
+    trial1_reg2hw_w1ctype1_reg_t w1ctype1;  // [353:322]
+    trial1_reg2hw_w1ctype2_reg_t w1ctype2;  // [321:290]
+    trial1_reg2hw_w1stype2_reg_t w1stype2;  // [289:258]
+    trial1_reg2hw_w0ctype2_reg_t w0ctype2;  // [257:226]
+    trial1_reg2hw_r0w1ctype2_reg_t r0w1ctype2;  // [225:194]
+    trial1_reg2hw_rctype0_reg_t rctype0;  // [193:162]
+    trial1_reg2hw_wotype0_reg_t wotype0;  // [161:130]
+    trial1_reg2hw_mixtype0_reg_t mixtype0;  // [129:98]
+    trial1_reg2hw_rwtype5_reg_t rwtype5;  // [97:65]
+    trial1_reg2hw_rwtype6_reg_t rwtype6;  // [64:32]
+    trial1_reg2hw_rotype1_reg_t rotype1;  // [31:0]
   } trial1_reg2hw_t;
 
   ///////////////////////////////////////
   // Internal design logic to register //
   ///////////////////////////////////////
   typedef struct packed {
-    trial1_hw2reg_rwtype2_reg_t rwtype2; // [386:355]
-    trial1_hw2reg_rwtype3_reg_t rwtype3; // [354:323]
-    trial1_hw2reg_rotype0_reg_t rotype0; // [322:291]
-    trial1_hw2reg_w1ctype2_reg_t w1ctype2; // [290:259]
-    trial1_hw2reg_w1stype2_reg_t w1stype2; // [258:227]
-    trial1_hw2reg_w0ctype2_reg_t w0ctype2; // [226:195]
-    trial1_hw2reg_r0w1ctype2_reg_t r0w1ctype2; // [194:163]
-    trial1_hw2reg_rctype0_reg_t rctype0; // [162:131]
-    trial1_hw2reg_mixtype0_reg_t mixtype0; // [130:99]
-    trial1_hw2reg_rwtype5_reg_t rwtype5; // [98:66]
-    trial1_hw2reg_rwtype6_reg_t rwtype6; // [65:33]
-    trial1_hw2reg_rotype1_reg_t rotype1; // [32:1]
+    trial1_hw2reg_rwtype2_reg_t rwtype2;  // [386:355]
+    trial1_hw2reg_rwtype3_reg_t rwtype3;  // [354:323]
+    trial1_hw2reg_rotype0_reg_t rotype0;  // [322:291]
+    trial1_hw2reg_w1ctype2_reg_t w1ctype2;  // [290:259]
+    trial1_hw2reg_w1stype2_reg_t w1stype2;  // [258:227]
+    trial1_hw2reg_w0ctype2_reg_t w0ctype2;  // [226:195]
+    trial1_hw2reg_r0w1ctype2_reg_t r0w1ctype2;  // [194:163]
+    trial1_hw2reg_rctype0_reg_t rctype0;  // [162:131]
+    trial1_hw2reg_mixtype0_reg_t mixtype0;  // [130:99]
+    trial1_hw2reg_rwtype5_reg_t rwtype5;  // [98:66]
+    trial1_hw2reg_rwtype6_reg_t rwtype6;  // [65:33]
+    trial1_hw2reg_rotype1_reg_t rotype1;  // [32:1]
   } trial1_hw2reg_t;
 
   // Register Address
-  parameter logic [9:0] TRIAL1_RWTYPE0_OFFSET = 10'h 0;
-  parameter logic [9:0] TRIAL1_RWTYPE1_OFFSET = 10'h 4;
-  parameter logic [9:0] TRIAL1_RWTYPE2_OFFSET = 10'h 8;
-  parameter logic [9:0] TRIAL1_RWTYPE3_OFFSET = 10'h c;
-  parameter logic [9:0] TRIAL1_RWTYPE4_OFFSET = 10'h 200;
-  parameter logic [9:0] TRIAL1_ROTYPE0_OFFSET = 10'h 204;
-  parameter logic [9:0] TRIAL1_W1CTYPE0_OFFSET = 10'h 208;
-  parameter logic [9:0] TRIAL1_W1CTYPE1_OFFSET = 10'h 20c;
-  parameter logic [9:0] TRIAL1_W1CTYPE2_OFFSET = 10'h 210;
-  parameter logic [9:0] TRIAL1_W1STYPE2_OFFSET = 10'h 214;
-  parameter logic [9:0] TRIAL1_W0CTYPE2_OFFSET = 10'h 218;
-  parameter logic [9:0] TRIAL1_R0W1CTYPE2_OFFSET = 10'h 21c;
-  parameter logic [9:0] TRIAL1_RCTYPE0_OFFSET = 10'h 220;
-  parameter logic [9:0] TRIAL1_WOTYPE0_OFFSET = 10'h 224;
-  parameter logic [9:0] TRIAL1_MIXTYPE0_OFFSET = 10'h 228;
-  parameter logic [9:0] TRIAL1_RWTYPE5_OFFSET = 10'h 22c;
-  parameter logic [9:0] TRIAL1_RWTYPE6_OFFSET = 10'h 230;
-  parameter logic [9:0] TRIAL1_ROTYPE1_OFFSET = 10'h 234;
-  parameter logic [9:0] TRIAL1_ROTYPE2_OFFSET = 10'h 238;
-  parameter logic [9:0] TRIAL1_RWTYPE7_OFFSET = 10'h 23c;
+  parameter logic [9:0] TRIAL1_RWTYPE0_OFFSET = 10'h0;
+  parameter logic [9:0] TRIAL1_RWTYPE1_OFFSET = 10'h4;
+  parameter logic [9:0] TRIAL1_RWTYPE2_OFFSET = 10'h8;
+  parameter logic [9:0] TRIAL1_RWTYPE3_OFFSET = 10'hc;
+  parameter logic [9:0] TRIAL1_RWTYPE4_OFFSET = 10'h200;
+  parameter logic [9:0] TRIAL1_ROTYPE0_OFFSET = 10'h204;
+  parameter logic [9:0] TRIAL1_W1CTYPE0_OFFSET = 10'h208;
+  parameter logic [9:0] TRIAL1_W1CTYPE1_OFFSET = 10'h20c;
+  parameter logic [9:0] TRIAL1_W1CTYPE2_OFFSET = 10'h210;
+  parameter logic [9:0] TRIAL1_W1STYPE2_OFFSET = 10'h214;
+  parameter logic [9:0] TRIAL1_W0CTYPE2_OFFSET = 10'h218;
+  parameter logic [9:0] TRIAL1_R0W1CTYPE2_OFFSET = 10'h21c;
+  parameter logic [9:0] TRIAL1_RCTYPE0_OFFSET = 10'h220;
+  parameter logic [9:0] TRIAL1_WOTYPE0_OFFSET = 10'h224;
+  parameter logic [9:0] TRIAL1_MIXTYPE0_OFFSET = 10'h228;
+  parameter logic [9:0] TRIAL1_RWTYPE5_OFFSET = 10'h22c;
+  parameter logic [9:0] TRIAL1_RWTYPE6_OFFSET = 10'h230;
+  parameter logic [9:0] TRIAL1_ROTYPE1_OFFSET = 10'h234;
+  parameter logic [9:0] TRIAL1_ROTYPE2_OFFSET = 10'h238;
+  parameter logic [9:0] TRIAL1_RWTYPE7_OFFSET = 10'h23c;
 
 
   // Register Index

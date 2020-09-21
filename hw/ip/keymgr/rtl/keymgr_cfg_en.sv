@@ -8,12 +8,12 @@
 `include "prim_assert.sv"
 
 module keymgr_cfg_en (
-  input clk_i,
-  input rst_ni,
-  input keymgr_en_i,
-  input set_i,
-  input clr_i,
-  output logic out_o
+    input clk_i,
+    input rst_ni,
+    input keymgr_en_i,
+    input set_i,
+    input clr_i,
+    output logic out_o
 );
 
   logic out_q;
@@ -35,4 +35,4 @@ module keymgr_cfg_en (
     end
   end
 
-endmodule // keymgr_cfg_en
+endmodule  // keymgr_cfg_en

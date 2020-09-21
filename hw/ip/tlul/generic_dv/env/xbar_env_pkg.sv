@@ -14,14 +14,14 @@ package xbar_env_pkg;
   import dv_lib_pkg::*;
 
   typedef struct {
-    string                      device_name;
-    addr_range_t                addr_ranges[$];
+    string device_name;
+    addr_range_t addr_ranges[$];
   } tl_device_t;
 
   typedef struct {
-    string                      host_name;
-    int                         host_id;
-    string                      valid_devices[$];
+    string host_name;
+    int host_id;
+    string valid_devices[$];
   } tl_host_t;
 
   // this file is auto-generated and the path to this file should be provided in xbar_*_sim.core

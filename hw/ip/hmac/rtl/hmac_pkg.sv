@@ -7,13 +7,13 @@ package hmac_pkg;
 
   localparam int MsgFifoDepth = 16;
 
-  localparam int NumRound = 64;   // SHA-224, SHA-256
+  localparam int NumRound = 64;  // SHA-224, SHA-256
 
   typedef logic [31:0] sha_word_t;
-  localparam int WordByte = $bits(sha_word_t)/8;
+  localparam int WordByte = $bits(sha_word_t) / 8;
 
   typedef struct packed {
-    sha_word_t           data;
+    sha_word_t data;
     logic [WordByte-1:0] mask;
   } sha_fifo_t;
 
@@ -42,16 +42,16 @@ package hmac_pkg;
     32'h 90be_fffa, 32'h a450_6ceb, 32'h bef9_a3f7, 32'h c671_78f2
   };
 
-  function automatic sha_word_t conv_endian( input sha_word_t v, input logic swap);
+  function automatic sha_word_t conv_endian(input sha_word_t v, input logic swap);
     sha_word_t conv_data = {<<8{v}};
-    conv_endian = (swap) ? conv_data : v ;
+    conv_endian = (swap) ? conv_data : v;
   endfunction : conv_endian
 
-  function automatic sha_word_t rotr( input sha_word_t v , input int amt );
-    rotr = (v >> amt) | (v << (32-amt));
+  function automatic sha_word_t rotr(input sha_word_t v, input int amt);
+    rotr = (v >> amt) | (v << (32 - amt));
   endfunction : rotr
 
-  function automatic sha_word_t shiftr( input sha_word_t v, input int amt );
+  function automatic sha_word_t shiftr(input sha_word_t v, input int amt);
     shiftr = (v >> amt);
   endfunction : shiftr
 
@@ -66,14 +66,14 @@ package hmac_pkg;
     maj = (h_i[0] & h_i[1]) ^ (h_i[0] & h_i[2]) ^ (h_i[1] & h_i[2]);
     temp2 = (sigma_0 + maj);
 
-    compress[7] = h_i[6];          // h = g
-    compress[6] = h_i[5];          // g = f
-    compress[5] = h_i[4];          // f = e
+    compress[7] = h_i[6];  // h = g
+    compress[6] = h_i[5];  // g = f
+    compress[5] = h_i[4];  // f = e
     compress[4] = h_i[3] + temp1;  // e = (d + temp1)
-    compress[3] = h_i[2];          // d = c
-    compress[2] = h_i[1];          // c = b
-    compress[1] = h_i[0];          // b = a
-    compress[0] = (temp1 + temp2); // a = (temp1 + temp2)
+    compress[3] = h_i[2];  // d = c
+    compress[2] = h_i[1];  // c = b
+    compress[1] = h_i[0];  // b = a
+    compress[0] = (temp1 + temp2);  // a = (temp1 + temp2)
   endfunction : compress
 
   function automatic sha_word_t calc_w(input sha_word_t w_0,
@@ -81,18 +81,18 @@ package hmac_pkg;
                                        input sha_word_t w_9,
                                        input sha_word_t w_14);
     automatic sha_word_t sum0, sum1;
-    sum0 = rotr(w_1,   7) ^ rotr(w_1,  18) ^ shiftr(w_1,   3);
+    sum0 = rotr(w_1, 7) ^ rotr(w_1, 18) ^ shiftr(w_1, 3);
     sum1 = rotr(w_14, 17) ^ rotr(w_14, 19) ^ shiftr(w_14, 10);
     calc_w = w_0 + sum0 + w_9 + sum1;
   endfunction : calc_w
 
   typedef enum logic [31:0] {
-    NoError                    = 32'h 0000_0000,
-    SwPushMsgWhenShaDisabled   = 32'h 0000_0001,
-    SwHashStartWhenShaDisabled = 32'h 0000_0002,
-    SwUpdateSecretKeyInProcess = 32'h 0000_0003,
-    SwHashStartWhenActive      = 32'h 0000_0004,
-    SwPushMsgWhenDisallowed    = 32'h 0000_0005
+    NoError                    = 32'h0000_0000,
+    SwPushMsgWhenShaDisabled   = 32'h0000_0001,
+    SwHashStartWhenShaDisabled = 32'h0000_0002,
+    SwUpdateSecretKeyInProcess = 32'h0000_0003,
+    SwHashStartWhenActive      = 32'h0000_0004,
+    SwPushMsgWhenDisallowed    = 32'h0000_0005
   } err_code_e;
 
 endpackage : hmac_pkg

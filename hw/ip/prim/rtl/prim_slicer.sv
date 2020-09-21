@@ -8,26 +8,26 @@
 `include "prim_assert.sv"
 
 module prim_slicer #(
-  parameter int InW = 64,
-  parameter int OutW = 8,
+    parameter int InW  = 64,
+    parameter int OutW = 8,
 
-  parameter int IndexW = 4
+    parameter int IndexW = 4
 ) (
-  input        [IndexW-1:0] sel_i,
-  input        [InW-1:0]    data_i,
-  output logic [OutW-1:0]   data_o
+    input        [IndexW-1:0] sel_i,
+    input        [   InW-1:0] data_i,
+    output logic [  OutW-1:0] data_o
 );
 
   // Find number of entries imitating ceil function
-  localparam int Entries = (InW + OutW -1)/OutW;
+  localparam int Entries = (InW + OutW - 1) / OutW;
   localparam int Partial = (InW % OutW != 0) ? 1 : 0;
 
   always_comb begin
     data_o = '0;
     if (sel_i < Entries) begin
-      for (int i = 0 ; i < Entries ; i++) begin
+      for (int i = 0; i < Entries; i++) begin
         if (i == sel_i) begin
-          if (Partial && i == (Entries-1)) begin
+          if (Partial && i == (Entries - 1)) begin
             // last message that is partial
             data_o = OutW'(data_i[InW-1:(Entries-1)*OutW]);
           end else begin

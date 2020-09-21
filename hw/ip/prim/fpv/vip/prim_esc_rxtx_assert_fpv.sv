@@ -8,24 +8,23 @@
 `include "prim_assert.sv"
 
 module prim_esc_rxtx_assert_fpv (
-  input        clk_i,
-  input        rst_ni,
-  // for sigint error injection only
-  input        resp_err_pi,
-  input        resp_err_ni,
-  input        esc_err_pi,
-  input        esc_err_ni,
-  // normal I/Os
-  input        esc_req_i,
-  input        ping_req_i,
-  input        ping_ok_o,
-  input        integ_fail_o,
-  input        esc_en_o
+    input clk_i,
+    input rst_ni,
+    // for sigint error injection only
+    input resp_err_pi,
+    input resp_err_ni,
+    input esc_err_pi,
+    input esc_err_ni,
+    // normal I/Os
+    input esc_req_i,
+    input ping_req_i,
+    input ping_ok_o,
+    input integ_fail_o,
+    input esc_en_o
 );
 
   logic error_present;
-  assign error_present = resp_err_pi | resp_err_ni |
-                         esc_err_pi  | esc_err_ni;
+  assign error_present = resp_err_pi | resp_err_ni | esc_err_pi | esc_err_ni;
 
   // ping will stay high until ping ok received, then it must be deasserted
   // TODO: this escludes the case where no ping ok will be returned due to an error
@@ -36,8 +35,8 @@ module prim_esc_rxtx_assert_fpv (
 
   // assume that the ping enable and escalation enable signals will eventually be deasserted (and
   // esc will stay low for more than 2 cycles)
-  `ASSUME_FPV(FiniteEsc_M, esc_req_i |-> strong(##[1:$] !esc_req_i [*2]))
-  `ASSUME_FPV(FinitePing_M, ping_req_i |-> strong(##[1:$] !ping_req_i))
+  `ASSUME_FPV(FiniteEsc_M, esc_req_i |-> strong (##[1:$] !esc_req_i [* 2]))
+  `ASSUME_FPV(FinitePing_M, ping_req_i |-> strong (##[1:$] !ping_req_i))
 
   // ping response mus occur within 4 cycles (given that no
   // error occured within the previous cycles)

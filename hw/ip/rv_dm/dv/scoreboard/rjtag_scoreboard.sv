@@ -5,7 +5,7 @@
 class rjtag_scoreboard extends uvm_scoreboard;
 
   `uvm_component_utils(rjtag_scoreboard)
-  uvm_analysis_imp#(rjtag_seq_item, rjtag_scoreboard) item_collected_export;
+  uvm_analysis_imp #(rjtag_seq_item, rjtag_scoreboard) item_collected_export;
 
   function new (string name, uvm_component parent);
     super.new(name, parent);

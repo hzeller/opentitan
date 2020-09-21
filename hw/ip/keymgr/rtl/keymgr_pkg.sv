@@ -8,12 +8,12 @@
 package keymgr_pkg;
 
   parameter int KeyWidth = 256;
-  parameter int DigestWidth = 128;     // uses truncated hash
+  parameter int DigestWidth = 128;  // uses truncated hash
   parameter int KmacDataIfWidth = 64;  // KMAC interface data width
-  parameter int KeyMgrStages = 3;      // Number of key manager stages (creator, ownerInt, owner)
-  parameter int RomExtDescWidth = 128; // Size of rom_ext hash, truncated
+  parameter int KeyMgrStages = 3;  // Number of key manager stages (creator, ownerInt, owner)
+  parameter int RomExtDescWidth = 128;  // Size of rom_ext hash, truncated
   parameter int LfsrWidth = 64;
-  parameter int Shares = 2; // number of key shares
+  parameter int Shares = 2;  // number of key shares
 
   // These should be defined in another module's package
   parameter int HealthStateWidth = 128;
@@ -21,16 +21,16 @@ package keymgr_pkg;
 
   // These should eventually reference top_pkg so that they can be easily managed per
   // device
-  parameter logic[KeyWidth-1:0] RevisionSecret      = 256'hAAAA5555;
-  parameter logic[KeyWidth-1:0] CreatorIdentityKey  = 256'hDEADBEEF;
-  parameter logic[KeyWidth-1:0] OwnerIntIdentityKey = 256'hDEADBEEF;
-  parameter logic[KeyWidth-1:0] OwnerIdentityKey    = 256'hDEADBEEF;
-  parameter logic[KeyWidth-1:0] SoftOutputKey       = 256'hDEADBEEF;
-  parameter logic[KeyWidth-1:0] HardOutputKey       = 256'hDEADBEEE;
+  parameter logic [KeyWidth-1:0] RevisionSecret = 256'hAAAA5555;
+  parameter logic [KeyWidth-1:0] CreatorIdentityKey = 256'hDEADBEEF;
+  parameter logic [KeyWidth-1:0] OwnerIntIdentityKey = 256'hDEADBEEF;
+  parameter logic [KeyWidth-1:0] OwnerIdentityKey = 256'hDEADBEEF;
+  parameter logic [KeyWidth-1:0] SoftOutputKey = 256'hDEADBEEF;
+  parameter logic [KeyWidth-1:0] HardOutputKey = 256'hDEADBEEE;
 
   // Width calculations
   // These are the largest calculations in use across all stages
-  parameter int AdvDataWidth = RomExtDescWidth + 2*KeyWidth + DevIdWidth + HealthStateWidth;
+  parameter int AdvDataWidth = RomExtDescWidth + 2 * KeyWidth + DevIdWidth + HealthStateWidth;
   parameter int IdDataWidth = KeyWidth;
   // key version + salt + key ID + constant
   parameter int GenDataWidth = 32 + 128 + KeyWidth;
@@ -43,18 +43,18 @@ package keymgr_pkg;
 
   // Enumeration for operations
   typedef enum logic [2:0] {
-    Creator   = 0,
-    OwnerInt  = 1,
-    Owner     = 2,
-    Disable   = 3
+    Creator  = 0,
+    OwnerInt = 1,
+    Owner    = 2,
+    Disable  = 3
   } keymgr_stage_e;
 
   // Enumeration for sideload sel
   typedef enum logic [1:0] {
-    None   = 0,
-    Aes    = 1,
-    Hmac   = 2,
-    Kmac   = 3
+    None = 0,
+    Aes  = 1,
+    Hmac = 2,
+    Kmac = 3
   } keymgr_key_dest_e;
 
   // Enumeration for key select
@@ -65,31 +65,31 @@ package keymgr_pkg;
 
   // Enumeration for operation
   typedef enum logic [2:0] {
-    OpAdvance = 0,
-    OpGenId = 1,
+    OpAdvance  = 0,
+    OpGenId    = 1,
     OpGenSwOut = 2,
     OpGenHwOut = 3,
-    OpDisable = 4
+    OpDisable  = 4
   } keymgr_ops_e;
 
   // Enumeration for working state
   typedef enum logic [2:0] {
-    StReset = 0,
-    StWipe = 1,
-    StInit = 2,
+    StReset          = 0,
+    StWipe           = 1,
+    StInit           = 2,
     StCreatorRootKey = 3,
-    StOwnerIntKey = 4,
-    StOwnerKey = 5,
-    StDisabled = 6,
-    StWait = 7
+    StOwnerIntKey    = 4,
+    StOwnerKey       = 5,
+    StDisabled       = 6,
+    StWait           = 7
   } keymgr_working_state_e;
 
   // Enumeration for operation status
   typedef enum logic [1:0] {
-    OpIdle = 0,
-    OpWip = 1,
+    OpIdle        = 0,
+    OpWip         = 1,
     OpDoneSuccess = 2,
-    OpDoneFail = 3
+    OpDoneFail    = 3
   } keymgr_op_status_e;
 
   // Bit position of error code
@@ -136,28 +136,19 @@ package keymgr_pkg;
     logic keymgr_en;
   } lc_data_t;
 
-  parameter lc_data_t LC_DATA_DEFAULT = '{
-    health_state: '0,
-    keymgr_en:    1'b1
-  };
+  parameter lc_data_t LC_DATA_DEFAULT = '{health_state: '0, keymgr_en: 1'b1};
 
   typedef struct packed {
     logic [DevIdWidth-1:0] devid;
     logic [KeyWidth-1:0] root_key;
   } otp_data_t;
 
-  parameter otp_data_t OTP_DATA_DEFAULT = '{
-    devid:    '0,
-    root_key: '0
-  };
+  parameter otp_data_t OTP_DATA_DEFAULT = '{devid: '0, root_key: '0};
 
   typedef struct packed {
     logic [KeyWidth-1:0] div_key;
     logic [KeyWidth-1:0] owner_secret;
   } flash_key_t;
 
-  parameter flash_key_t FLASH_KEY_DEFAULT = '{
-    div_key:      '0,
-    owner_secret: '0
-  };
+  parameter flash_key_t FLASH_KEY_DEFAULT = '{div_key: '0, owner_secret: '0};
 endpackage : keymgr_pkg

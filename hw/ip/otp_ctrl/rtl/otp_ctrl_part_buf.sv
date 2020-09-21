@@ -8,57 +8,57 @@
 `include "prim_assert.sv"
 
 module otp_ctrl_part_buf
-  import otp_ctrl_pkg::*;
-  import otp_ctrl_reg_pkg::*;
+import otp_ctrl_pkg::*;
+import otp_ctrl_reg_pkg::*;
 #(
-  // Partition information.
-  parameter part_info_t Info
+    // Partition information.
+    parameter part_info_t Info
 ) (
-  input                               clk_i,
-  input                               rst_ni,
-  // Pulse to start partition initialisation (required once per power cycle).
-  input                               init_req_i,
-  output logic                        init_done_o,
-  // Integrity check requests
-  input                               integ_chk_req_i,
-  output logic                        integ_chk_ack_o,
-  // Consistency check requests
-  input                               cnsty_chk_req_i,
-  output logic                        cnsty_chk_ack_o,
-  // Escalation input. This moves the FSM into a terminal state and locks down
-  // the partition.
-  input  lc_tx_t                      escalate_en_i,
-  // Output error state of partition, to be consumed by OTP error/alert logic.
-  // Note that most errors are not recoverable and move the partition FSM into
-  // a terminal error state.
-  output otp_err_e                    error_o,
-  // Access/lock status
-  input  part_access_t                access_i, // runtime lock from CSRs
-  output part_access_t                access_o,
-  // Buffered 64bit digest output.
-  output logic [ScrmblBlockWidth-1:0] digest_o,
-  output logic [Info.size*8-1:0]      data_o,
-  // OTP interface
-  output logic                        otp_req_o,
-  output prim_otp_cmd_e               otp_cmd_o,
-  output logic [OtpSizeWidth-1:0]     otp_size_o,
-  output logic [OtpIfWidth-1:0]       otp_wdata_o,
-  output logic [OtpAddrWidth-1:0]     otp_addr_o,
-  input                               otp_gnt_i,
-  input                               otp_rvalid_i,
-  input  [ScrmblBlockWidth-1:0]       otp_rdata_i,
-  input  otp_err_e                    otp_err_i,
-  // Scrambling mutex request
-  output logic                        scrmbl_mtx_req_o,
-  input                               scrmbl_mtx_gnt_i,
-  // Scrambling datapath interface
-  output otp_scrmbl_cmd_e             scrmbl_cmd_o,
-  output logic [ConstSelWidth-1:0]    scrmbl_sel_o,
-  output logic [ScrmblBlockWidth-1:0] scrmbl_data_o,
-  output logic                        scrmbl_valid_o,
-  input  logic                        scrmbl_ready_i,
-  input  logic                        scrmbl_valid_i,
-  input  logic [ScrmblBlockWidth-1:0] scrmbl_data_i
+    input                                          clk_i,
+    input                                          rst_ni,
+    // Pulse to start partition initialisation (required once per power cycle).
+    input                                          init_req_i,
+    output logic                                   init_done_o,
+    // Integrity check requests
+    input                                          integ_chk_req_i,
+    output logic                                   integ_chk_ack_o,
+    // Consistency check requests
+    input                                          cnsty_chk_req_i,
+    output logic                                   cnsty_chk_ack_o,
+    // Escalation input. This moves the FSM into a terminal state and locks down
+    // the partition.
+    input  lc_tx_t                                 escalate_en_i,
+    // Output error state of partition, to be consumed by OTP error/alert logic.
+    // Note that most errors are not recoverable and move the partition FSM into
+    // a terminal error state.
+    output otp_err_e                               error_o,
+    // Access/lock status
+    input  part_access_t                           access_i,  // runtime lock from CSRs
+    output part_access_t                           access_o,
+    // Buffered 64bit digest output.
+    output logic            [ScrmblBlockWidth-1:0] digest_o,
+    output logic            [     Info.size*8-1:0] data_o,
+    // OTP interface
+    output logic                                   otp_req_o,
+    output prim_otp_cmd_e                          otp_cmd_o,
+    output logic            [    OtpSizeWidth-1:0] otp_size_o,
+    output logic            [      OtpIfWidth-1:0] otp_wdata_o,
+    output logic            [    OtpAddrWidth-1:0] otp_addr_o,
+    input                                          otp_gnt_i,
+    input                                          otp_rvalid_i,
+    input                   [ScrmblBlockWidth-1:0] otp_rdata_i,
+    input  otp_err_e                               otp_err_i,
+    // Scrambling mutex request
+    output logic                                   scrmbl_mtx_req_o,
+    input                                          scrmbl_mtx_gnt_i,
+    // Scrambling datapath interface
+    output otp_scrmbl_cmd_e                        scrmbl_cmd_o,
+    output logic            [   ConstSelWidth-1:0] scrmbl_sel_o,
+    output logic            [ScrmblBlockWidth-1:0] scrmbl_data_o,
+    output logic                                   scrmbl_valid_o,
+    input  logic                                   scrmbl_ready_i,
+    input  logic                                   scrmbl_valid_i,
+    input  logic            [ScrmblBlockWidth-1:0] scrmbl_data_i
 );
 
   ////////////////////////
@@ -67,13 +67,13 @@ module otp_ctrl_part_buf
 
   import prim_util_pkg::vbits;
 
-  localparam int DigestOffset = Info.offset + Info.size - ScrmblBlockWidth/8;
-  localparam int NumScrmblBlocks = Info.size / (ScrmblBlockWidth/8);
+  localparam int DigestOffset = Info.offset + Info.size - ScrmblBlockWidth / 8;
+  localparam int NumScrmblBlocks = Info.size / (ScrmblBlockWidth / 8);
   localparam int CntWidth = vbits(NumScrmblBlocks);
 
   // Integration checks for parameters.
-  `ASSERT_INIT(OffsetMustBeBlockAligned_A, Info.offset % ScrmblBlockWidth/8 == 0)
-  `ASSERT_INIT(SizeMustBeBlockAligned_A, Info.size % ScrmblBlockWidth/8 == 0)
+  `ASSERT_INIT(OffsetMustBeBlockAligned_A, Info.offset % ScrmblBlockWidth / 8 == 0)
+  `ASSERT_INIT(SizeMustBeBlockAligned_A, Info.size % ScrmblBlockWidth / 8 == 0)
   `ASSERT(ScrambledImpliesDigest_A, Info.scrambled |-> Info.hw_digest)
   `ASSERT(WriteLockImpliesDigest_A, Info.read_lock |-> Info.hw_digest)
   `ASSERT(ReadLockImpliesDigest_A, Info.write_lock |-> Info.hw_digest)
@@ -148,7 +148,7 @@ module otp_ctrl_part_buf
   // This partition cannot do any write accesses, hence we tie this
   // constantly off.
   assign otp_wdata_o = '0;
-  assign otp_cmd_o   = OtpRead;
+  assign otp_cmd_o = OtpRead;
 
   always_comb begin : p_fsm
     state_d = state_q;
@@ -163,13 +163,13 @@ module otp_ctrl_part_buf
     scrmbl_mtx_req_o = 1'b0;
 
     // Scrambling datapath
-    scrmbl_cmd_o   = LoadShadow;
-    scrmbl_sel_o   = '0;
+    scrmbl_cmd_o = LoadShadow;
+    scrmbl_sel_o = '0;
     scrmbl_valid_o = 1'b0;
 
     // Counter
-    cnt_en   = 1'b0;
-    cnt_clr  = 1'b0;
+    cnt_en = 1'b0;
+    cnt_clr = 1'b0;
     base_sel = PartOffset;
 
     // Buffer register
@@ -219,10 +219,10 @@ module otp_ctrl_part_buf
             // Once we've read and descrambled the whole partition, we can go to integrity
             // verification. Note that the last block is the digest value, which does not
             // have to be descrambled.
-            if (cnt_q == NumScrmblBlocks-1) begin
+            if (cnt_q == NumScrmblBlocks - 1) begin
               state_d = IntegDigClrSt;
-            // Only need to descramble if this is a scrambled partition.
-            // Otherwise, we can just go back to InitSt and read the next block.
+              // Only need to descramble if this is a scrambled partition.
+              // Otherwise, we can just go back to InitSt and read the next block.
             end else if (Info.scrambled) begin
               state_d = InitDescrSt;
             end else begin
@@ -310,7 +310,7 @@ module otp_ctrl_part_buf
               if (digest_o == data_mux || data_mux == '0 && digest_o == '0) begin
                 state_d = IdleSt;
                 cnsty_chk_ack_o = 1'b1;
-              // Error out and lock the partition if this check fails.
+                // Error out and lock the partition if this check fails.
               end else begin
                 state_d = ErrorSt;
                 error_d = CnstyErr;
@@ -320,10 +320,10 @@ module otp_ctrl_part_buf
               if (scrmbl_data_o == data_mux) begin
                 // Can go back to idle and acknowledge the
                 // request if this is the last block.
-                if (cnt_q == NumScrmblBlocks-1) begin
+                if (cnt_q == NumScrmblBlocks - 1) begin
                   state_d = IdleSt;
                   cnsty_chk_ack_o = 1'b1;
-                // Need to go back and read out more blocks.
+                  // Need to go back and read out more blocks.
                 end else begin
                   state_d = CnstyReadSt;
                   cnt_en = 1'b1;
@@ -352,17 +352,17 @@ module otp_ctrl_part_buf
             if (scrmbl_mtx_gnt_i && scrmbl_ready_i) begin
               state_d = IntegScrSt;
             end
-          // If this partition is not scrambled, we can just directly
-          // jump to the digest state.
+            // If this partition is not scrambled, we can just directly
+            // jump to the digest state.
           end else begin
             scrmbl_sel_o = StandardMode;
             if (scrmbl_mtx_gnt_i && scrmbl_ready_i) begin
               state_d = IntegDigSt;
             end
           end
-        // Otherwise, if this partition is not digest protected,
-        // we can just acknowledge the request and return to idle,
-        // since there is nothing to check.
+          // Otherwise, if this partition is not digest protected,
+          // we can just acknowledge the request and return to idle,
+          // since there is nothing to check.
         end else begin
           state_d = IdleSt;
           integ_chk_ack_o = 1'b1;
@@ -373,13 +373,13 @@ module otp_ctrl_part_buf
       // This moves the previous scrambling result into the shadow reg
       // for later use.
       IntegScrSt: begin
-          scrmbl_mtx_req_o = 1'b1;
-          scrmbl_valid_o = 1'b1;
-          scrmbl_cmd_o = Encrypt;
-          scrmbl_sel_o = Info.key_idx;
-          if (scrmbl_ready_i) begin
-            state_d = IntegScrWaitSt;
-          end
+        scrmbl_mtx_req_o = 1'b1;
+        scrmbl_valid_o = 1'b1;
+        scrmbl_cmd_o = Encrypt;
+        scrmbl_sel_o = Info.key_idx;
+        if (scrmbl_ready_i) begin
+          state_d = IntegScrWaitSt;
+        end
       end
       ///////////////////////////////////////////////////////////////////
       // Wait for the scrambled data to return.
@@ -400,7 +400,7 @@ module otp_ctrl_part_buf
         if (scrmbl_ready_i) begin
           cnt_en = 1'b1;
           // No need to digest the digest value itself
-          if (cnt_q == NumScrmblBlocks-2) begin
+          if (cnt_q == NumScrmblBlocks - 2) begin
             // Note that the digest operates on 128bit blocks since the data is fed in via the
             // PRESENT key input. Therefore, we only trigger a digest update on every second
             // 64bit block that is pushed into the scrambling datapath.
@@ -461,12 +461,12 @@ module otp_ctrl_part_buf
             // initialization. This is the only way the buffer regs can get unlocked.
             if (dout_gate_q != Unlocked) begin
               dout_gate_d = Unlocked;
-            // Otherwise, this integrity check has requested by the LFSR timer, and we have
-            // to acknowledge its completion.
+              // Otherwise, this integrity check has requested by the LFSR timer, and we have
+              // to acknowledge its completion.
             end else begin
               integ_chk_ack_o = 1'b1;
             end
-          // Error out and lock the partition if this check fails.
+            // Error out and lock the partition if this check fails.
           end else begin
             state_d = ErrorSt;
             error_d = IntegErr;
@@ -490,7 +490,7 @@ module otp_ctrl_part_buf
         state_d = ErrorSt;
       end
       ///////////////////////////////////////////////////////////////////
-    endcase // state_q
+    endcase  // state_q
 
     if (state_q != ErrorSt) begin
       // Unconditionally jump into the termninal error state in case of
@@ -512,8 +512,7 @@ module otp_ctrl_part_buf
 
   // Address counter - this is only used for computing a digest, hence the increment is
   // fixed to 8 byte.
-  assign cnt_d = (cnt_clr) ? '0           :
-                 (cnt_en)  ? cnt_q + 1'b1 : cnt_q;
+  assign cnt_d = (cnt_clr) ? '0 : (cnt_en) ? cnt_q + 1'b1 : cnt_q;
 
   logic [OtpByteAddrWidth-1:0] addr_base;
   assign addr_base = (base_sel == DigOffset) ? DigestOffset : Info.offset;
@@ -521,7 +520,7 @@ module otp_ctrl_part_buf
   // Note that OTP works on halfword (16bit) addresses, hence need to
   // shift the addresses appropriately.
   logic [OtpByteAddrWidth-1:0] addr_calc;
-  assign addr_calc = OtpByteAddrWidth'({cnt_q, {$clog2(ScrmblBlockWidth/8){1'b0}}}) + addr_base;
+  assign addr_calc = OtpByteAddrWidth'({cnt_q, {$clog2(ScrmblBlockWidth / 8) {1'b0}}}) + addr_base;
   assign otp_addr_o = addr_calc >> OtpAddrShift;
 
   // Always transfer 64bit blocks.
@@ -538,16 +537,16 @@ module otp_ctrl_part_buf
   // TODO: need to add secure erase feature here.
   logic [Info.size*8-1:0] data;
   otp_ctrl_parity_reg #(
-    .Width ( ScrmblBlockWidth ),
-    .Depth ( NumScrmblBlocks  )
+      .Width(ScrmblBlockWidth),
+      .Depth(NumScrmblBlocks)
   ) u_otp_ctrl_parity_reg (
-    .clk_i,
-    .rst_ni,
-    .wren_i       ( buffer_reg_en ),
-    .addr_i       ( cnt_q         ),
-    .wdata_i      ( data_mux      ),
-    .data_o       ( data          ),
-    .parity_err_o ( parity_err    )
+      .clk_i,
+      .rst_ni,
+      .wren_i      (buffer_reg_en),
+      .addr_i      (cnt_q),
+      .wdata_i     (data_mux),
+      .data_o      (data),
+      .parity_err_o(parity_err)
   );
 
   // Hardware output gating.
@@ -594,14 +593,14 @@ module otp_ctrl_part_buf
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
-      state_q     <= ResetSt;
-      error_q     <= NoErr;
-      cnt_q       <= '0;
+      state_q <= ResetSt;
+      error_q <= NoErr;
+      cnt_q <= '0;
       dout_gate_q <= Locked;
     end else begin
-      state_q     <= state_d;
-      error_q     <= error_d;
-      cnt_q       <= cnt_d;
+      state_q <= state_d;
+      error_q <= error_d;
+      cnt_q <= cnt_d;
       dout_gate_q <= dout_gate_d;
     end
   end
@@ -611,41 +610,26 @@ module otp_ctrl_part_buf
   ////////////////
 
   // Known assertions
-  `ASSERT_KNOWN(InitDoneKnown_A,  init_done_o)
-  `ASSERT_KNOWN(ErrorKnown_A,     error_o)
-  `ASSERT_KNOWN(AccessKnown_A,    access_o)
-  `ASSERT_KNOWN(DataKnown_A,      data_o)
-  `ASSERT_KNOWN(DigestKnown_A,    digest_o)
+  `ASSERT_KNOWN(InitDoneKnown_A, init_done_o)
+  `ASSERT_KNOWN(ErrorKnown_A, error_o)
+  `ASSERT_KNOWN(AccessKnown_A, access_o)
+  `ASSERT_KNOWN(DataKnown_A, data_o)
+  `ASSERT_KNOWN(DigestKnown_A, digest_o)
 
-  `ASSERT_KNOWN(OtpReqKnown_A,    otp_req_o)
-  `ASSERT_KNOWN(OtpCmdKnown_A,    otp_cmd_o)
-  `ASSERT_KNOWN(OtpSizeKnown_A,   otp_size_o)
-  `ASSERT_KNOWN(OtpWdataKnown_A,  otp_wdata_o)
-  `ASSERT_KNOWN(OtpAddrKnown_A,   otp_addr_o)
+  `ASSERT_KNOWN(OtpReqKnown_A, otp_req_o)
+  `ASSERT_KNOWN(OtpCmdKnown_A, otp_cmd_o)
+  `ASSERT_KNOWN(OtpSizeKnown_A, otp_size_o)
+  `ASSERT_KNOWN(OtpWdataKnown_A, otp_wdata_o)
+  `ASSERT_KNOWN(OtpAddrKnown_A, otp_addr_o)
 
   // Uninitialized partitions should always be locked, no matter what.
-  `ASSERT(InitWriteLocksPartition_A,
-      dout_gate_q != Unlocked
-      |->
-      access_o.write_lock == Locked)
-  `ASSERT(InitReadLocksPartition_A,
-      dout_gate_q != Unlocked
-      |->
-      access_o.read_lock == Locked)
+  `ASSERT(InitWriteLocksPartition_A, dout_gate_q != Unlocked |-> access_o.write_lock == Locked)
+  `ASSERT(InitReadLocksPartition_A, dout_gate_q != Unlocked |-> access_o.read_lock == Locked)
   // Incoming Lock propagation
-  `ASSERT(WriteLockPropagation_A,
-      access_i.write_lock != Unlocked
-      |->
-      access_o.write_lock == Locked)
-  `ASSERT(ReadLockPropagation_A,
-      access_i.read_lock != Unlocked
-      |->
-      access_o.read_lock == Locked)
+  `ASSERT(WriteLockPropagation_A, access_i.write_lock != Unlocked |-> access_o.write_lock == Locked)
+  `ASSERT(ReadLockPropagation_A, access_i.read_lock != Unlocked |-> access_o.read_lock == Locked)
   // Parity error
-  `ASSERT(ParityErrorState_A,
-      parity_err
-      |=>
-      state_q == ErrorSt)
+  `ASSERT(ParityErrorState_A, parity_err |=> state_q == ErrorSt)
   // OTP error response
   `ASSERT(OtpErrorState_A,
       state_q inside {InitWaitSt, CnstyReadWaitSt} && otp_rvalid_i &&

@@ -15,39 +15,39 @@
  * - The write mask supports aligned 32b write accesses.
  */
 module otbn_lsu
-  import otbn_pkg::*;
+import otbn_pkg::*;
 #(
-  parameter int DmemSizeByte = 4096,
+    parameter int DmemSizeByte = 4096,
 
-  localparam int DmemAddrWidth = prim_util_pkg::vbits(DmemSizeByte)
+    localparam int DmemAddrWidth = prim_util_pkg::vbits (DmemSizeByte)
 ) (
-  input logic clk_i,
-  input logic rst_ni,
+    input logic clk_i,
+    input logic rst_ni,
 
-  // Data memory (DMEM) interface
-  output logic                     dmem_req_o,
-  output logic                     dmem_write_o,
-  output logic [DmemAddrWidth-1:0] dmem_addr_o,
-  output logic [WLEN-1:0]          dmem_wdata_o,
-  output logic [WLEN-1:0]          dmem_wmask_o,
-  input  logic [WLEN-1:0]          dmem_rdata_i,
-  input  logic                     dmem_rvalid_i,
-  input  logic [1:0]               dmem_rerror_i, // Bit1: Uncorrectable, Bit0: Correctable
+    // Data memory (DMEM) interface
+    output logic                     dmem_req_o,
+    output logic                     dmem_write_o,
+    output logic [DmemAddrWidth-1:0] dmem_addr_o,
+    output logic [         WLEN-1:0] dmem_wdata_o,
+    output logic [         WLEN-1:0] dmem_wmask_o,
+    input  logic [         WLEN-1:0] dmem_rdata_i,
+    input  logic                     dmem_rvalid_i,
+    input  logic [              1:0] dmem_rerror_i,  // Bit1: Uncorrectable, Bit0: Correctable
 
-  input  logic                     lsu_load_req_i,
-  input  logic                     lsu_store_req_i,
-  input  insn_subset_e             lsu_req_subset_i,
-  input  logic [DmemAddrWidth-1:0] lsu_addr_i,
+    input logic                             lsu_load_req_i,
+    input logic                             lsu_store_req_i,
+    input insn_subset_e                     lsu_req_subset_i,
+    input logic         [DmemAddrWidth-1:0] lsu_addr_i,
 
-  input  logic [31:0]              lsu_base_wdata_i,
-  input  logic [WLEN-1:0]          lsu_bignum_wdata_i,
+    input logic [    31:0] lsu_base_wdata_i,
+    input logic [WLEN-1:0] lsu_bignum_wdata_i,
 
-  output logic [31:0]              lsu_base_rdata_o,
-  output logic [WLEN-1:0]          lsu_bignum_rdata_o,
-  output logic [1:0]               lsu_rdata_err_o // Bit1: Uncorrectable, Bit0: Correctable
+    output logic [    31:0] lsu_base_rdata_o,
+    output logic [WLEN-1:0] lsu_bignum_rdata_o,
+    output logic [     1:0] lsu_rdata_err_o  // Bit1: Uncorrectable, Bit0: Correctable
 );
   localparam int BaseWordsPerWLen = WLEN / 32;
-  localparam int BaseWordAddrW = prim_util_pkg::vbits(WLEN/8);
+  localparam int BaseWordAddrW = prim_util_pkg::vbits(WLEN / 8);
 
   // Produce a WLEN bit mask for 32-bit writes given the 32-bit word write address. This doesn't
   // propagate X so a seperate assertion must be used to check the input isn't X when a valid output
@@ -69,9 +69,9 @@ module otbn_lsu
     return mask;
   endfunction
 
-  assign dmem_req_o   = lsu_load_req_i | lsu_store_req_i;
+  assign dmem_req_o = lsu_load_req_i | lsu_store_req_i;
   assign dmem_write_o = lsu_store_req_i;
-  assign dmem_addr_o  = lsu_addr_i;
+  assign dmem_addr_o = lsu_addr_i;
 
   // For base 32-bit writes replicate write data across dmem_wdata. dmem_wmask will be set
   // appropriately so only the target word is written.

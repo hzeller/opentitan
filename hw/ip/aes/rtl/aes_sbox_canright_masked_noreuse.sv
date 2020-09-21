@@ -20,11 +20,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 module aes_sbox_canright_masked_noreuse (
-  input  aes_pkg::ciph_op_e op_i,
-  input  logic [7:0]        data_i,     // masked, the actual input data is data_i ^ in_mask_i
-  input  logic [7:0]        in_mask_i,  // input mask, independent from actual input data
-  input  logic [7:0]        out_mask_i, // output mask, independent from input mask
-  output logic [7:0]        data_o      // masked, the actual output data is data_o ^ out_mask_i
+    input aes_pkg::ciph_op_e op_i,
+    input logic [7:0] data_i,  // masked, the actual input data is data_i ^ in_mask_i
+    input logic [7:0] in_mask_i,  // input mask, independent from actual input data
+    input logic [7:0] out_mask_i,  // output mask, independent from input mask
+    output logic [7:0] data_o  // masked, the actual output data is data_o ^ out_mask_i
 );
 
   import aes_pkg::*;
@@ -59,7 +59,7 @@ module aes_sbox_canright_masked_noreuse (
 
     // Formulas 14 and 15
     c_inv = aes_square_gf2p2(c);
-    r_sq  = aes_square_gf2p2(r);
+    r_sq = aes_square_gf2p2(r);
 
     // Formulas 16 and 17
     // IMPORTANT: The following ops must be executed in order (left to right):
@@ -152,13 +152,11 @@ module aes_sbox_canright_masked_noreuse (
   logic [7:0] out_mask_basis_x;
 
   // Convert data to normal basis X.
-  assign data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) :
-                                             aes_mvm(data_i ^ 8'h63, S2X);
+  assign data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) : aes_mvm(data_i ^ 8'h63, S2X);
 
   // Convert masks to normal basis X.
   // The addition of constant 8'h63 following the affine transformation is skipped.
-  assign in_mask_basis_x  = (op_i == CIPH_FWD) ? aes_mvm(in_mask_i, A2X) :
-                                                 aes_mvm(in_mask_i, S2X);
+  assign in_mask_basis_x = (op_i == CIPH_FWD) ? aes_mvm(in_mask_i, A2X) : aes_mvm(in_mask_i, S2X);
 
   // The output mask is converted in the opposite direction.
   assign out_mask_basis_x = (op_i == CIPH_INV) ? aes_mvm(out_mask_i, A2X) :

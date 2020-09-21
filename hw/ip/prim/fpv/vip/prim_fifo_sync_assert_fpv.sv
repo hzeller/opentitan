@@ -8,24 +8,24 @@
 `include "prim_assert.sv"
 
 module prim_fifo_sync_assert_fpv #(
-  // can be desabled for deeper FIFOs
-  parameter bit EnableDataCheck = 1'b1,
-  parameter int unsigned Width = 16,
-  parameter bit Pass = 1'b1,
-  parameter int unsigned Depth = 4,
-  localparam int unsigned DepthWNorm = $clog2(Depth+1),
-  localparam int unsigned DepthW = (DepthWNorm == 0) ? 1 : DepthWNorm
+    // can be desabled for deeper FIFOs
+    parameter bit EnableDataCheck = 1'b1,
+    parameter int unsigned Width = 16,
+    parameter bit Pass = 1'b1,
+    parameter int unsigned Depth = 4,
+    localparam int unsigned DepthWNorm = $clog2 (Depth + 1),
+    localparam int unsigned DepthW = (DepthWNorm == 0) ? 1 : DepthWNorm
 ) (
-  input  clk_i,
-  input  rst_ni,
-  input  clr_i,
-  input  wvalid_i,
-  input  wready_o,
-  input [Width-1:0] wdata_i,
-  input  rvalid_o,
-  input  rready_i,
-  input [Width-1:0] rdata_o,
-  input [DepthW-1:0] depth_o
+    input clk_i,
+    input rst_ni,
+    input clr_i,
+    input wvalid_i,
+    input wready_o,
+    input [Width-1:0] wdata_i,
+    input rvalid_o,
+    input rready_i,
+    input [Width-1:0] rdata_o,
+    input [DepthW-1:0] depth_o
 );
 
   /////////////////
@@ -40,15 +40,15 @@ module prim_fifo_sync_assert_fpv #(
   // Data and Depth Value Check //
   ////////////////////////////////
 
-   if (EnableDataCheck && Depth > 0) begin : gen_data_check
+  if (EnableDataCheck && Depth > 0) begin : gen_data_check
 
     logic [DepthW+2:0] ref_depth;
-    logic [Width-1:0]  ref_rdata;
+    logic [Width-1:0] ref_rdata;
 
     // no pointers needed in this case
     if (Depth == 1) begin : gen_no_ptrs
 
-      logic [Width-1:0]  fifo;
+      logic [Width-1:0] fifo;
       logic [DepthW+2:0] wptr, rptr;
 
       // this only models the data flow, since the control logic is tested below
@@ -77,10 +77,10 @@ module prim_fifo_sync_assert_fpv #(
         assign ref_rdata = fifo;
       end
 
-    // general case
+      // general case
     end else begin : gen_ptrs
 
-      logic [Width-1:0]  fifo [Depth];
+      logic [Width-1:0] fifo[Depth];
       logic [DepthW+2:0] wptr, rptr;
 
       // implements (++val) mod Depth
@@ -92,13 +92,13 @@ module prim_fifo_sync_assert_fpv #(
       // this only models the data flow, since the control logic is tested below
       always_ff @(posedge clk_i or negedge rst_ni) begin : p_fifo_model
         if (!rst_ni) begin
-          wptr      <= 0;
-          rptr      <= 0;
+          wptr <= 0;
+          rptr <= 0;
           ref_depth <= 0;
         end else begin
           if (clr_i) begin
-            wptr      <= 0;
-            rptr      <= 0;
+            wptr <= 0;
+            rptr <= 0;
             ref_depth <= 0;
           end else begin
             if (wvalid_i && wready_o && rvalid_o && rready_i) begin

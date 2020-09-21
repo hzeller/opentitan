@@ -26,27 +26,27 @@
 // synthesis experiments.
 `include "prim_assert.sv"
 module prim_prince #(
-  parameter int DataWidth     = 64,
-  parameter int KeyWidth      = 128,
-  // The construction is reflective. Total number of rounds is 2*NumRoundsHalf + 2
-  parameter int NumRoundsHalf = 5,
-  // This primitive uses the new key schedule proposed in https://eprint.iacr.org/2014/656.pdf
-  // Setting this parameter to 1 falls back to the original key schedule.
-  parameter bit UseOldKeySched = 1'b0,
-  // This instantiates a data register halfway in the primitive.
-  parameter bit HalfwayDataReg = 1'b0,
-  // This instantiates a key register halfway in the primitive.
-  parameter bit HalfwayKeyReg = 1'b0
+    parameter int DataWidth      = 64,
+    parameter int KeyWidth       = 128,
+    // The construction is reflective. Total number of rounds is 2*NumRoundsHalf + 2
+    parameter int NumRoundsHalf  = 5,
+    // This primitive uses the new key schedule proposed in https://eprint.iacr.org/2014/656.pdf
+    // Setting this parameter to 1 falls back to the original key schedule.
+    parameter bit UseOldKeySched = 1'b0,
+    // This instantiates a data register halfway in the primitive.
+    parameter bit HalfwayDataReg = 1'b0,
+    // This instantiates a key register halfway in the primitive.
+    parameter bit HalfwayKeyReg  = 1'b0
 ) (
-  input                        clk_i,
-  input                        rst_ni,
+    input clk_i,
+    input rst_ni,
 
-  input                        valid_i,
-  input        [DataWidth-1:0] data_i,
-  input        [KeyWidth-1:0]  key_i,
-  input                        dec_i,   // set to 1 for decryption
-  output logic                 valid_o,
-  output logic [DataWidth-1:0] data_o
+    input                        valid_i,
+    input        [DataWidth-1:0] data_i,
+    input        [ KeyWidth-1:0] key_i,
+    input                        dec_i,  // set to 1 for decryption
+    output logic                 valid_o,
+    output logic [DataWidth-1:0] data_o
 );
 
   ///////////////////
@@ -55,15 +55,15 @@ module prim_prince #(
 
   logic [DataWidth-1:0] k0, k0_prime_d, k1_d, k0_new_d, k0_prime_q, k1_q, k0_new_q;
   always_comb begin : p_key_expansion
-    k0         = key_i[DataWidth-1:0];
+    k0 = key_i[DataWidth-1:0];
     k0_prime_d = {k0[0], k0[DataWidth-1:2], k0[DataWidth-1] ^ k0[1]};
-    k1_d       = key_i[2*DataWidth-1 : DataWidth];
+    k1_d = key_i[2*DataWidth-1 : DataWidth];
 
     // modify key for decryption
     if (dec_i) begin
-      k0          = k0_prime_d;
-      k0_prime_d  = key_i[DataWidth-1:0];
-      k1_d       ^= prim_cipher_pkg::PRINCE_ALPHA_CONST[DataWidth-1:0];
+      k0 = k0_prime_d;
+      k0_prime_d = key_i[DataWidth-1:0];
+      k1_d ^= prim_cipher_pkg::PRINCE_ALPHA_CONST[DataWidth-1:0];
     end
   end
 
@@ -77,22 +77,22 @@ module prim_prince #(
   if (HalfwayKeyReg) begin : gen_key_reg
     always_ff @(posedge clk_i or negedge rst_ni) begin : p_key_reg
       if (!rst_ni) begin
-        k1_q       <= '0;
+        k1_q <= '0;
         k0_prime_q <= '0;
-        k0_new_q   <= '0;
+        k0_new_q <= '0;
       end else begin
         if (valid_i) begin
-          k1_q       <= k1_d;
+          k1_q <= k1_d;
           k0_prime_q <= k0_prime_d;
-          k0_new_q   <= k0_new_d;
+          k0_new_q <= k0_new_d;
         end
       end
     end
   end else begin : gen_no_key_reg
     // just pass the key through in this case
-    assign k1_q       = k1_d;
+    assign k1_q = k1_d;
     assign k0_prime_q = k0_prime_d;
-    assign k0_new_q   = k0_new_d;
+    assign k0_new_q = k0_new_d;
   end
 
   //////////////
@@ -211,8 +211,7 @@ module prim_prince #(
 
   // post-rounds
   always_comb begin : p_post_round_xor
-    data_o  = data_state[2*NumRoundsHalf+1] ^
-              prim_cipher_pkg::PRINCE_ROUND_CONST[11][DataWidth-1:0];
+    data_o = data_state[2*NumRoundsHalf+1] ^ prim_cipher_pkg::PRINCE_ROUND_CONST[11][DataWidth-1:0];
     data_o ^= k1_q;
     data_o ^= k0_prime_q;
   end

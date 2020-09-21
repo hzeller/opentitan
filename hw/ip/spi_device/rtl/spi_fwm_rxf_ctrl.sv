@@ -6,61 +6,61 @@
 //
 
 module spi_fwm_rxf_ctrl #(
-  parameter int unsigned FifoDw = 8,
-  parameter int unsigned SramAw = 11,
-  parameter int unsigned SramDw = 32,
-  // Do not touch below
-  // SramDw should be multiple of FifoDw
-  localparam int unsigned NumBytes = SramDw/FifoDw,    // derived parameter
-  localparam int unsigned SDW      = $clog2(NumBytes), // derived parameter
-  localparam int unsigned PtrW     = SramAw + SDW + 1  // derived parameter
+    parameter  int unsigned FifoDw   = 8,
+    parameter  int unsigned SramAw   = 11,
+    parameter  int unsigned SramDw   = 32,
+    // Do not touch below
+    // SramDw should be multiple of FifoDw
+    localparam int unsigned NumBytes = SramDw / FifoDw,  // derived parameter
+    localparam int unsigned SDW      = $clog2 (NumBytes),  // derived parameter
+    localparam int unsigned PtrW     = SramAw + SDW + 1  // derived parameter
 ) (
-  input clk_i,
-  input rst_ni,
+    input clk_i,
+    input rst_ni,
 
-  // Configuration
-  input      [SramAw-1:0] base_index_i,
-  input      [SramAw-1:0] limit_index_i,
-  input             [7:0] timer_v,
-  input        [PtrW-1:0] rptr,
-  output logic [PtrW-1:0] wptr,
-  output logic [PtrW-1:0] depth,
+    // Configuration
+    input        [SramAw-1:0] base_index_i,
+    input        [SramAw-1:0] limit_index_i,
+    input        [       7:0] timer_v,
+    input        [  PtrW-1:0] rptr,
+    output logic [  PtrW-1:0] wptr,
+    output logic [  PtrW-1:0] depth,
 
-  output logic            full,
+    output logic full,
 
-  input               fifo_valid,
-  output logic        fifo_ready,
-  input  [FifoDw-1:0] fifo_rdata,
+    input                     fifo_valid,
+    output logic              fifo_ready,
+    input        [FifoDw-1:0] fifo_rdata,
 
-  output logic              sram_req,
-  output logic              sram_write,
-  output logic [SramAw-1:0] sram_addr,
-  output logic [SramDw-1:0] sram_wdata,
-  input                     sram_gnt,
-  input                     sram_rvalid,
-  input        [SramDw-1:0] sram_rdata,
-  input               [1:0] sram_error
+    output logic              sram_req,
+    output logic              sram_write,
+    output logic [SramAw-1:0] sram_addr,
+    output logic [SramDw-1:0] sram_wdata,
+    input                     sram_gnt,
+    input                     sram_rvalid,
+    input        [SramDw-1:0] sram_rdata,
+    input        [       1:0] sram_error
 );
 
   // Internal variable
   logic [NumBytes-1:0] byte_enable;
-  logic [SDW-1:0]      pos;   // current byte position
-  logic [7:0] cur_timer;
-  logic [SramAw-1:0] sramf_limit;
+  logic [     SDW-1:0] pos;  // current byte position
+  logic [         7:0] cur_timer;
+  logic [  SramAw-1:0] sramf_limit;
 
   // State input
-  logic sramf_full;   // SRAM Fifo full
-  logic full_sramwidth;   // Write data filled full SRAM
-  logic timer_expired;
+  logic                sramf_full;  // SRAM Fifo full
+  logic                full_sramwidth;  // Write data filled full SRAM
+  logic                timer_expired;
 
   // State output
-  logic update_wdata;
-  logic clr_byte_enable;
-  logic sram_req_d;
-  logic sram_write_d;
-  logic sram_wdata_sel;
-  logic timer_rst;
-  logic update_wptr;
+  logic                update_wdata;
+  logic                clr_byte_enable;
+  logic                sram_req_d;
+  logic                sram_write_d;
+  logic                sram_wdata_sel;
+  logic                timer_rst;
+  logic                update_wptr;
 
   typedef enum logic [2:0] {
     StIdle   = 'h0,
@@ -158,7 +158,7 @@ module spi_fwm_rxf_ctrl #(
     end else if (update_wdata) begin
       sram_wdata[8*pos+:8] <= fifo_rdata;
     end else if (sram_wdata_sel == 1'b1) begin
-      for (int i = 0 ; i < NumBytes ; i++) begin
+      for (int i = 0; i < NumBytes; i++) begin
         if (!byte_enable[i]) begin
           sram_wdata[8*i+:8] <= sram_rdata[8*i+:8];
         end
@@ -208,7 +208,7 @@ module spi_fwm_rxf_ctrl #(
         end else if (full_sramwidth) begin
           st_next = StWrite;
           clr_byte_enable = 1'b1;
-          sram_req_d   = 1'b1;
+          sram_req_d = 1'b1;
           sram_write_d = 1'b1;
         end else begin
           st_next = StWait;
@@ -226,7 +226,7 @@ module spi_fwm_rxf_ctrl #(
           update_wdata = 1'b1;
         end else if (!fifo_valid && timer_expired) begin
           st_next = StRead;
-          sram_req_d   = 1'b1;
+          sram_req_d = 1'b1;
           sram_write_d = 1'b0;
         end else begin
           st_next = StWait;
@@ -240,7 +240,7 @@ module spi_fwm_rxf_ctrl #(
           st_next = StModify;
         end else begin
           st_next = StRead;
-          sram_req_d   = 1'b1;
+          sram_req_d = 1'b1;
           sram_write_d = 1'b0;
         end
       end
@@ -249,7 +249,7 @@ module spi_fwm_rxf_ctrl #(
         // Waits until read data arrives.
         if (sram_rvalid) begin
           st_next = StWrite;
-          sram_req_d   = 1'b1;
+          sram_req_d = 1'b1;
           sram_write_d = 1'b1;
           sram_wdata_sel = 1'b1;
         end else begin
@@ -264,7 +264,7 @@ module spi_fwm_rxf_ctrl #(
           st_next = StUpdate;
         end else begin
           st_next = StWrite;
-          sram_req_d   = 1'b1;
+          sram_req_d = 1'b1;
           sram_write_d = 1'b1;
         end
       end

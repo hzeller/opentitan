@@ -6,15 +6,17 @@
 
 `include "prim_assert.sv"
 
-module keymgr_sideload_key import keymgr_pkg::*;(
-  input clk_i,
-  input rst_ni,
-  input keymgr_en_i,
-  input set_i,
-  input clr_i,
-  input [31:0] entropy_i,
-  input [Shares-1:0][KeyWidth-1:0] key_i,
-  output hw_key_req_t key_o
+module keymgr_sideload_key
+import keymgr_pkg::*;
+(
+    input clk_i,
+    input rst_ni,
+    input keymgr_en_i,
+    input set_i,
+    input clr_i,
+    input [31:0] entropy_i,
+    input [Shares-1:0][KeyWidth-1:0] key_i,
+    output hw_key_req_t key_o
 );
 
   localparam int EntropyCopies = KeyWidth / 32;
@@ -46,4 +48,4 @@ module keymgr_sideload_key import keymgr_pkg::*;(
     end
   end
 
-endmodule // keymgr_sideload_key
+endmodule  // keymgr_sideload_key

@@ -9,10 +9,10 @@ class i2c_stretch_timeout_vseq extends i2c_sanity_vseq;
 
   // set timeout field to minimum value to ensure
   // stretch_timeout irq is asserted for every target's ACK
-  constraint t_timeout_c { t_timeout == 1; }
+  constraint t_timeout_c {t_timeout == 1;}
 
   // timeout is always enabled so stretch_timeout irq is aggressively asserted
-  constraint e_timeout_c { e_timeout == 1; }
+  constraint e_timeout_c {e_timeout == 1;}
 
   local uint num_wr_st;
   local uint num_rd_st;

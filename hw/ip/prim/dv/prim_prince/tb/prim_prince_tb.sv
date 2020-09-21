@@ -12,12 +12,12 @@
 
 module prim_prince_tb;
 
-//////////////////////////////////////////////////////
-// config
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // config
+  //////////////////////////////////////////////////////
 
-// Default to {data_width:64, key_width:128} configuration.
-// Data width and key width can be overriden from command-line if desired.
+  // Default to {data_width:64, key_width:128} configuration.
+  // Data width and key width can be overriden from command-line if desired.
 
 `ifdef DATA_WIDTH
   localparam int unsigned DataWidth = `DATA_WIDTH;
@@ -44,60 +44,59 @@ module prim_prince_tb;
 
   localparam time ClkPeriod = 10000;
 
-//////////////////////////////////////////////////////
-// Clock interface
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // Clock interface
+  //////////////////////////////////////////////////////
 
   wire clk, rst_n;
 
   clk_rst_if clk_if (
-    .clk,
-    .rst_n
+      .clk,
+      .rst_n
   );
 
-//////////////////////////////////////////////////////
-// DUTs for both encryption and decryption
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // DUTs for both encryption and decryption
+  //////////////////////////////////////////////////////
 
-  logic [1:0][1:0][NumRoundsHalf-1:0][DataWidth-1:0]  data_in;
-  logic [1:0][1:0][NumRoundsHalf-1:0][DataWidth-1:0]  data_out;
-  logic [1:0][1:0][NumRoundsHalf-1:0]                 valid_out;
-  logic                                               valid_in;
-  logic [KeyWidth-1:0]                                key_in;
-  logic                                               dec_in;
+  logic [         1:0][1:0][NumRoundsHalf-1:0][DataWidth-1:0] data_in;
+  logic [         1:0][1:0][NumRoundsHalf-1:0][DataWidth-1:0] data_out;
+  logic [         1:0][1:0][NumRoundsHalf-1:0]                valid_out;
+  logic                                                       valid_in;
+  logic [KeyWidth-1:0]                                        key_in;
+  logic                                                       dec_in;
 
   for (genvar i = 0; i < 2; i++) begin : gen_new_key_schedule
     for (genvar j = 0; j < 2; j++) begin : gen_registered_variant
       for (genvar k = 0; k < NumRoundsHalf; k++) begin : gen_duts
         prim_prince #(
-          .DataWidth      ( DataWidth           ),
-          .KeyWidth       ( KeyWidth            ),
-          .NumRoundsHalf  ( k+1                 ),
-          .UseOldKeySched ( i                   ),
-          .HalfwayDataReg ( j                   ),
-          .HalfwayKeyReg  ( j                   )
+            .DataWidth     (DataWidth),
+            .KeyWidth      (KeyWidth),
+            .NumRoundsHalf (k + 1),
+            .UseOldKeySched(i),
+            .HalfwayDataReg(j),
+            .HalfwayKeyReg (j)
         ) dut (
-          .clk_i          ( clk                 ),
-          .rst_ni         ( rst_n               ),
-          .valid_i        ( valid_in            ),
-          .data_i         ( data_in[i][j][k]    ),
-          .key_i          ( key_in              ),
-          .dec_i          ( dec_in              ),
-          .valid_o        ( valid_out[i][j][k]  ),
-          .data_o         ( data_out[i][j][k]   )
+            .clk_i  (clk),
+            .rst_ni (rst_n),
+            .valid_i(valid_in),
+            .data_i (data_in[i][j][k]),
+            .key_i  (key_in),
+            .dec_i  (dec_in),
+            .valid_o(valid_out[i][j][k]),
+            .data_o (data_out[i][j][k])
         );
       end : gen_duts
     end : gen_registered_variant
   end : gen_new_key_schedule
 
-//////////////////////////////////////////////////////
-// API called by the testbench to drive/check stimulus
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // API called by the testbench to drive/check stimulus
+  //////////////////////////////////////////////////////
 
   // Top level API task that should be called to run a full pass
   // of encryption and decryption on some input data and key.
-  task test_prince(bit [DataWidth-1:0] plaintext,
-                   bit [KeyWidth-1:0]  key);
+  task test_prince(bit [DataWidth-1:0] plaintext, bit [KeyWidth-1:0] key);
 
     bit [1:0][1:0][NumRoundsHalf-1:0][DataWidth-1:0] encrypted_text;
     $display("Starting encryption with data[0x%0x] and key[0x%0x]!", plaintext, key);
@@ -116,9 +115,9 @@ module prim_prince_tb;
                         output bit [1:0][1:0][NumRoundsHalf-1:0][DataWidth-1:0]   expected_cipher);
 
     // Drive input into encryption instances.
-    key_in    = key;
-    dec_in    = 0;
-    valid_in  = 1;
+    key_in = key;
+    dec_in = 0;
+    valid_in = 1;
     for (int unsigned i = 0; i < 2; i++) begin
       for (int unsigned j = 0; j < 2; j++) begin
         for (int unsigned k = 0; k < NumRoundsHalf; k++) begin
@@ -224,9 +223,9 @@ module prim_prince_tb;
   endtask
 
 
-//////////////////////////////////////////////////////
-// main testbench body
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // main testbench body
+  //////////////////////////////////////////////////////
 
   initial begin : p_stimuli
 

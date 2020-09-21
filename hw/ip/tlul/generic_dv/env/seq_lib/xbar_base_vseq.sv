@@ -5,19 +5,21 @@
 // ---------------------------------------------
 // Xbar environment virtual sequence
 // ---------------------------------------------
-class xbar_base_vseq extends dv_base_vseq #(.CFG_T               (xbar_env_cfg),
-                                            .COV_T               (xbar_env_cov),
-                                            .VIRTUAL_SEQUENCER_T (xbar_virtual_sequencer));
+class xbar_base_vseq extends dv_base_vseq#(
+    .CFG_T              (xbar_env_cfg),
+    .COV_T              (xbar_env_cov),
+    .VIRTUAL_SEQUENCER_T(xbar_virtual_sequencer)
+);
 
   // TL host and device sub-sequences
-  rand xbar_tl_host_seq  host_seq[];
-  rand tl_device_seq     device_seq[];
+  rand xbar_tl_host_seq host_seq[];
+  rand tl_device_seq    device_seq[];
 
-  uint                   min_req_cnt = 100;
-  uint                   max_req_cnt = 200;
+  uint                  min_req_cnt   = 100;
+  uint                  max_req_cnt   = 200;
 
   // if seq crosses with the other seq, only need to enable device rsp thread
-  bit                    do_device_rsp = 1;
+  bit                   do_device_rsp = 1;
 
   constraint req_cnt_c {
     foreach (host_seq[i]) {

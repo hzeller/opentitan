@@ -5,22 +5,22 @@
 // Testbench module for prim_keccak. Intended to be used with a formal tool.
 
 module keccak_2share_fpv #(
-  parameter int Width = 1600
+    parameter int Width = 1600
 ) (
-  input                    clk_i,
-  input                    rst_ni,
-  input                    valid_i,
-  input                    rand_valid_i,
-  input        [Width-1:0] rand_i,
-  input        [Width-1:0] state_i,
-  output logic             done_o,
-  output logic [Width-1:0] state_o
+    input                    clk_i,
+    input                    rst_ni,
+    input                    valid_i,
+    input                    rand_valid_i,
+    input        [Width-1:0] rand_i,
+    input        [Width-1:0] state_i,
+    output logic             done_o,
+    output logic [Width-1:0] state_o
 );
 
-  localparam int W        = Width/25;
-  localparam int L        = $clog2(W);
-  localparam int NumRound = 12 + 2*L; // Keccak-f only
-  localparam int RndW     = $clog2(NumRound+1);
+  localparam int W = Width / 25;
+  localparam int L = $clog2(W);
+  localparam int NumRound = 12 + 2 * L;  // Keccak-f only
+  localparam int RndW = $clog2(NumRound + 1);
 
   logic [RndW-1:0] round;
   logic [Width-1:0] state   [2];
@@ -58,7 +58,7 @@ module keccak_2share_fpv #(
     sel_mux = 1'b0;
     unique case (keccak_st)
       StIdle: begin
-        sel_mux = 1'b 0;
+        sel_mux = 1'b0;
         if (valid_i) begin
           keccak_st_d = StPhase1;
 
@@ -83,7 +83,7 @@ module keccak_2share_fpv #(
       StPhase3: begin
         sel_mux = 1'b1;
         update_state = 1'b1;
-        if (round == NumRound-1) begin
+        if (round == NumRound - 1) begin
           keccak_st_d = StIdle;
           inc_round = 1'b1;
         end else begin
@@ -97,7 +97,7 @@ module keccak_2share_fpv #(
 
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
-    if (!rst_ni)            state <= '{default:'0};
+    if (!rst_ni) state <= '{default: '0};
     else if (valid_i) begin
       state[0] <= state_i ^ rand_i;
       state[1] <= rand_i;
@@ -112,28 +112,28 @@ module keccak_2share_fpv #(
     else if (inc_round)  round <= round + 1'b 1;
   end
 
-  assign done_o = (round == NumRound);
+  assign done_o  = (round == NumRound);
   assign state_o = state[0] ^ state[1];
 
-  logic [Width-1:0] keccak_in  [2];
-  logic [Width-1:0] keccak_out [2];
+  logic [Width-1:0] keccak_in [2];
+  logic [Width-1:0] keccak_out[2];
   assign keccak_in = state;
-  assign state_d = keccak_out;
+  assign state_d   = keccak_out;
 
 
   keccak_2share #(
-    .Width (Width),
-    .EnMasking (1)   // Masked version
+      .Width(Width),
+      .EnMasking(1)  // Masked version
   ) u_keccak (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    .rnd_i        (round),
-    .rand_valid_i (rand_valid_i),
-    .rand_i       (rand_i),
-    .sel_i        (sel_mux),
-    .s_i          (keccak_in),
-    .s_o          (keccak_out)
+      .rnd_i       (round),
+      .rand_valid_i(rand_valid_i),
+      .rand_i      (rand_i),
+      .sel_i       (sel_mux),
+      .s_i         (keccak_in),
+      .s_o         (keccak_out)
   );
 
   // Compare with keccak Unmasking
@@ -148,17 +148,17 @@ module keccak_2share_fpv #(
   end
 
   keccak_2share #(
-    .Width (Width),
-    .EnMasking (0) // Unmasked version
+      .Width(Width),
+      .EnMasking(0)  // Unmasked version
   ) u_golden (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    .rnd_i (round),
-    .rand_i ('0),
-    .sel_i  ('0),
-    .s_i    ('{golden_state}),
-    .s_o    (golden_state_d)
+      .rnd_i (round),
+      .rand_i('0),
+      .sel_i ('0),
+      .s_i   ('{golden_state}),
+      .s_o   (golden_state_d)
   );
 
   assign compare_states = golden_state ^ state_o;
@@ -167,12 +167,12 @@ module keccak_2share_fpv #(
   `ASSUME_FPV(ValidValid_A, keccak_st != StIdle |-> !valid_i)
 
   // Test with value 0
-  logic [1599:0] data_0 ;
+  logic [1599:0] data_0;
   always_comb begin
     data_0 = '0;
     // SHA3-256 ==> r : 1088
-    data_0[1087] = 1'b 1;
-    data_0[2:0] = 3'b 110;
+    data_0[1087] = 1'b1;
+    data_0[2:0] = 3'b110;
   end
   logic [255:0] digest_0;
   // Big-Endian a7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a

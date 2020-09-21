@@ -22,26 +22,28 @@
 //   request - TBD: This should be checked with software.  Hardware could also always behave
 //   as it does in the point above and rely on software to correctly compact the data.
 
-module flash_phy_prog import flash_phy_pkg::*; (
-  input clk_i,
-  input rst_ni,
-  input req_i,
-  input scramble_i,
-  input [WordSelW-1:0] sel_i,
-  input [BusWidth-1:0] data_i,
-  input last_i,
-  input ack_i,
-  input calc_ack_i,
-  input scramble_ack_i,
-  input [DataWidth-1:0] mask_i,
-  input [DataWidth-1:0] scrambled_data_i,
-  output logic calc_req_o,
-  output logic scramble_req_o,
-  output logic req_o,
-  output logic ack_o,
-  // block data does not contain ecc / metadata portion
-  output logic [DataWidth-1:0] block_data_o,
-  output logic [FullDataWidth-1:0] data_o
+module flash_phy_prog
+import flash_phy_pkg::*;
+(
+    input clk_i,
+    input rst_ni,
+    input req_i,
+    input scramble_i,
+    input [WordSelW-1:0] sel_i,
+    input [BusWidth-1:0] data_i,
+    input last_i,
+    input ack_i,
+    input calc_ack_i,
+    input scramble_ack_i,
+    input [DataWidth-1:0] mask_i,
+    input [DataWidth-1:0] scrambled_data_i,
+    output logic calc_req_o,
+    output logic scramble_req_o,
+    output logic req_o,
+    output logic ack_o,
+    // block data does not contain ecc / metadata portion
+    output logic [DataWidth-1:0] block_data_o,
+    output logic [FullDataWidth-1:0] data_o
 );
 
   typedef enum logic [2:0] {
@@ -80,7 +82,7 @@ module flash_phy_prog import flash_phy_pkg::*; (
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
       idx <= '0;
-    end else if (pack_valid && idx == (WidthMultiple-1)) begin
+    end else if (pack_valid && idx == (WidthMultiple - 1)) begin
       // when a flash word is packed full, return index to 0
       idx <= '0;
     end else if (pack_valid) begin
@@ -136,7 +138,7 @@ module flash_phy_prog import flash_phy_pkg::*; (
         pack_valid = req_i;
         data_sel = Actual;
 
-        if (req_i && idx == (WidthMultiple-1)) begin
+        if (req_i && idx == (WidthMultiple - 1)) begin
           // last beat of a flash word
           state_d = scramble_i ? StCalcMask : StWaitFlash;
         end else if (req_i && last_i) begin
@@ -153,7 +155,7 @@ module flash_phy_prog import flash_phy_pkg::*; (
         data_sel = Filler;
 
         // finish packing remaining entries
-        if (idx == (WidthMultiple-1)) begin
+        if (idx == (WidthMultiple - 1)) begin
           state_d = scramble_i ? StCalcMask : StWaitFlash;
         end
       end
@@ -187,8 +189,8 @@ module flash_phy_prog import flash_phy_pkg::*; (
         end
       end
 
-      default:;
-    endcase // unique case (state_q)
+      default: ;
+    endcase  // unique case (state_q)
   end
 
   logic [DataWidth-1:0] mask_q;
@@ -215,8 +217,8 @@ module flash_phy_prog import flash_phy_pkg::*; (
   logic [ScrDataWidth-1:0] ecc_data;
 
   prim_secded_72_64_enc u_enc (
-    .in(packed_data),
-    .out(ecc_data)
+      .in (packed_data),
+      .out(ecc_data)
   );
 
   // pad the remaining bits to '0', this effectively "programs" them.
@@ -233,4 +235,4 @@ module flash_phy_prog import flash_phy_pkg::*; (
   // Postpack states should never pack the first index (as it would be aligned in that case)
   `ASSERT(PostPackRule_A, state_q == StPostPack && pack_valid |-> idx != '0)
 
-endmodule // flash_phy_prog
+endmodule  // flash_phy_prog

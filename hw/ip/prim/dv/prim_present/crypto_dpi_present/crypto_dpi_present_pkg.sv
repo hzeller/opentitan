@@ -64,9 +64,9 @@ package crypto_dpi_present_pkg;
 
     get_keys(key, key_size_80, key_high, key_low);
 
-    c_dpi_key_schedule(key_high, key_low, NumRounds+1, key_size_80, compressed_key_schedule);
+    c_dpi_key_schedule(key_high, key_low, NumRounds + 1, key_size_80, compressed_key_schedule);
 
-    for (int i = 0; i < NumRounds+1; i++) begin
+    for (int i = 0; i < NumRounds + 1; i++) begin
       key_schedule[i][31:0] = compressed_key_schedule[i*2];
       key_schedule[i][63:32] = compressed_key_schedule[i*2+1];
     end

@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env_cfg),
-                                                          .RAL_T (spi_device_reg_block),
-                                                          .COV_T (spi_device_env_cov));
+class spi_device_scoreboard extends cip_base_scoreboard#(
+    .CFG_T(spi_device_env_cfg),
+    .RAL_T(spi_device_reg_block),
+    .COV_T(spi_device_env_cov)
+);
   `uvm_component_utils(spi_device_scoreboard)
 
   // TLM fifos to pick up the packets
@@ -66,34 +68,33 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
   // this is already called in cip_base_scoreboard::process_tl_a/d_chan_fifo tasks
   virtual task process_tl_access(tl_seq_item item, tl_channels_e channel = DataChannel);
     uvm_reg csr;
-    bit     do_read_check   = 1'b0; // TODO: fixme
-    bit     write           = item.is_write();
+    bit do_read_check = 1'b0;  // TODO: fixme
+    bit write = item.is_write();
     uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
     if (csr_addr inside {cfg.csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
-    end
-    else if (item.a_addr inside {[cfg.sram_start_addr:cfg.sram_end_addr]}) begin
-      uint tx_base  = ral.txf_addr.base.get_mirrored_value();
-      uint rx_base  = ral.rxf_addr.base.get_mirrored_value();
+    end else if (item.a_addr inside {[cfg.sram_start_addr : cfg.sram_end_addr]}) begin
+      uint tx_base = ral.txf_addr.base.get_mirrored_value();
+      uint rx_base = ral.rxf_addr.base.get_mirrored_value();
       uint tx_limit = ral.txf_addr.limit.get_mirrored_value();
       uint rx_limit = ral.rxf_addr.limit.get_mirrored_value();
       uint mem_addr = item.a_addr - cfg.sram_start_addr;
       tx_base[1:0] = 0;
       rx_base[1:0] = 0;
-      if (mem_addr inside {[tx_base : tx_base + tx_limit]}) begin // TX address
+      if (mem_addr inside {[tx_base : tx_base + tx_limit]}) begin  // TX address
         if (write && channel == AddrChannel) begin
           tx_mem.write(mem_addr - tx_base, item.a_data);
           `uvm_info(`gfn, $sformatf("write tx_mem addr 0x%0h, data: 0x%0h",
                                     mem_addr - tx_base, item.a_data), UVM_MEDIUM)
         end
-      end else if (mem_addr inside {[rx_base : rx_base + rx_limit]}) begin // RX address
+      end else if (mem_addr inside {[rx_base : rx_base + rx_limit]}) begin  // RX address
         if (write && channel == AddrChannel) begin
           `uvm_error(`gfn, "unexpected write on RX mem")
         end else if (!write && channel == DataChannel) begin
-          uint            addr     = mem_addr - rx_base;
+          uint addr = mem_addr - rx_base;
           bit [TL_DW-1:0] data_exp = rx_mem.read(addr);
           `DV_CHECK_EQ(item.d_data, data_exp, $sformatf("Compare SPI RX data, addr: 0x%0h", addr))
         end
@@ -101,8 +102,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
         // TODO hit unlocated mem, sample coverage
       end
       return;
-    end
-    else begin
+    end else begin
       `uvm_fatal(`gfn, $sformatf("Access unexpected addr 0x%0h", csr_addr))
     end
 
@@ -165,10 +165,10 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
   virtual function void sendout_spi_tx_data(bit [31:0] data_act);
 
     if (tx_word_q.size > 0) begin
-      bit [31:0] data_exp     = tx_word_q.pop_front();
+      bit [31:0] data_exp = tx_word_q.pop_front();
       `DV_CHECK_EQ(data_act, data_exp, "Compare SPI TX data")
       update_tx_fifo_and_rptr();
-    end else begin // underflow
+    end else begin  // underflow
       // TODO coverage sample
       `uvm_info(`gfn, $sformatf("TX underflow data: 0x%0h", data_act), UVM_MEDIUM)
     end
@@ -180,8 +180,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     if (get_rx_sram_space_bytes() >= SRAM_WORD_SIZE || rx_word_q.size < 2) begin
       rx_word_q.push_back(data);
       update_rx_mem_fifo_and_wptr();
-    end
-    else begin
+    end else begin
       `uvm_info(`gfn, $sformatf("RX overflow data: 0x%0h ptr: 0x%0h", data, rx_wptr_exp),
                 UVM_MEDIUM)
     end
@@ -204,7 +203,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
   endfunction
 
   virtual function uint get_tx_sram_filled_bytes();
-    uint tx_wptr      = ral.txf_ptr.wptr.get_mirrored_value();
+    uint tx_wptr = ral.txf_ptr.wptr.get_mirrored_value();
     uint filled_bytes = get_sram_filled_bytes(tx_wptr,
                                               tx_rptr_exp,
                                               `GET_TX_ALLOCATED_SRAM_SIZE_BYTES,
@@ -213,7 +212,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
   endfunction
 
   virtual function uint get_rx_sram_space_bytes();
-    uint rx_rptr     = ral.rxf_ptr.rptr.get_mirrored_value();
+    uint rx_rptr = ral.rxf_ptr.rptr.get_mirrored_value();
     uint space_bytes = get_sram_space_bytes(rx_wptr_exp,
                                             rx_rptr,
                                             `GET_RX_ALLOCATED_SRAM_SIZE_BYTES,
@@ -225,7 +224,7 @@ class spi_device_scoreboard extends cip_base_scoreboard #(.CFG_T (spi_device_env
     super.reset(kind);
     tx_rptr_exp = ral.txf_ptr.rptr.get_reset();
     rx_wptr_exp = ral.rxf_ptr.wptr.get_reset();
-    intr_exp    = ral.intr_state.get_reset();
+    intr_exp = ral.intr_state.get_reset();
   endfunction
 
   function void check_phase(uvm_phase phase);

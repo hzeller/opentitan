@@ -25,9 +25,9 @@ class uart_stress_all_vseq extends uart_base_vseq;
                           "uart_perf_vseq",
                           "uart_loopback_vseq"};
     for (int i = 1; i <= num_trans; i++) begin
-      uvm_sequence   seq;
+      uvm_sequence seq;
       uart_base_vseq uart_vseq;
-      uint           seq_idx = $urandom_range(0, seq_names.size - 1);
+      uint seq_idx = $urandom_range(0, seq_names.size - 1);
 
       seq = create_seq_by_name(seq_names[seq_idx]);
       `downcast(uart_vseq, seq)

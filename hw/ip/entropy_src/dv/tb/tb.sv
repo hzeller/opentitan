@@ -23,32 +23,38 @@ module tb;
   wire intr_fifo_err;
 
   // interfaces
-  clk_rst_if clk_rst_if(.clk(clk), .rst_n(rst_n));
-  pins_if #(NUM_MAX_INTERRUPTS) intr_if(interrupts);
-  pins_if #(1) devmode_if(devmode);
-  pins_if #(1) efuse_es_sw_reg_en_if(efuse_es_sw_reg_en);
-  tl_if tl_if(.clk(clk), .rst_n(rst_n));
+  clk_rst_if clk_rst_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  pins_if #(NUM_MAX_INTERRUPTS) intr_if (interrupts);
+  pins_if #(1) devmode_if (devmode);
+  pins_if #(1) efuse_es_sw_reg_en_if (efuse_es_sw_reg_en);
+  tl_if tl_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
 
   // dut
   entropy_src dut (
-    .clk_i                (clk        ),
-    .rst_ni               (rst_n      ),
+      .clk_i (clk),
+      .rst_ni(rst_n),
 
-    .tl_i                 (tl_if.h2d  ),
-    .tl_o                 (tl_if.d2h  ),
+      .tl_i(tl_if.h2d),
+      .tl_o(tl_if.d2h),
 
-    .efuse_es_sw_reg_en_i (efuse_es_sw_reg_en),
+      .efuse_es_sw_reg_en_i(efuse_es_sw_reg_en),
 
-    .entropy_src_hw_if_o  (),
-    .entropy_src_hw_if_i  (),
+      .entropy_src_hw_if_o(),
+      .entropy_src_hw_if_i(),
 
-    .entropy_src_rng_o    (),
-    .entropy_src_rng_i    (),
+      .entropy_src_rng_o(),
+      .entropy_src_rng_i(),
 
-    .es_entropy_valid_o   (intr_entropy_valid),
-    .es_rct_failed_o      (intr_rct_failed),
-    .es_apt_failed_o      (intr_apt_failed),
-    .es_fifo_err_o        (intr_fifo_err)
+      .es_entropy_valid_o(intr_entropy_valid),
+      .es_rct_failed_o   (intr_rct_failed),
+      .es_apt_failed_o   (intr_apt_failed),
+      .es_fifo_err_o     (intr_fifo_err)
   );
 
 

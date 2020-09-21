@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class rv_timer_base_vseq extends cip_base_vseq #(
-        .CFG_T               (rv_timer_env_cfg),
-        .RAL_T               (rv_timer_reg_block),
-        .COV_T               (rv_timer_env_cov),
-        .VIRTUAL_SEQUENCER_T (rv_timer_virtual_sequencer)
-    );
+class rv_timer_base_vseq extends cip_base_vseq#(
+    .CFG_T              (rv_timer_env_cfg),
+    .RAL_T              (rv_timer_reg_block),
+    .COV_T              (rv_timer_env_cov),
+    .VIRTUAL_SEQUENCER_T(rv_timer_virtual_sequencer)
+);
   `uvm_object_utils(rv_timer_base_vseq)
 
   // random delay between consecutive transactions
@@ -15,16 +15,16 @@ class rv_timer_base_vseq extends cip_base_vseq #(
 
   constraint delay_c {
     delay dist {
-      0                   :/ 1,
-      [1      :100]       :/ 1,
-      [101    :10_000]    :/ 8,
-      [10_001 :1_000_000] :/ 1
+      0 :/ 1,
+      [1 : 100] :/ 1,
+      [101 : 10_000] :/ 8,
+      [10_001 : 1_000_000] :/ 1
     };
   }
 
   // hart specific parameters
-  bit [TL_DW-1:0]   max_prescale;
-  bit [TL_DW-1:0]   max_step;
+  bit [TL_DW-1:0] max_prescale;
+  bit [TL_DW-1:0] max_step;
 
   `uvm_object_new
 
@@ -40,7 +40,7 @@ class rv_timer_base_vseq extends cip_base_vseq #(
 
   // cfg rv_timer - set a particular timer active or inactive
   virtual task cfg_timer(int hart = 0, int timer = 0, bit enable = 1'b1);
-    uvm_reg       ctrl_rg;
+    uvm_reg ctrl_rg;
     uvm_reg_field active_fld;
     `DV_CHECK_LT_FATAL(hart, NUM_HARTS)
     `DV_CHECK_LT_FATAL(timer, NUM_TIMERS)
@@ -98,9 +98,9 @@ class rv_timer_base_vseq extends cip_base_vseq #(
 
   // configure interrupt
   virtual task cfg_interrupt(int hart = 0, int timer = 0, bit enable = 1'b1);
-    uvm_reg       intr_en_rg;
+    uvm_reg intr_en_rg;
     uvm_reg_field timer_intr_en_fld;
-    int           intr_pin_idx = hart * NUM_TIMERS + timer;
+    int intr_pin_idx = hart * NUM_TIMERS + timer;
     `DV_CHECK_LT_FATAL(hart, NUM_HARTS)
     `DV_CHECK_LT_FATAL(timer, NUM_TIMERS)
     intr_en_rg = ral.get_reg_by_name($sformatf("intr_enable%0d", hart));
@@ -117,9 +117,9 @@ class rv_timer_base_vseq extends cip_base_vseq #(
 
   // check if interrupt fired
   virtual task check_interrupt(int hart = 0, int timer = 0, bit exp_intr_state, bit exp_intr_pin);
-    uvm_reg       intr_state_rg;
+    uvm_reg intr_state_rg;
     uvm_reg_field timer_intr_state_fld;
-    int           intr_pin_idx = hart * NUM_TIMERS + timer;
+    int intr_pin_idx = hart * NUM_TIMERS + timer;
     `DV_CHECK_LT_FATAL(hart, NUM_HARTS)
     `DV_CHECK_LT_FATAL(timer, NUM_TIMERS)
     intr_state_rg = ral.get_reg_by_name($sformatf("intr_state%0d", hart));
@@ -134,8 +134,8 @@ class rv_timer_base_vseq extends cip_base_vseq #(
 
   // task to write 1 to clear and read the interrupt status register
   virtual task clear_intr_state(int hart = 0, int timer = 0);
-    uvm_reg         intr_state_rg;
-    uvm_reg_field   is_fld;
+    uvm_reg intr_state_rg;
+    uvm_reg_field is_fld;
     bit [TL_DW-1:0] status;
     bit [TL_DW-1:0] wr_value;
     `DV_CHECK_LT_FATAL(hart, NUM_HARTS)
@@ -192,8 +192,7 @@ class rv_timer_base_vseq extends cip_base_vseq #(
   endtask
 
   // task to read interrup status reg for given Hart
-  virtual task read_intr_status_reg(input  int  hart = 0,
-                                    output uint status_val);
+  virtual task read_intr_status_reg(input int hart = 0, output uint status_val);
     uvm_reg intr_state_rg;
     intr_state_rg = ral.get_reg_by_name($sformatf("intr_state%0d", hart));
     `DV_CHECK_NE_FATAL(intr_state_rg, null)
@@ -201,8 +200,7 @@ class rv_timer_base_vseq extends cip_base_vseq #(
   endtask : read_intr_status_reg
 
   // task to read timer value reg for given Hart
-  virtual task read_timer_val_reg(input  int    hart = 0,
-                                  output uint64 mtime_val);
+  virtual task read_timer_val_reg(input int hart = 0, output uint64 mtime_val);
     bit [TL_DW-1:0] read_data;
     uvm_reg timer_val_l_rg;
     uvm_reg timer_val_u_rg;

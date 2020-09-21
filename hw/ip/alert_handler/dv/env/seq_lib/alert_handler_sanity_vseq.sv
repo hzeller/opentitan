@@ -11,15 +11,15 @@ class alert_handler_sanity_vseq extends alert_handler_base_vseq;
   rand bit [NUM_ALERT_HANDLER_CLASSES-1:0] intr_en;
   rand bit [NUM_ALERT_HANDLER_CLASSES-1:0] clr_en;
   rand bit [NUM_ALERT_HANDLER_CLASSES-1:0] lock_bit_en;
-  rand bit [NUM_ALERTS-1:0]                alert_trigger;
-  rand bit [NUM_ALERTS-1:0]                alert_int_err;
-  rand bit [NUM_ALERTS-1:0]                alert_en;
-  rand bit [NUM_ALERTS-1:0]                alert_ping_timeout;
-  rand bit [NUM_ALERTS*2-1:0]              alert_class_map;
-  rand bit [NUM_LOCAL_ALERT-1:0]           local_alert_en;
-  rand bit [NUM_LOCAL_ALERT*2-1:0]         local_alert_class_map;
-  rand bit [NUM_ESCS-1:0]                  esc_int_err;
-  rand bit [NUM_ESCS-1:0]                  esc_standalone_int_err;
+  rand bit [NUM_ALERTS-1:0] alert_trigger;
+  rand bit [NUM_ALERTS-1:0] alert_int_err;
+  rand bit [NUM_ALERTS-1:0] alert_en;
+  rand bit [NUM_ALERTS-1:0] alert_ping_timeout;
+  rand bit [NUM_ALERTS*2-1:0] alert_class_map;
+  rand bit [NUM_LOCAL_ALERT-1:0] local_alert_en;
+  rand bit [NUM_LOCAL_ALERT*2-1:0] local_alert_class_map;
+  rand bit [NUM_ESCS-1:0] esc_int_err;
+  rand bit [NUM_ESCS-1:0] esc_standalone_int_err;
 
   rand bit do_clr_esc;
   rand bit do_wr_phases_cyc;
@@ -28,8 +28,8 @@ class alert_handler_sanity_vseq extends alert_handler_base_vseq;
   rand bit rand_drive_entropy;
   rand bit [TL_DW-1:0] ping_timeout_cyc;
   rand bit [TL_DW-1:0] max_phase_cyc;
-  rand bit [TL_DW-1:0] intr_timeout_cyc [NUM_ALERT_HANDLER_CLASSES];
-  rand bit [TL_DW-1:0] accum_thresh     [NUM_ALERT_HANDLER_CLASSES];
+  rand bit [TL_DW-1:0] intr_timeout_cyc[NUM_ALERT_HANDLER_CLASSES];
+  rand bit [TL_DW-1:0] accum_thresh[NUM_ALERT_HANDLER_CLASSES];
 
   int max_wait_phases_cyc = MIN_CYCLE_PER_PHASE * NUM_ESC_PHASES;
   int max_intr_timeout_cyc;
@@ -37,44 +37,45 @@ class alert_handler_sanity_vseq extends alert_handler_base_vseq;
   uvm_verbosity verbosity = UVM_LOW;
 
   constraint lock_bit_c {
-    do_lock_config dist {1 := 1, 0 := 9};
+    do_lock_config dist {
+      1 := 1,
+      0 := 9
+    };
   }
 
   constraint clr_and_lock_en_c {
-    clr_en      dist {[0:'b1110] :/ 4, '1         :/ 6};
-    lock_bit_en dist {0          :/ 6, [1:'b1111] :/ 4};
+    clr_en dist {
+      [0 : 'b1110] :/ 4,
+      '1 :/ 6
+    };
+    lock_bit_en dist {
+      0 :/ 6,
+      [1 : 'b1111] :/ 4
+    };
   }
 
-  constraint enable_one_alert_c {
-    $onehot(alert_en);
-  }
+  constraint enable_one_alert_c {$onehot(alert_en);}
 
-  constraint max_phase_cyc_c {
-    max_phase_cyc inside {[0:1_000]};
-  }
+  constraint max_phase_cyc_c {max_phase_cyc inside {[0 : 1_000]};}
 
   // set min to 32 cycles (default value) to avoid alert ping timeout due to random delay
-  constraint ping_timeout_cyc_c {
-    ping_timeout_cyc inside {[32:MAX_PING_TIMEOUT_CYCLE]};
-  }
+  constraint ping_timeout_cyc_c {ping_timeout_cyc inside {[32 : MAX_PING_TIMEOUT_CYCLE]};}
 
   constraint enable_classa_only_c {
-    alert_class_map == 0; // all the alerts assign to classa
-    local_alert_class_map == 0; // all local alerts assign to classa
+    alert_class_map == 0;  // all the alerts assign to classa
+    local_alert_class_map == 0;  // all local alerts assign to classa
   }
 
   // constraint to trigger escalation
-  constraint esc_accum_thresh_c {
-    foreach (accum_thresh[i]) {soft accum_thresh[i] inside {[0:1]};}
-  }
+  constraint esc_accum_thresh_c {foreach (accum_thresh[i]) {soft accum_thresh[i] inside {[0 : 1]};}}
 
   constraint esc_intr_timeout_c {
     foreach (intr_timeout_cyc[i]) {intr_timeout_cyc[i] inside {[1:1_000]};}
   }
 
   constraint sig_int_c {
-    alert_int_err          == 0;
-    esc_int_err            == 0;
+    alert_int_err == 0;
+    esc_int_err == 0;
     esc_standalone_int_err == 0;
   }
 
@@ -83,8 +84,8 @@ class alert_handler_sanity_vseq extends alert_handler_base_vseq;
       begin : isolation_fork
         trigger_non_blocking_seqs();
         run_sanity_seq();
-        disable fork; // disable non-blocking seqs for stress_all tests
-      end // end fork
+        disable fork;  // disable non-blocking seqs for stress_all tests
+      end  // end fork
     join
   endtask : body
 

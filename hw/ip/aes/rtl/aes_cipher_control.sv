@@ -9,53 +9,58 @@
 `include "prim_assert.sv"
 
 module aes_cipher_control (
-  input  logic                    clk_i,
-  input  logic                    rst_ni,
+    input logic clk_i,
+    input logic rst_ni,
 
-  // Input handshake signals
-  input  logic                    in_valid_i,
-  output logic                    in_ready_o,
+    // Input handshake signals
+    input  logic in_valid_i,
+    output logic in_ready_o,
 
-  // Output handshake signals
-  output logic                    out_valid_o,
-  input  logic                    out_ready_i,
+    // Output handshake signals
+    output logic out_valid_o,
+    input  logic out_ready_i,
 
-  // Control and sync signals
-  input  logic                    cfg_valid_i,
-  input  aes_pkg::ciph_op_e       op_i,
-  input  aes_pkg::key_len_e       key_len_i,
-  input  logic                    crypt_i,
-  output logic                    crypt_o,
-  input  logic                    dec_key_gen_i,
-  output logic                    dec_key_gen_o,
-  input  logic                    key_clear_i,
-  output logic                    key_clear_o,
-  input  logic                    data_out_clear_i,
-  output logic                    data_out_clear_o,
+    // Control and sync signals
+    input  logic              cfg_valid_i,
+    input  aes_pkg::ciph_op_e op_i,
+    input  aes_pkg::key_len_e key_len_i,
+    input  logic              crypt_i,
+    output logic              crypt_o,
+    input  logic              dec_key_gen_i,
+    output logic              dec_key_gen_o,
+    input  logic              key_clear_i,
+    output logic              key_clear_o,
+    input  logic              data_out_clear_i,
+    output logic              data_out_clear_o,
 
-  // Control outputs cipher data path
-  output aes_pkg::state_sel_e     state_sel_o,
-  output logic                    state_we_o,
-  output aes_pkg::add_rk_sel_e    add_rk_sel_o,
+    // Control outputs cipher data path
+    output aes_pkg::state_sel_e  state_sel_o,
+    output logic                 state_we_o,
+    output aes_pkg::add_rk_sel_e add_rk_sel_o,
 
-  // Control outputs key expand data path
-  output aes_pkg::ciph_op_e       key_expand_op_o,
-  output aes_pkg::key_full_sel_e  key_full_sel_o,
-  output logic                    key_full_we_o,
-  output aes_pkg::key_dec_sel_e   key_dec_sel_o,
-  output logic                    key_dec_we_o,
-  output logic                    key_expand_step_o,
-  output logic                    key_expand_clear_o,
-  output logic [3:0]              key_expand_round_o,
-  output aes_pkg::key_words_sel_e key_words_sel_o,
-  output aes_pkg::round_key_sel_e round_key_sel_o
+    // Control outputs key expand data path
+    output aes_pkg::ciph_op_e             key_expand_op_o,
+    output aes_pkg::key_full_sel_e        key_full_sel_o,
+    output logic                          key_full_we_o,
+    output aes_pkg::key_dec_sel_e         key_dec_sel_o,
+    output logic                          key_dec_we_o,
+    output logic                          key_expand_step_o,
+    output logic                          key_expand_clear_o,
+    output logic                    [3:0] key_expand_round_o,
+    output aes_pkg::key_words_sel_e       key_words_sel_o,
+    output aes_pkg::round_key_sel_e       round_key_sel_o
 );
 
   import aes_pkg::*;
 
   // Types
   typedef enum logic [2:0] {
-    IDLE, INIT, ROUND, FINISH, CLEAR_S, CLEAR_KD
+    IDLE,
+    INIT,
+    ROUND,
+    FINISH,
+    CLEAR_S,
+    CLEAR_KD
   } aes_cipher_ctrl_e;
 
   aes_cipher_ctrl_e aes_cipher_ctrl_ns, aes_cipher_ctrl_cs;
@@ -64,45 +69,45 @@ module aes_cipher_control (
   logic [3:0] round_d, round_q;
   logic [3:0] num_rounds_d, num_rounds_q;
   logic [3:0] num_rounds_regular;
-  logic       crypt_d, crypt_q;
-  logic       dec_key_gen_d, dec_key_gen_q;
-  logic       key_clear_d, key_clear_q;
-  logic       data_out_clear_d, data_out_clear_q;
+  logic crypt_d, crypt_q;
+  logic dec_key_gen_d, dec_key_gen_q;
+  logic key_clear_d, key_clear_q;
+  logic data_out_clear_d, data_out_clear_q;
 
   // cfg_valid_i is used for gating assertions only.
-  logic       unused_cfg_valid;
+  logic unused_cfg_valid;
   assign unused_cfg_valid = cfg_valid_i;
 
   // FSM
   always_comb begin : aes_cipher_ctrl_fsm
 
     // Handshake signals
-    in_ready_o         = 1'b0;
-    out_valid_o        = 1'b0;
+    in_ready_o = 1'b0;
+    out_valid_o = 1'b0;
 
     // Cipher data path
-    state_sel_o        = STATE_ROUND;
-    state_we_o         = 1'b0;
-    add_rk_sel_o       = ADD_RK_ROUND;
+    state_sel_o = STATE_ROUND;
+    state_we_o = 1'b0;
+    add_rk_sel_o = ADD_RK_ROUND;
 
     // Key expand data path
-    key_full_sel_o     = KEY_FULL_ROUND;
-    key_full_we_o      = 1'b0;
-    key_dec_sel_o      = KEY_DEC_EXPAND;
-    key_dec_we_o       = 1'b0;
-    key_expand_step_o  = 1'b0;
+    key_full_sel_o = KEY_FULL_ROUND;
+    key_full_we_o = 1'b0;
+    key_dec_sel_o = KEY_DEC_EXPAND;
+    key_dec_we_o = 1'b0;
+    key_expand_step_o = 1'b0;
     key_expand_clear_o = 1'b0;
-    key_words_sel_o    = KEY_WORDS_ZERO;
-    round_key_sel_o    = ROUND_KEY_DIRECT;
+    key_words_sel_o = KEY_WORDS_ZERO;
+    round_key_sel_o = ROUND_KEY_DIRECT;
 
     // FSM
     aes_cipher_ctrl_ns = aes_cipher_ctrl_cs;
-    round_d            = round_q;
-    num_rounds_d       = num_rounds_q;
-    crypt_d            = crypt_q;
-    dec_key_gen_d      = dec_key_gen_q;
-    key_clear_d        = key_clear_q;
-    data_out_clear_d   = data_out_clear_q;
+    round_d = round_q;
+    num_rounds_d = num_rounds_q;
+    crypt_d = crypt_q;
+    dec_key_gen_d = dec_key_gen_q;
+    key_clear_d = key_clear_q;
+    data_out_clear_d = data_out_clear_q;
 
     unique case (aes_cipher_ctrl_cs)
 
@@ -115,7 +120,7 @@ module aes_cipher_control (
           if (key_clear_i || data_out_clear_i) begin
             // Clear internal key registers. The cipher core muxes are used to clear the data
             // output registers.
-            key_clear_d      = key_clear_i;
+            key_clear_d = key_clear_i;
             data_out_clear_d = data_out_clear_i;
 
             // To clear the data output registers, we must first clear the state.
@@ -123,12 +128,12 @@ module aes_cipher_control (
 
           end else if (dec_key_gen_i || crypt_i) begin
             // Start encryption/decryption or generation of start key for decryption.
-            crypt_d       = ~dec_key_gen_i;
-            dec_key_gen_d =  dec_key_gen_i;
+            crypt_d = ~dec_key_gen_i;
+            dec_key_gen_d = dec_key_gen_i;
 
             // Load input data to state
             state_sel_o = dec_key_gen_d ? STATE_CLEAR : STATE_INIT;
-            state_we_o  = 1'b1;
+            state_we_o = 1'b1;
 
             // Init key expand
             key_expand_clear_o = 1'b1;
@@ -137,13 +142,11 @@ module aes_cipher_control (
             key_full_sel_o = dec_key_gen_d ? KEY_FULL_ENC_INIT :
                         (op_i == CIPH_FWD) ? KEY_FULL_ENC_INIT :
                                              KEY_FULL_DEC_INIT;
-            key_full_we_o  = 1'b1;
+            key_full_we_o = 1'b1;
 
             // Load num_rounds, clear round
-            round_d      = '0;
-            num_rounds_d = (key_len_i == AES_128) ? 4'd10 :
-                           (key_len_i == AES_192) ? 4'd12 :
-                                                    4'd14;
+            round_d = '0;
+            num_rounds_d = (key_len_i == AES_128) ? 4'd10 : (key_len_i == AES_192) ? 4'd12 : 4'd14;
             aes_cipher_ctrl_ns = INIT;
           end
         end
@@ -151,7 +154,7 @@ module aes_cipher_control (
 
       INIT: begin
         // Initial round: just add key to state
-        state_we_o   = ~dec_key_gen_q;
+        state_we_o = ~dec_key_gen_q;
         add_rk_sel_o = ADD_RK_INIT;
 
         // Select key words for initial add_round_key
@@ -165,7 +168,7 @@ module aes_cipher_control (
         // Make key expand advance - AES-256 has two round keys available right from beginning.
         if (key_len_i != AES_256) begin
           key_expand_step_o = 1'b1;
-          key_full_we_o     = 1'b1;
+          key_full_we_o = 1'b1;
         end
 
         aes_cipher_ctrl_ns = ROUND;
@@ -185,7 +188,7 @@ module aes_cipher_control (
 
         // Make key expand advance
         key_expand_step_o = 1'b1;
-        key_full_we_o     = 1'b1;
+        key_full_we_o = 1'b1;
 
         // Select round key: direct or mixed (equivalent inverse cipher)
         round_key_sel_o = (op_i == CIPH_FWD) ? ROUND_KEY_DIRECT : ROUND_KEY_MIXED;
@@ -207,7 +210,7 @@ module aes_cipher_control (
             out_valid_o = 1'b1;
             if (out_ready_i) begin
               // Go to idle state directly.
-              dec_key_gen_d      = 1'b0;
+              dec_key_gen_d = 1'b0;
               aes_cipher_ctrl_ns = IDLE;
             end
           end
@@ -232,20 +235,20 @@ module aes_cipher_control (
         out_valid_o = 1'b1;
         if (out_ready_i) begin
           // We don't need the state anymore, clear it.
-          state_we_o         = 1'b1;
-          state_sel_o        = STATE_CLEAR;
-          crypt_d            = 1'b0;
+          state_we_o = 1'b1;
+          state_sel_o = STATE_CLEAR;
+          crypt_d = 1'b0;
           // If we were generating the decryption key and didn't get the handshake in the last
           // regular round, we should clear dec_key_gen now.
-          dec_key_gen_d      = 1'b0;
+          dec_key_gen_d = 1'b0;
           aes_cipher_ctrl_ns = IDLE;
         end
       end
 
       CLEAR_S: begin
         // Clear the state with pseudo-random data.
-        state_we_o         = 1'b1;
-        state_sel_o        = STATE_CLEAR;
+        state_we_o = 1'b1;
+        state_sel_o = STATE_CLEAR;
         aes_cipher_ctrl_ns = CLEAR_KD;
       end
 
@@ -253,21 +256,21 @@ module aes_cipher_control (
         // Clear internal key registers and/or external data output registers.
         if (key_clear_q) begin
           key_full_sel_o = KEY_FULL_CLEAR;
-          key_full_we_o  = 1'b1;
-          key_dec_sel_o  = KEY_DEC_CLEAR;
-          key_dec_we_o   = 1'b1;
+          key_full_we_o = 1'b1;
+          key_dec_sel_o = KEY_DEC_CLEAR;
+          key_dec_we_o = 1'b1;
         end
         if (data_out_clear_q) begin
           // Forward the state (previously cleared with psuedo-random data).
-          add_rk_sel_o    = ADD_RK_INIT;
+          add_rk_sel_o = ADD_RK_INIT;
           key_words_sel_o = KEY_WORDS_ZERO;
           round_key_sel_o = ROUND_KEY_DIRECT;
         end
         // Indicate that we are done, wait for handshake.
         out_valid_o = 1'b1;
         if (out_ready_i) begin
-          key_clear_d        = 1'b0;
-          data_out_clear_d   = 1'b0;
+          key_clear_d = 1'b0;
+          data_out_clear_d = 1'b0;
           aes_cipher_ctrl_ns = IDLE;
         end
       end
@@ -279,20 +282,20 @@ module aes_cipher_control (
   always_ff @(posedge clk_i or negedge rst_ni) begin : reg_fsm
     if (!rst_ni) begin
       aes_cipher_ctrl_cs <= IDLE;
-      round_q            <= '0;
-      num_rounds_q       <= '0;
-      crypt_q            <= 1'b0;
-      dec_key_gen_q      <= 1'b0;
-      key_clear_q        <= 1'b0;
-      data_out_clear_q   <= 1'b0;
+      round_q <= '0;
+      num_rounds_q <= '0;
+      crypt_q <= 1'b0;
+      dec_key_gen_q <= 1'b0;
+      key_clear_q <= 1'b0;
+      data_out_clear_q <= 1'b0;
     end else begin
       aes_cipher_ctrl_cs <= aes_cipher_ctrl_ns;
-      round_q            <= round_d;
-      num_rounds_q       <= num_rounds_d;
-      crypt_q            <= crypt_d;
-      dec_key_gen_q      <= dec_key_gen_d;
-      key_clear_q        <= key_clear_d;
-      data_out_clear_q   <= data_out_clear_d;
+      round_q <= round_d;
+      num_rounds_q <= num_rounds_d;
+      crypt_q <= crypt_d;
+      dec_key_gen_q <= dec_key_gen_d;
+      key_clear_q <= key_clear_d;
+      data_out_clear_q <= data_out_clear_d;
     end
   end
 
@@ -304,10 +307,10 @@ module aes_cipher_control (
   assign key_expand_round_o = round_d;
 
   // Let the main controller know whate we are doing.
-  assign crypt_o          = crypt_q;
-  assign dec_key_gen_o    = dec_key_gen_q;
-  assign key_clear_o      = key_clear_q;
-  assign data_out_clear_o = data_out_clear_q;
+  assign crypt_o            = crypt_q;
+  assign dec_key_gen_o      = dec_key_gen_q;
+  assign key_clear_o        = key_clear_q;
+  assign data_out_clear_o   = data_out_clear_q;
 
   ////////////////
   // Assertions //
@@ -315,11 +318,7 @@ module aes_cipher_control (
 
   // Selectors must be known/valid
   `ASSERT_KNOWN(AesCiphOpKnown, op_i)
-  `ASSERT(AesKeyLenValid, cfg_valid_i |-> key_len_i inside {
-      AES_128,
-      AES_192,
-      AES_256
-      })
+  `ASSERT(AesKeyLenValid, cfg_valid_i |-> key_len_i inside {AES_128, AES_192, AES_256})
   `ASSERT(AesControlStateValid, aes_cipher_ctrl_cs inside {
       IDLE,
       INIT,

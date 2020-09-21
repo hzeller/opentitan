@@ -4,15 +4,15 @@
 
 // Provides abstraction for mapping a flash memory address in flash organization.
 class flash_mem_addr_attrs;
-    bit [TL_AW-1:0] addr;             // Input addr (this is aligned to the bus word)
-    bit [TL_AW-1:0] bank_addr;        // Addr within the bank.
+  bit [TL_AW-1:0] addr;  // Input addr (this is aligned to the bus word)
+  bit [TL_AW-1:0] bank_addr;  // Addr within the bank.
 
-    bit [TL_AW-1:0] bank_start_addr;  // Start addr of the bank.
-    bit [TL_AW-1:0] page_start_addr;  // Start addr of the page within the bank.
+  bit [TL_AW-1:0] bank_start_addr;  // Start addr of the bank.
+  bit [TL_AW-1:0] page_start_addr;  // Start addr of the page within the bank.
 
-    uint            bank;             // The bank the address belongs to.
-    uint            page;             // The page within the bank.
-    uint            line;             // The word line within the page.
+  uint            bank;  // The bank the address belongs to.
+  uint            page;  // The page within the bank.
+  uint            line;  // The word line within the page.
 
   function new(bit [TL_AW-1:0] addr = 0);
     set_attrs(addr);

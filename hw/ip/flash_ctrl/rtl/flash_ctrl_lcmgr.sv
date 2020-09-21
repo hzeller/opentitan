@@ -5,52 +5,54 @@
 // Flash Controller for life cycle / key management handling
 //
 
-module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
-  input clk_i,
-  input rst_ni,
+module flash_ctrl_lcmgr
+import flash_ctrl_pkg::*;
+(
+    input clk_i,
+    input rst_ni,
 
-  // initialization command
-  input init_i,
-  output logic init_done_o,
+    // initialization command
+    input init_i,
+    output logic init_done_o,
 
-  // only access seeds when provisioned
-  input provision_en_i,
+    // only access seeds when provisioned
+    input provision_en_i,
 
-  // interface to ctrl arb control ports
-  output flash_ctrl_reg_pkg::flash_ctrl_reg2hw_control_reg_t ctrl_o,
-  output logic req_o,
-  output logic [top_pkg::TL_AW-1:0] addr_o,
-  input done_i,
-  input err_i,
+    // interface to ctrl arb control ports
+    output flash_ctrl_reg_pkg::flash_ctrl_reg2hw_control_reg_t ctrl_o,
+    output logic req_o,
+    output logic [top_pkg::TL_AW-1:0] addr_o,
+    input done_i,
+    input err_i,
 
-  // interface to ctrl_arb data ports
-  output logic rready_o,
-  input rvalid_i,
+    // interface to ctrl_arb data ports
+    output logic rready_o,
+    input rvalid_i,
 
-  // direct form rd_fifo
-  input [BusWidth-1:0] rdata_i,
+    // direct form rd_fifo
+    input [BusWidth-1:0] rdata_i,
 
-  // external rma request
-  // This should be simplified to just multi-bit request and multi-bit response
-  input rma_i,
-  input [BusWidth-1:0] rma_token_i, // just a random string
-  output logic [BusWidth-1:0] rma_token_o,
-  output logic rma_rsp_o,
+    // external rma request
+    // This should be simplified to just multi-bit request and multi-bit response
+    input rma_i,
+    input [BusWidth-1:0] rma_token_i,  // just a random string
+    output logic [BusWidth-1:0] rma_token_o,
+    output logic rma_rsp_o,
 
-  // random value
-  input [BusWidth-1:0] rand_i,
+    // random value
+    input [BusWidth-1:0] rand_i,
 
-  // seeds to the outside world,
-  output logic [NumSeeds-1:0][SeedWidth-1:0] seeds_o,
+    // seeds to the outside world,
+    output logic [NumSeeds-1:0][SeedWidth-1:0] seeds_o,
 
-  // indicate to memory protection what phase the hw interface is in
-  output flash_lcmgr_phase_e phase_o,
+    // indicate to memory protection what phase the hw interface is in
+    output flash_lcmgr_phase_e phase_o,
 
-  // error status to registers
-  output logic seed_err_o,
+    // error status to registers
+    output logic seed_err_o,
 
-  // init ongoing
-  output logic init_busy_o
+    // init ongoing
+    output logic init_busy_o
 );
 
   // total number of pages to be wiped during RMA entry
@@ -60,7 +62,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
   // seed related local params
   localparam int SeedReads = SeedWidth / BusWidth;
   localparam int SeedRdsWidth = $clog2(SeedReads);
-  localparam int SeedCntWidth = $clog2(NumSeeds+1);
+  localparam int SeedCntWidth = $clog2(NumSeeds + 1);
   localparam int NumSeedWidth = $clog2(NumSeeds);
 
   // the various seed outputs
@@ -93,7 +95,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
   logic rma_phase;
 
   assign seed_phase = phase == PhaseSeed;
-  assign rma_phase = phase == PhaseRma;
+  assign rma_phase  = phase == PhaseRma;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -132,13 +134,12 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
   // capture the seed values
   logic [SeedRdsWidth-1:0] rd_idx;
   logic [NumSeedWidth-1:0] seed_idx;
-  assign rd_idx = addr_cnt_q[SeedRdsWidth-1:0];
+  assign rd_idx   = addr_cnt_q[SeedRdsWidth-1:0];
   assign seed_idx = seed_cnt_q[NumSeedWidth-1:0];
   always_ff @(posedge clk_i) begin
     // validate current value
     if (seed_phase && validate_q && rvalid_i) begin
-      seeds_q[seed_idx][rd_idx] <= seeds_q[seed_idx][rd_idx] &
-                                   rdata_i;
+      seeds_q[seed_idx][rd_idx] <= seeds_q[seed_idx][rd_idx] & rdata_i;
     end else if (seed_phase && rvalid_i) begin
       seeds_q[seed_idx][rd_idx] <= rdata_i;
     end
@@ -152,7 +153,7 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
     end else if (rma_i) begin
       rsp_token[0] <= rma_token_i ^ rand_i ^ BusWidth'(StRmaRsp);
       rsp_token[1] <= rand_i;
-    // token can be changed during validation portion of the rma phase
+      // token can be changed during validation portion of the rma phase
     end else if (rma_phase && validate_q && rvalid_i) begin
       rsp_token <= rsp_token ^ {rdata_i, rdata_i};
     end
@@ -193,13 +194,13 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
   logic init_q;
 
   prim_flop_2sync #(
-    .Width(1),
-    .ResetValue(0)
+      .Width(1),
+      .ResetValue(0)
   ) u_sync_flash_init (
-    .clk_i,
-    .rst_ni,
-    .d_i(init_i),
-    .q_o(init_q)
+      .clk_i,
+      .rst_ni,
+      .d_i(init_i),
+      .q_o(init_q)
   );
 
   always_comb begin
@@ -265,15 +266,15 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
           start = 1'b0;
           state_d = StWait;
 
-        // still reading curent seed, increment whenever data returns
+          // still reading curent seed, increment whenever data returns
         end else if (!done_i) begin
           addr_cnt_en = rvalid_i;
 
-        // current seed reading is complete
-        // error is intentionally not used here, as we do not want read seed
-        // failures to stop the software from using flash
-        // When there are upstream failures, the data returned is simply all 1's.
-        // So instead of doing anything explicit, a status is indicated for software.
+          // current seed reading is complete
+          // error is intentionally not used here, as we do not want read seed
+          // failures to stop the software from using flash
+          // When there are upstream failures, the data returned is simply all 1's.
+          // So instead of doing anything explicit, a status is indicated for software.
         end else if (done_i) begin
           addr_cnt_clr = 1'b1;
           seed_err_o = 1'b1;
@@ -336,12 +337,12 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
           if (validate_q) begin
             state_d = StRmaRsp;
             validate_d = 1'b0;
-          // completed wiping, begin validation
+            // completed wiping, begin validation
           end else begin
             validate_d = 1'b1;
           end
 
-        // still working through erasing / validating pages
+          // still working through erasing / validating pages
         end else if (done_i && !err_i) begin
           addr_cnt_en = 1'b1;
         end
@@ -360,11 +361,11 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
         state_d = StInvalid;
       end
 
-      default:;
+      default: ;
 
-    endcase // unique case (state_q)
+    endcase  // unique case (state_q)
 
-  end // always_comb
+  end  // always_comb
 
   assign rma_token_o = rsp_token[0] ^ rsp_token[1] ^ rsp_mask;
   assign ctrl_o.start.q = start;
@@ -382,4 +383,4 @@ module flash_ctrl_lcmgr import flash_ctrl_pkg::*; (
   assign seeds_o = seeds_q;
   assign phase_o = phase;
 
-endmodule // flash_ctrl_lcmgr
+endmodule  // flash_ctrl_lcmgr

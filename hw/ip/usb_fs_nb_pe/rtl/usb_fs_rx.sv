@@ -5,52 +5,52 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module usb_fs_rx (
-  // A 48MHz clock is required to recover the clock from the incoming data.
-  input  logic clk_i,
-  input  logic rst_ni,
-  input  logic link_reset_i,
+    // A 48MHz clock is required to recover the clock from the incoming data.
+    input logic clk_i,
+    input logic rst_ni,
+    input logic link_reset_i,
 
-  // EOP configuration
-  input  logic cfg_eop_single_bit_i,
+    // EOP configuration
+    input logic cfg_eop_single_bit_i,
 
-  // USB data+ and data- lines (synchronous)
-  input  logic usb_d_i,
-  input  logic usb_se0_i,
+    // USB data+ and data- lines (synchronous)
+    input logic usb_d_i,
+    input logic usb_se0_i,
 
-  // Transmit enable disables the receier
-  input  logic tx_en_i,
+    // Transmit enable disables the receier
+    input logic tx_en_i,
 
-  // pulse on every bit transition.
-  output logic bit_strobe_o,
+    // pulse on every bit transition.
+    output logic bit_strobe_o,
 
-  // Pulse on beginning of new packet.
-  output logic pkt_start_o,
+    // Pulse on beginning of new packet.
+    output logic pkt_start_o,
 
-  // Pulse on end of current packet.
-  output logic pkt_end_o,
+    // Pulse on end of current packet.
+    output logic pkt_end_o,
 
-  // Most recent packet decoded.
-  output logic [3:0]  pid_o,
-  output logic [6:0]  addr_o,
-  output logic [3:0]  endp_o,
-  output logic [10:0] frame_num_o,
+    // Most recent packet decoded.
+    output logic [ 3:0] pid_o,
+    output logic [ 6:0] addr_o,
+    output logic [ 3:0] endp_o,
+    output logic [10:0] frame_num_o,
 
-  // Pulse on valid data on rx_data.
-  output logic rx_data_put_o,
-  output logic [7:0] rx_data_o,
+    // Pulse on valid data on rx_data.
+    output logic rx_data_put_o,
+    output logic [7:0] rx_data_o,
 
-  // Most recent packet passes PID and CRC checks
-  output logic valid_packet_o,
+    // Most recent packet passes PID and CRC checks
+    output logic valid_packet_o,
 
-  // Error detection
-  output logic crc_error_o,
-  output logic pid_error_o,
-  output logic bitstuff_error_o
+    // Error detection
+    output logic crc_error_o,
+    output logic pid_error_o,
+    output logic bitstuff_error_o
 );
 
   logic [6:0] bitstuff_history_q, bitstuff_history_d;
-  logic       bitstuff_error;
-  logic       bitstuff_error_q, bitstuff_error_d;
+  logic bitstuff_error;
+  logic bitstuff_error_q, bitstuff_error_d;
 
   //////////////////////
   // usb receive path //
@@ -70,17 +70,17 @@ module usb_fs_rx (
   // packet will fail the data integrity checks.
 
   logic [2:0] line_state_q, line_state_d;
-  localparam logic [2:0]  DT = 3'b100; // transition state
-  localparam logic [2:0]  DJ = 3'b010; // J - idle line state
+  localparam logic [2:0] DT = 3'b100;  // transition state
+  localparam logic [2:0] DJ = 3'b010;  // J - idle line state
   // localparam logic [2:0]  DK = 3'b001; // K - inverse of J
-  localparam logic [2:0] SE0 = 3'b000; // single-ended 0 - end of packet or detached
+  localparam logic [2:0] SE0 = 3'b000;  // single-ended 0 - end of packet or detached
   // localparam logic [2:0] SE1 = 3'b011; // single-ended 1 - illegal
 
   // Mute the input if we're transmitting
   logic [1:0] dpair;
   always_comb begin : proc_dpair_mute
     if (tx_en_i) begin
-      dpair = DJ[1:0]; // J
+      dpair = DJ[1:0];  // J
     end else begin
       dpair = (usb_se0_i) ? 2'b00 : {usb_d_i, ~usb_d_i};
     end
@@ -137,7 +137,7 @@ module usb_fs_rx (
   assign bit_strobe_o     = (bit_phase_q == 2'd2);
 
   // keep track of phase within each bit
-  assign bit_phase_d = (line_state_q == DT) ? 0 : bit_phase_q + 1;
+  assign bit_phase_d      = (line_state_q == DT) ? 0 : bit_phase_q + 1;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : proc_bit_phase_q
     if (!rst_ni) begin
@@ -165,7 +165,7 @@ module usb_fs_rx (
   logic see_eop, packet_start, packet_end;
 
   assign packet_start = packet_valid_d & ~packet_valid_q;
-  assign packet_end   = ~packet_valid_d & packet_valid_q;
+  assign packet_end = ~packet_valid_d & packet_valid_q;
 
   // EOP detection is configurable for 1/2 bit periods of SE0.
   // The standard (Table 7-7) mandates min = 82 ns = 1 bit period.
@@ -181,7 +181,8 @@ module usb_fs_rx (
       end
 
       // check for packet end: SE0 SE0
-      else if (packet_valid_q && see_eop) begin
+      else
+      if (packet_valid_q && see_eop) begin
         packet_valid_d = 0;
 
       end else begin
@@ -199,11 +200,11 @@ module usb_fs_rx (
   always_ff @(posedge clk_i or negedge rst_ni) begin : proc_reg_pkt_line
     if (!rst_ni) begin
       packet_valid_q <= 0;
-      line_history_q <= 12'b101010101010; // all K
+      line_history_q <= 12'b101010101010;  // all K
     end else begin
       if (link_reset_i) begin
         packet_valid_q <= 0;
-        line_history_q <= 12'b101010101010; // all K
+        line_history_q <= 12'b101010101010;  // all K
       end else begin
         packet_valid_q <= packet_valid_d;
         line_history_q <= line_history_d;
@@ -226,20 +227,20 @@ module usb_fs_rx (
 
   always_comb begin
     unique case (line_history_q[3:0])
-      4'b0101 : din = 1;
-      4'b0110 : din = 0;
-      4'b1001 : din = 0;
-      4'b1010 : din = 1;
-      default : din = 0;
+      4'b0101: din = 1;
+      4'b0110: din = 0;
+      4'b1001: din = 0;
+      4'b1010: din = 1;
+      default: din = 0;
     endcase
 
     if (packet_valid_q && line_state_valid) begin
       unique case (line_history_q[3:0])
-        4'b0101 : dvalid_raw = 1;
-        4'b0110 : dvalid_raw = 1;
-        4'b1001 : dvalid_raw = 1;
-        4'b1010 : dvalid_raw = 1;
-        default : dvalid_raw = 0;
+        4'b0101: dvalid_raw = 1;
+        4'b0110: dvalid_raw = 1;
+        4'b1001: dvalid_raw = 1;
+        4'b1010: dvalid_raw = 1;
+        default: dvalid_raw = 0;
       endcase
     end else begin
       dvalid_raw = 0;
@@ -333,7 +334,7 @@ module usb_fs_rx (
   assign crc5_invert = din ^ crc5_q[4];
 
   always_comb begin
-    crc5_d = crc5_q; // default value
+    crc5_d = crc5_q;  // default value
 
     if (packet_start) begin
       crc5_d = 5'b11111;
@@ -355,7 +356,7 @@ module usb_fs_rx (
   assign crc16_invert = din ^ crc16_q[15];
 
   always_comb begin
-    crc16_d = crc16_q; // default value
+    crc16_d = crc16_q;  // default value
 
     if (packet_start) begin
       crc16_d = 16'b1111111111111111;
@@ -371,8 +372,8 @@ module usb_fs_rx (
   // output control signals //
   ////////////////////////////
   logic pkt_is_token, pkt_is_data, pkt_is_handshake;
-  assign pkt_is_token     = full_pid_q[2:1] == 2'b01;
-  assign pkt_is_data      = full_pid_q[2:1] == 2'b11;
+  assign pkt_is_token = full_pid_q[2:1] == 2'b01;
+  assign pkt_is_data = full_pid_q[2:1] == 2'b11;
   assign pkt_is_handshake = full_pid_q[2:1] == 2'b10;
 
 
@@ -400,7 +401,7 @@ module usb_fs_rx (
   logic [10:0] frame_num_q, frame_num_d;
 
   always_comb begin
-    token_payload_d = token_payload_q; // default
+    token_payload_d = token_payload_q;  // default
 
     if (packet_start) begin
       token_payload_d = 12'b100000000000;
@@ -413,13 +414,13 @@ module usb_fs_rx (
 
   always_comb begin
     // defaults
-    addr_d      = addr_q;
-    endp_d      = endp_q;
+    addr_d = addr_q;
+    endp_d = endp_q;
     frame_num_d = frame_num_q;
 
     if (token_payload_done && pkt_is_token) begin
-      addr_d      = token_payload_q[7:1];
-      endp_d      = token_payload_q[11:8];
+      addr_d = token_payload_q[7:1];
+      endp_d = token_payload_q[11:8];
       frame_num_d = token_payload_q[11:1];
     end
   end
@@ -445,7 +446,7 @@ module usb_fs_rx (
   assign rx_data_o           = rx_data_buffer_q[8:1];
 
   always_comb begin
-    rx_data_buffer_d = rx_data_buffer_q; // default
+    rx_data_buffer_d = rx_data_buffer_q;  // default
 
     if (packet_start || rx_data_buffer_full) begin
       rx_data_buffer_d = 9'b100000000;
@@ -462,35 +463,35 @@ module usb_fs_rx (
   ///////////////
   always_ff @(posedge clk_i or negedge rst_ni) begin : proc_gp_regs
     if (!rst_ni) begin
-      full_pid_q          <= 0;
-      crc16_q             <= 0;
-      crc5_q              <= 0;
-      token_payload_q     <= 0;
-      addr_q              <= 0;
-      endp_q              <= 0;
-      frame_num_q         <= 0;
-      rx_data_buffer_q    <= 0;
+      full_pid_q <= 0;
+      crc16_q <= 0;
+      crc5_q <= 0;
+      token_payload_q <= 0;
+      addr_q <= 0;
+      endp_q <= 0;
+      frame_num_q <= 0;
+      rx_data_buffer_q <= 0;
     end else begin
       if (link_reset_i) begin
-        full_pid_q          <= 0;
-        crc16_q             <= 0;
-        crc5_q              <= 0;
-        token_payload_q     <= 0;
-        addr_q              <= 0;
-        endp_q              <= 0;
-        frame_num_q         <= 0;
-        rx_data_buffer_q    <= 0;
+        full_pid_q <= 0;
+        crc16_q <= 0;
+        crc5_q <= 0;
+        token_payload_q <= 0;
+        addr_q <= 0;
+        endp_q <= 0;
+        frame_num_q <= 0;
+        rx_data_buffer_q <= 0;
       end else begin
-        full_pid_q          <= full_pid_d;
-        crc16_q             <= crc16_d;
-        crc5_q              <= crc5_d;
-        token_payload_q     <= token_payload_d;
-        addr_q              <= addr_d;
-        endp_q              <= endp_d;
-        frame_num_q         <= frame_num_d;
-        rx_data_buffer_q    <= rx_data_buffer_d;
+        full_pid_q <= full_pid_d;
+        crc16_q <= crc16_d;
+        crc5_q <= crc5_d;
+        token_payload_q <= token_payload_d;
+        addr_q <= addr_d;
+        endp_q <= endp_d;
+        frame_num_q <= frame_num_d;
+        rx_data_buffer_q <= rx_data_buffer_d;
       end
     end
   end
 
-endmodule // usb_fs_rx
+endmodule  // usb_fs_rx

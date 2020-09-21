@@ -8,108 +8,111 @@
 
 `include "prim_assert.sv"
 
-module aes_control
-#(
-  parameter int unsigned NumDelayCyclesStartTrigger = 0
+module aes_control #(
+    parameter int unsigned NumDelayCyclesStartTrigger = 0
 ) (
-  input  logic                    clk_i,
-  input  logic                    rst_ni,
+    input logic clk_i,
+    input logic rst_ni,
 
-  // Main control signals
-  input  logic                    ctrl_qe_i,
-  output logic                    ctrl_we_o,
-  input  logic                    ctrl_err_storage_i,
-  input  aes_pkg::aes_op_e        op_i,
-  input  aes_pkg::aes_mode_e      mode_i,
-  input  aes_pkg::ciph_op_e       cipher_op_i,
-  input  logic                    manual_operation_i,
-  input  logic                    start_i,
-  input  logic                    key_clear_i,
-  input  logic                    iv_clear_i,
-  input  logic                    data_in_clear_i,
-  input  logic                    data_out_clear_i,
-  input  logic                    prng_reseed_i,
+    // Main control signals
+    input  logic               ctrl_qe_i,
+    output logic               ctrl_we_o,
+    input  logic               ctrl_err_storage_i,
+    input  aes_pkg::aes_op_e   op_i,
+    input  aes_pkg::aes_mode_e mode_i,
+    input  aes_pkg::ciph_op_e  cipher_op_i,
+    input  logic               manual_operation_i,
+    input  logic               start_i,
+    input  logic               key_clear_i,
+    input  logic               iv_clear_i,
+    input  logic               data_in_clear_i,
+    input  logic               data_out_clear_i,
+    input  logic               prng_reseed_i,
 
-  // I/O register read/write enables
-  input  logic [7:0]              key_init_qe_i [2],
-  input  logic [3:0]              iv_qe_i,
-  input  logic [3:0]              data_in_qe_i,
-  input  logic [3:0]              data_out_re_i,
-  output logic                    data_in_we_o,
-  output logic                    data_out_we_o,
+    // I/O register read/write enables
+    input  logic [7:0] key_init_qe_i[2],
+    input  logic [3:0] iv_qe_i,
+    input  logic [3:0] data_in_qe_i,
+    input  logic [3:0] data_out_re_i,
+    output logic       data_in_we_o,
+    output logic       data_out_we_o,
 
-  // Previous input data register
-  output aes_pkg::dip_sel_e       data_in_prev_sel_o,
-  output logic                    data_in_prev_we_o,
+    // Previous input data register
+    output aes_pkg::dip_sel_e data_in_prev_sel_o,
+    output logic              data_in_prev_we_o,
 
-  // Cipher I/O muxes
-  output aes_pkg::si_sel_e        state_in_sel_o,
-  output aes_pkg::add_si_sel_e    add_state_in_sel_o,
-  output aes_pkg::add_so_sel_e    add_state_out_sel_o,
+    // Cipher I/O muxes
+    output aes_pkg::si_sel_e     state_in_sel_o,
+    output aes_pkg::add_si_sel_e add_state_in_sel_o,
+    output aes_pkg::add_so_sel_e add_state_out_sel_o,
 
-  // Counter
-  output logic                    ctr_incr_o,
-  input  logic                    ctr_ready_i,
-  input  logic [7:0]              ctr_we_i,
+    // Counter
+    output logic       ctr_incr_o,
+    input  logic       ctr_ready_i,
+    input  logic [7:0] ctr_we_i,
 
-  // Cipher core control and sync
-  output logic                    cipher_in_valid_o,
-  input  logic                    cipher_in_ready_i,
-  input  logic                    cipher_out_valid_i,
-  output logic                    cipher_out_ready_o,
-  output logic                    cipher_crypt_o,
-  input  logic                    cipher_crypt_i,
-  output logic                    cipher_dec_key_gen_o,
-  input  logic                    cipher_dec_key_gen_i,
-  output logic                    cipher_key_clear_o,
-  input  logic                    cipher_key_clear_i,
-  output logic                    cipher_data_out_clear_o,
-  input  logic                    cipher_data_out_clear_i,
+    // Cipher core control and sync
+    output logic cipher_in_valid_o,
+    input  logic cipher_in_ready_i,
+    input  logic cipher_out_valid_i,
+    output logic cipher_out_ready_o,
+    output logic cipher_crypt_o,
+    input  logic cipher_crypt_i,
+    output logic cipher_dec_key_gen_o,
+    input  logic cipher_dec_key_gen_i,
+    output logic cipher_key_clear_o,
+    input  logic cipher_key_clear_i,
+    output logic cipher_data_out_clear_o,
+    input  logic cipher_data_out_clear_i,
 
-  // Initial key registers
-  output aes_pkg::key_init_sel_e  key_init_sel_o,
-  output logic [7:0]              key_init_we_o [2],
+    // Initial key registers
+    output aes_pkg::key_init_sel_e       key_init_sel_o,
+    output logic                   [7:0] key_init_we_o [2],
 
-  // IV registers
-  output aes_pkg::iv_sel_e        iv_sel_o,
-  output logic [7:0]              iv_we_o,
+    // IV registers
+    output aes_pkg::iv_sel_e       iv_sel_o,
+    output logic             [7:0] iv_we_o,
 
-  // Pseudo-random number generator interface
-  output logic                    prng_data_req_o,
-  input  logic                    prng_data_ack_i,
-  output logic                    prng_reseed_req_o,
-  input  logic                    prng_reseed_ack_i,
+    // Pseudo-random number generator interface
+    output logic prng_data_req_o,
+    input  logic prng_data_ack_i,
+    output logic prng_reseed_req_o,
+    input  logic prng_reseed_ack_i,
 
-  // Trigger register
-  output logic                    start_o,
-  output logic                    start_we_o,
-  output logic                    key_clear_o,
-  output logic                    key_clear_we_o,
-  output logic                    iv_clear_o,
-  output logic                    iv_clear_we_o,
-  output logic                    data_in_clear_o,
-  output logic                    data_in_clear_we_o,
-  output logic                    data_out_clear_o,
-  output logic                    data_out_clear_we_o,
-  output logic                    prng_reseed_o,
-  output logic                    prng_reseed_we_o,
+    // Trigger register
+    output logic start_o,
+    output logic start_we_o,
+    output logic key_clear_o,
+    output logic key_clear_we_o,
+    output logic iv_clear_o,
+    output logic iv_clear_we_o,
+    output logic data_in_clear_o,
+    output logic data_in_clear_we_o,
+    output logic data_out_clear_o,
+    output logic data_out_clear_we_o,
+    output logic prng_reseed_o,
+    output logic prng_reseed_we_o,
 
-  // Status register
-  output logic                    output_valid_o,
-  output logic                    output_valid_we_o,
-  output logic                    input_ready_o,
-  output logic                    input_ready_we_o,
-  output logic                    idle_o,
-  output logic                    idle_we_o,
-  output logic                    stall_o,
-  output logic                    stall_we_o
+    // Status register
+    output logic output_valid_o,
+    output logic output_valid_we_o,
+    output logic input_ready_o,
+    output logic input_ready_we_o,
+    output logic idle_o,
+    output logic idle_we_o,
+    output logic stall_o,
+    output logic stall_we_o
 );
 
   import aes_pkg::*;
 
   // Types
   typedef enum logic [2:0] {
-    IDLE, LOAD, UPDATE_PRNG, FINISH, CLEAR
+    IDLE,
+    LOAD,
+    UPDATE_PRNG,
+    FINISH,
+    CLEAR
   } aes_ctrl_e;
 
   aes_ctrl_e aes_ctrl_ns, aes_ctrl_cs;
@@ -128,33 +131,32 @@ module aes_control
   logic       iv_ready;
 
   logic [3:0] data_in_new_d, data_in_new_q;
-  logic       data_in_new;
-  logic       data_in_load;
+  logic data_in_new;
+  logic data_in_load;
 
   logic [3:0] data_out_read_d, data_out_read_q;
-  logic       data_out_read;
-  logic       output_valid_q;
+  logic data_out_read;
+  logic output_valid_q;
 
-  logic       start_trigger;
-  logic       cfg_valid;
-  logic       start, finish;
-  logic       cipher_crypt;
-  logic       cipher_out_done;
-  logic       doing_cbc_enc, doing_cbc_dec;
-  logic       doing_cfb_enc, doing_cfb_dec;
-  logic       doing_ofb;
-  logic       doing_ctr;
-  logic       ctrl_we_q;
-  logic       clear_in_out_status;
+  logic start_trigger;
+  logic cfg_valid;
+  logic start, finish;
+  logic cipher_crypt;
+  logic cipher_out_done;
+  logic doing_cbc_enc, doing_cbc_dec;
+  logic doing_cfb_enc, doing_cfb_dec;
+  logic doing_ofb;
+  logic doing_ctr;
+  logic ctrl_we_q;
+  logic clear_in_out_status;
 
   if (NumDelayCyclesStartTrigger > 0) begin : gen_start_delay
     // Delay the manual start trigger input for SCA measurements.
-    localparam int unsigned WidthCounter = $clog2(NumDelayCyclesStartTrigger+1);
+    localparam int unsigned WidthCounter = $clog2(NumDelayCyclesStartTrigger + 1);
     logic [WidthCounter-1:0] count_d, count_q;
 
     // Clear counter when input goes low. Keep value if the specified delay is reached.
-    assign count_d = !start_i       ? '0      :
-                      start_trigger ? count_q : count_q + 1'b1;
+    assign count_d = !start_i ? '0 : start_trigger ? count_q : count_q + 1'b1;
     assign start_trigger = (count_q == NumDelayCyclesStartTrigger[WidthCounter-1:0]) ? 1'b1 : 1'b0;
 
     always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -195,79 +197,79 @@ module aes_control
   assign finish = cfg_valid & (manual_operation_i ? 1'b1 : (~output_valid_q | data_out_read));
 
   // Helper signals for FSM
-  assign cipher_crypt  = cipher_crypt_o | cipher_crypt_i;
+  assign cipher_crypt = cipher_crypt_o | cipher_crypt_i;
   assign doing_cbc_enc = cipher_crypt & (mode_i == AES_CBC) & (op_i == AES_ENC);
   assign doing_cbc_dec = cipher_crypt & (mode_i == AES_CBC) & (op_i == AES_DEC);
   assign doing_cfb_enc = cipher_crypt & (mode_i == AES_CFB) & (op_i == AES_ENC);
   assign doing_cfb_dec = cipher_crypt & (mode_i == AES_CFB) & (op_i == AES_DEC);
-  assign doing_ofb     = cipher_crypt & (mode_i == AES_OFB);
-  assign doing_ctr     = cipher_crypt & (mode_i == AES_CTR);
+  assign doing_ofb = cipher_crypt & (mode_i == AES_OFB);
+  assign doing_ctr = cipher_crypt & (mode_i == AES_CTR);
 
   // FSM
   always_comb begin : aes_ctrl_fsm
 
     // Previous input data register control
     data_in_prev_sel_o = DIP_CLEAR;
-    data_in_prev_we_o  = 1'b0;
+    data_in_prev_we_o = 1'b0;
 
     // Cipher I/O mux control
-    state_in_sel_o      = SI_DATA;
-    add_state_in_sel_o  = ADD_SI_ZERO;
+    state_in_sel_o = SI_DATA;
+    add_state_in_sel_o = ADD_SI_ZERO;
     add_state_out_sel_o = ADD_SO_ZERO;
 
     // Counter control
     ctr_incr_o = 1'b0;
 
     // Cipher core control
-    cipher_in_valid_o       = 1'b0;
-    cipher_out_ready_o      = 1'b0;
-    cipher_out_done         = 1'b0;
-    cipher_crypt_o          = 1'b0;
-    cipher_dec_key_gen_o    = 1'b0;
-    cipher_key_clear_o      = 1'b0;
+    cipher_in_valid_o = 1'b0;
+    cipher_out_ready_o = 1'b0;
+    cipher_out_done = 1'b0;
+    cipher_crypt_o = 1'b0;
+    cipher_dec_key_gen_o = 1'b0;
+    cipher_key_clear_o = 1'b0;
     cipher_data_out_clear_o = 1'b0;
 
     // Initial key registers
     key_init_sel_o = KEY_INIT_INPUT;
-    key_init_we_o  = '{8'h00, 8'h00};
+    key_init_we_o = '{8'h00, 8'h00};
 
     // IV registers
     iv_sel_o = IV_INPUT;
-    iv_we_o  = 8'h00;
+    iv_we_o = 8'h00;
 
     // Control register
     ctrl_we_o = 1'b0;
 
     // Pseudo-random number generator control
-    prng_data_req_o   = 1'b0;
+    prng_data_req_o = 1'b0;
     prng_reseed_req_o = 1'b0;
 
     // Trigger register control
-    start_we_o          = 1'b0;
-    key_clear_we_o      = 1'b0;
-    iv_clear_we_o       = 1'b0;
-    data_in_clear_we_o  = 1'b0;
+    start_we_o = 1'b0;
+    key_clear_we_o = 1'b0;
+    iv_clear_we_o = 1'b0;
+    data_in_clear_we_o = 1'b0;
     data_out_clear_we_o = 1'b0;
-    prng_reseed_we_o    = 1'b0;
+    prng_reseed_we_o = 1'b0;
 
     // Status register
-    idle_o     = 1'b0;
-    idle_we_o  = 1'b0;
-    stall_o    = 1'b0;
+    idle_o = 1'b0;
+    idle_we_o = 1'b0;
+    stall_o = 1'b0;
     stall_we_o = 1'b0;
 
     // Key, data I/O register control
-    data_in_load  = 1'b0;
-    data_in_we_o  = 1'b0;
+    data_in_load = 1'b0;
+    data_in_we_o = 1'b0;
     data_out_we_o = 1'b0;
 
     // Register status tracker control
     key_init_clear = 1'b0;
-    key_init_load  = 1'b0;
-    key_init_arm   = 1'b0;
-    iv_clear       = 1'b0;
-    iv_load        = 1'b0;
-    iv_arm         = 1'b0;
+    key_init_load = 1'b0;
+    key_init_arm = 1'b0;
+    iv_clear = 1'b0;
+    iv_load = 1'b0;
+    iv_arm = 1'b0;
 
     // FSM
     aes_ctrl_ns = aes_ctrl_cs;
@@ -281,16 +283,16 @@ module aes_control
 
         if (idle_o) begin
           // Initial key and IV updates are ignored if we are not idle.
-          key_init_we_o  = key_init_qe_i;
-          iv_we_o        = iv_qe;
+          key_init_we_o = key_init_qe_i;
+          iv_we_o = iv_qe;
 
           // Updates to the control register are only allowed if we are idle and we don't have a
           // storage error. A storage error is unrecoverable and requires a reset.
-          ctrl_we_o      = !ctrl_err_storage_i ? ctrl_qe_i : 1'b0;
+          ctrl_we_o = !ctrl_err_storage_i ? ctrl_qe_i : 1'b0;
 
           // Control register updates clear all register status trackers.
           key_init_clear = ctrl_we_o;
-          iv_clear       = ctrl_we_o;
+          iv_clear = ctrl_we_o;
         end
 
         if (prng_reseed_i) begin
@@ -343,7 +345,7 @@ module aes_control
           if (cipher_in_ready_i) begin
             // Do not yet clear a possible start trigger if we are just starting the generation of
             // the start key for decryption.
-            start_we_o  = ~cipher_dec_key_gen_o;
+            start_we_o = ~cipher_dec_key_gen_o;
             aes_ctrl_ns = LOAD;
           end
         end
@@ -351,18 +353,18 @@ module aes_control
 
       LOAD: begin
         // Signal that we have used the current key, IV, data input to register status tracking.
-        key_init_load =  cipher_dec_key_gen_i; // This key is no longer "new", but still clean.
-        key_init_arm  = ~cipher_dec_key_gen_i; // The key is still "new", prevent partial updates.
+        key_init_load = cipher_dec_key_gen_i;  // This key is no longer "new", but still clean.
+        key_init_arm = ~cipher_dec_key_gen_i;  // The key is still "new", prevent partial updates.
         iv_load       = ~cipher_dec_key_gen_i & (doing_cbc_enc | doing_cbc_dec |
                                                  doing_cfb_enc | doing_cfb_dec |
                                                  doing_ofb | doing_ctr);
-        data_in_load  = ~cipher_dec_key_gen_i;
+        data_in_load = ~cipher_dec_key_gen_i;
 
         // Trigger counter increment.
-        ctr_incr_o   = doing_ctr ? 1'b1 : 1'b0;
+        ctr_incr_o = doing_ctr ? 1'b1 : 1'b0;
 
         // Unless we are just generating the start key for decryption, we must update the PRNG.
-        aes_ctrl_ns  = ~cipher_dec_key_gen_i ? UPDATE_PRNG : FINISH;
+        aes_ctrl_ns = ~cipher_dec_key_gen_i ? UPDATE_PRNG : FINISH;
       end
 
       UPDATE_PRNG: begin
@@ -372,8 +374,8 @@ module aes_control
 
         // IV control in case of ongoing encryption/decryption
         // - CTR: IV registers are updated by counter during cipher operation
-        iv_sel_o = doing_ctr ? IV_CTR   : IV_INPUT;
-        iv_we_o  = doing_ctr ? ctr_we_i : 8'h00;
+        iv_sel_o = doing_ctr ? IV_CTR : IV_INPUT;
+        iv_we_o = doing_ctr ? ctr_we_i : 8'h00;
 
         // Request fresh pseudo-random data, perform handshake.
         prng_data_req_o = 1'b1;
@@ -388,7 +390,7 @@ module aes_control
             // To clear the output data registers, we re-use the muxing resources of the cipher
             // core. To clear all key material, some key registers inside the cipher core need to
             // be cleared.
-            cipher_key_clear_o      = key_clear_i;
+            cipher_key_clear_o = key_clear_i;
             cipher_data_out_clear_o = data_out_clear_i;
 
             // We have work for the cipher core, perform handshake.
@@ -396,7 +398,7 @@ module aes_control
             if (cipher_in_ready_i) begin
               aes_ctrl_ns = CLEAR;
             end
-          end else begin // (iv_clear_i || data_in_clear_i)
+          end else begin  // (iv_clear_i || data_in_clear_i)
             // To clear the IV or input data registers, no handshake with the cipher core is
             // needed.
             aes_ctrl_ns = CLEAR;
@@ -416,10 +418,10 @@ module aes_control
         end else begin
           // Handshake signals: We are ready once the output data registers can be written.
           cipher_out_ready_o = finish;
-          cipher_out_done    = finish & cipher_out_valid_i;
+          cipher_out_done = finish & cipher_out_valid_i;
 
           // Signal if the cipher core is stalled (because previous output has not yet been read).
-          stall_o    = ~finish & cipher_out_valid_i;
+          stall_o = ~finish & cipher_out_valid_i;
           stall_we_o = 1'b1;
 
           // State out addition mux control
@@ -457,7 +459,7 @@ module aes_control
           // Proceed upon successful handshake.
           if (cipher_out_done) begin
             data_out_we_o = 1'b1;
-            aes_ctrl_ns   = IDLE;
+            aes_ctrl_ns = IDLE;
           end
         end
       end
@@ -465,16 +467,16 @@ module aes_control
       CLEAR: begin
         // The IV and input data registers can be cleared independently of the cipher core.
         if (iv_clear_i) begin
-          iv_sel_o      = IV_CLEAR;
-          iv_we_o       = 8'hFF;
+          iv_sel_o = IV_CLEAR;
+          iv_we_o = 8'hFF;
           iv_clear_we_o = 1'b1;
-          iv_clear      = 1'b1;
+          iv_clear = 1'b1;
         end
         if (data_in_clear_i) begin
-          data_in_we_o       = 1'b1;
+          data_in_we_o = 1'b1;
           data_in_clear_we_o = 1'b1;
           data_in_prev_sel_o = DIP_CLEAR;
-          data_in_prev_we_o  = 1'b1;
+          data_in_prev_we_o = 1'b1;
         end
 
         // To clear the output data registers, we re-use the muxing resources of the cipher core.
@@ -486,14 +488,14 @@ module aes_control
           if (cipher_out_valid_i) begin
 
             if (cipher_key_clear_i) begin
-              key_init_sel_o      = KEY_INIT_CLEAR;
-              key_init_we_o       = '{8'hFF, 8'hFF};
-              key_clear_we_o      = 1'b1;
-              key_init_clear      = 1'b1;
+              key_init_sel_o = KEY_INIT_CLEAR;
+              key_init_we_o = '{8'hFF, 8'hFF};
+              key_clear_we_o = 1'b1;
+              key_init_clear = 1'b1;
             end
 
             if (cipher_data_out_clear_i) begin
-              data_out_we_o       = 1'b1;
+              data_out_we_o = 1'b1;
               data_out_clear_we_o = 1'b1;
             end
             aes_ctrl_ns = IDLE;
@@ -520,16 +522,16 @@ module aes_control
   // - all initial key registers, or
   // - none of the initial key registers but the registers were updated in the past.
   aes_reg_status #(
-    .Width ( $bits(key_init_we_o) )
+      .Width($bits(key_init_we_o))
   ) u_reg_status_key_init (
-    .clk_i   ( clk_i                                ),
-    .rst_ni  ( rst_ni                               ),
-    .we_i    ( {key_init_we_o[1], key_init_we_o[0]} ),
-    .use_i   ( key_init_load                        ),
-    .clear_i ( key_init_clear                       ),
-    .arm_i   ( key_init_arm                         ),
-    .new_o   ( key_init_new                         ),
-    .clean_o ( key_init_ready                       )
+      .clk_i  (clk_i),
+      .rst_ni (rst_ni),
+      .we_i   ({key_init_we_o[1], key_init_we_o[0]}),
+      .use_i  (key_init_load),
+      .clear_i(key_init_clear),
+      .arm_i  (key_init_arm),
+      .new_o  (key_init_new),
+      .clean_o(key_init_ready)
   );
 
   // We only use clean and unused IVs. Either software/counter has updated
@@ -537,16 +539,16 @@ module aes_control
   // - none of the IV registers but the registers were updated in the past
   // and this particular IV has not yet been used.
   aes_reg_status #(
-    .Width ( $bits(iv_we_o) )
+      .Width($bits(iv_we_o))
   ) u_reg_status_iv (
-    .clk_i   ( clk_i    ),
-    .rst_ni  ( rst_ni   ),
-    .we_i    ( iv_we_o  ),
-    .use_i   ( iv_load  ),
-    .clear_i ( iv_clear ),
-    .arm_i   ( iv_arm   ),
-    .new_o   ( iv_ready ),
-    .clean_o (          )
+      .clk_i  (clk_i),
+      .rst_ni (rst_ni),
+      .we_i   (iv_we_o),
+      .use_i  (iv_load),
+      .clear_i(iv_clear),
+      .arm_i  (iv_arm),
+      .new_o  (iv_ready),
+      .clean_o()
   );
 
   // Input and output data register status tracking detects if:
@@ -571,7 +573,7 @@ module aes_control
   // - clearing the status tracking.
   assign data_in_new_d = data_in_load || data_in_we_o || clear_in_out_status ? '0 :
       data_in_new_q | data_in_qe_i;
-  assign data_in_new   = &data_in_new_d;
+  assign data_in_new = &data_in_new_d;
 
   // Collect reads of data output registers. data_out_read is high for one clock cycle only and
   // clears output_valid_q unless new output is written in the exact same cycle. Cleared if:
@@ -579,14 +581,14 @@ module aes_control
   // - clearing the status tracking.
   assign data_out_read_d = &data_out_read_q || clear_in_out_status ? '0 :
       data_out_read_q | data_out_re_i;
-  assign data_out_read   = &data_out_read_d;
+  assign data_out_read = &data_out_read_d;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : reg_edge_detection
     if (!rst_ni) begin
-      data_in_new_q   <= '0;
+      data_in_new_q <= '0;
       data_out_read_q <= '0;
     end else begin
-      data_in_new_q   <= data_in_new_d;
+      data_in_new_q <= data_in_new_d;
       data_out_read_q <= data_out_read_d;
     end
   end
@@ -596,14 +598,14 @@ module aes_control
   // - data is loaded into cipher core,
   // - clearing data input registers with random data,
   // - clearing the status tracking.
-  assign input_ready_o    = ~data_in_new;
-  assign input_ready_we_o =  data_in_new | data_in_load | data_in_we_o | clear_in_out_status;
+  assign input_ready_o = ~data_in_new;
+  assign input_ready_we_o = data_in_new | data_in_load | data_in_we_o | clear_in_out_status;
 
   // Cleared if:
   // - all data output registers have been read (unless new output is written in the same cycle),
   // - clearing data ouput registers with random data,
   // - clearing the status tracking.
-  assign output_valid_o    = data_out_we_o & ~data_out_clear_we_o;
+  assign output_valid_o = data_out_we_o & ~data_out_clear_we_o;
   assign output_valid_we_o = data_out_we_o | data_out_read | data_out_clear_we_o |
       clear_in_out_status;
 

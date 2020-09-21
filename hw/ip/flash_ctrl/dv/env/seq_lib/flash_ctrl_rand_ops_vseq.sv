@@ -23,17 +23,15 @@ class flash_ctrl_rand_ops_vseq extends flash_ctrl_base_vseq;
     solve flash_op.op before flash_op.erase_type;
     solve flash_op.op before flash_op.num_words;
 
-    flash_op.addr inside {[0:FlashSizeBytes-1]};
+    flash_op.addr inside {[0 : FlashSizeBytes - 1]};
 
-    if (!cfg.seq_cfg.op_allow_invalid) {
-      flash_op.op != flash_ctrl_pkg::FlashOpInvalid;
-    }
+    if (!cfg.seq_cfg.op_allow_invalid) {flash_op.op != flash_ctrl_pkg::FlashOpInvalid;}
 
     (flash_op.op == flash_ctrl_pkg::FlashOpErase) ->
-        flash_op.erase_type dist {
-          flash_ctrl_pkg::FlashErasePage :/ (100 - cfg.seq_cfg.op_erase_type_bank_pc),
-          flash_ctrl_pkg::FlashEraseBank :/ cfg.seq_cfg.op_erase_type_bank_pc
-        };
+    flash_op.erase_type dist {
+      flash_ctrl_pkg::FlashErasePage :/ (100 - cfg.seq_cfg.op_erase_type_bank_pc),
+      flash_ctrl_pkg::FlashEraseBank :/ cfg.seq_cfg.op_erase_type_bank_pc
+    };
 
     flash_op.partition dist {
       flash_ctrl_pkg::FlashPartData :/ cfg.seq_cfg.op_on_data_partition_pc,
@@ -41,9 +39,7 @@ class flash_ctrl_rand_ops_vseq extends flash_ctrl_base_vseq;
     };
 
     if (flash_op.op inside {flash_ctrl_pkg::FlashOpRead, flash_ctrl_pkg::FlashOpProgram}) {
-      flash_op.num_words inside {
-        [1:FlashNumBusWords - flash_op.addr[TL_AW-1:TL_SZW]]
-      };
+      flash_op.num_words inside {[1 : FlashNumBusWords - flash_op.addr[TL_AW-1:TL_SZW]]};
       flash_op.num_words <= cfg.seq_cfg.op_max_words;
     }
   }
@@ -63,9 +59,7 @@ class flash_ctrl_rand_ops_vseq extends flash_ctrl_base_vseq;
   // Bit vector representing which of the mp region cfg CSRs to enable.
   rand bit [flash_ctrl_pkg::MpRegions-1:0] en_mp_regions;
 
-  constraint en_mp_regions_c {
-    $countones(en_mp_regions) == cfg.seq_cfg.num_en_mp_regions;
-  }
+  constraint en_mp_regions_c {$countones(en_mp_regions) == cfg.seq_cfg.num_en_mp_regions;}
 
   // Memory protection regions settings.
   rand flash_mp_region_cfg_t mp_regions[flash_ctrl_pkg::MpRegions];
@@ -91,8 +85,8 @@ class flash_ctrl_rand_ops_vseq extends flash_ctrl_base_vseq;
         1 :/ cfg.seq_cfg.mp_region_erase_en_pc
       };
 
-      mp_regions[i].start_page inside {[0:FlashNumPages - 1]};
-      mp_regions[i].num_pages inside {[1:FlashNumPages - mp_regions[i].start_page]};
+      mp_regions[i].start_page inside {[0 : FlashNumPages - 1]};
+      mp_regions[i].num_pages inside {[1 : FlashNumPages - mp_regions[i].start_page]};
       mp_regions[i].num_pages <= cfg.seq_cfg.mp_region_max_pages;
 
       // If overlap not allowed, then each configured region is uniquified.
@@ -159,31 +153,27 @@ class flash_ctrl_rand_ops_vseq extends flash_ctrl_base_vseq;
 
   constraint program_fifo_intr_level_c {
     program_fifo_intr_level dist {
-      0                                 :/ 1,
-      [1:4]                             :/ 1,
-      [5:10]                            :/ 1,
-      [11:flash_ctrl_pkg::FifoDepth-2]  :/ 1,
-      flash_ctrl_pkg::FifoDepth-1       :/ 1
+      0 :/ 1,
+      [1 : 4] :/ 1,
+      [5 : 10] :/ 1,
+      [11 : flash_ctrl_pkg::FifoDepth - 2] :/ 1,
+      flash_ctrl_pkg::FifoDepth - 1 :/ 1
     };
   }
 
-  constraint program_fifo_intr_level_max_c {
-    program_fifo_intr_level < flash_ctrl_pkg::FifoDepth;
-  }
+  constraint program_fifo_intr_level_max_c {program_fifo_intr_level < flash_ctrl_pkg::FifoDepth;}
 
   constraint read_fifo_intr_level_c {
     read_fifo_intr_level dist {
-      0                                 :/ 1,
-      [1:4]                             :/ 1,
-      [5:10]                            :/ 1,
-      [11:flash_ctrl_pkg::FifoDepth-2]  :/ 1,
-      flash_ctrl_pkg::FifoDepth-1       :/ 1
+      0 :/ 1,
+      [1 : 4] :/ 1,
+      [5 : 10] :/ 1,
+      [11 : flash_ctrl_pkg::FifoDepth - 2] :/ 1,
+      flash_ctrl_pkg::FifoDepth - 1 :/ 1
     };
   }
 
-  constraint read_fifo_intr_level_max_c {
-    read_fifo_intr_level < flash_ctrl_pkg::FifoDepth;
-  }
+  constraint read_fifo_intr_level_max_c {read_fifo_intr_level < flash_ctrl_pkg::FifoDepth;}
 
   // Indicates whether to poll before writing to prog_fifo or reading from rd_fifo. If interupts are
   // enabled, the interrupt signals will be used instead. When set to 0, it will continuously write
@@ -201,8 +191,7 @@ class flash_ctrl_rand_ops_vseq extends flash_ctrl_base_vseq;
 
   task body();
     for (int i = 1; i <= num_trans; i++) begin
-      `uvm_info(`gfn, $sformatf("Configuring flash_ctrl %0d/%0d", i, num_trans),
-                UVM_MEDIUM)
+      `uvm_info(`gfn, $sformatf("Configuring flash_ctrl %0d/%0d", i, num_trans), UVM_MEDIUM)
       `DV_CHECK_RANDOMIZE_FATAL(this)
 
       // Configure the flash based on the randomized settings.

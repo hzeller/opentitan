@@ -5,21 +5,21 @@
 
 
 module timer_core #(
-  parameter int N = 1
+    parameter int N = 1
 ) (
-  input clk_i,
-  input rst_ni,
+    input clk_i,
+    input rst_ni,
 
-  input        active,
-  input [11:0] prescaler,
-  input [ 7:0] step,
+    input        active,
+    input [11:0] prescaler,
+    input [ 7:0] step,
 
-  output logic        tick,
-  output logic [63:0] mtime_d,
-  input        [63:0] mtime,
-  input        [63:0] mtimecmp [N],
+    output logic        tick,
+    output logic [63:0] mtime_d,
+    input        [63:0] mtime,
+    input        [63:0] mtimecmp[N],
 
-  output logic [N-1:0] intr
+    output logic [N-1:0] intr
 );
 
   logic [11:0] tick_count;

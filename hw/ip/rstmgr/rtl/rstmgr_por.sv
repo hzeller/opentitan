@@ -8,14 +8,14 @@
 `include "prim_assert.sv"
 
 module rstmgr_por #(
-  parameter int FilterStages = 3,
-  parameter int StretchCount = 32
+    parameter int FilterStages = 3,
+    parameter int StretchCount = 32
 ) (
-  input clk_i,
-  input rst_ni,
-  output logic rst_no
+    input clk_i,
+    input rst_ni,
+    output logic rst_no
 );
-  localparam int CtrWidth = $clog2(StretchCount+1);
+  localparam int CtrWidth = $clog2(StretchCount + 1);
 
   logic rst_root_n;
   logic [FilterStages-1:0] rst_filter_n;
@@ -26,13 +26,13 @@ module rstmgr_por #(
 
   // sync the POR
   prim_flop_2sync #(
-    .Width(1),
-    .ResetValue('0)
+      .Width(1),
+      .ResetValue('0)
   ) rst_sync (
-    .clk_i(clk_i),
-    .rst_ni(rst_ni),
-    .d_i(1'b1),
-    .q_o(rst_root_n)
+      .clk_i(clk_i),
+      .rst_ni(rst_ni),
+      .d_i(1'b1),
+      .q_o(rst_root_n)
   );
 
   // filter the POR
@@ -65,4 +65,4 @@ module rstmgr_por #(
     end
   end
 
-endmodule // rstmgr_por
+endmodule  // rstmgr_por

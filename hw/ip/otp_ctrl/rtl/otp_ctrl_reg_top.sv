@@ -7,49 +7,49 @@
 `include "prim_assert.sv"
 
 module otp_ctrl_reg_top (
-  input clk_i,
-  input rst_ni,
+    input clk_i,
+    input rst_ni,
 
-  // Below Regster interface can be changed
-  input  tlul_pkg::tl_h2d_t tl_i,
-  output tlul_pkg::tl_d2h_t tl_o,
+    // Below Regster interface can be changed
+    input  tlul_pkg::tl_h2d_t tl_i,
+    output tlul_pkg::tl_d2h_t tl_o,
 
-  // Output port for window
-  output tlul_pkg::tl_h2d_t tl_win_o  [3],
-  input  tlul_pkg::tl_d2h_t tl_win_i  [3],
+    // Output port for window
+    output tlul_pkg::tl_h2d_t tl_win_o[3],
+    input  tlul_pkg::tl_d2h_t tl_win_i[3],
 
-  // To HW
-  output otp_ctrl_reg_pkg::otp_ctrl_reg2hw_t reg2hw, // Write
-  input  otp_ctrl_reg_pkg::otp_ctrl_hw2reg_t hw2reg, // Read
+    // To HW
+    output otp_ctrl_reg_pkg::otp_ctrl_reg2hw_t reg2hw,  // Write
+    input  otp_ctrl_reg_pkg::otp_ctrl_hw2reg_t hw2reg,  // Read
 
-  // Config
-  input devmode_i // If 1, explicit error return for unmapped register access
+    // Config
+    input devmode_i  // If 1, explicit error return for unmapped register access
 );
 
-  import otp_ctrl_reg_pkg::* ;
+  import otp_ctrl_reg_pkg::*;
 
   localparam int AW = 13;
   localparam int DW = 32;
-  localparam int DBW = DW/8;                    // Byte Width
+  localparam int DBW = DW / 8;  // Byte Width
 
   // register signals
   logic           reg_we;
   logic           reg_re;
-  logic [AW-1:0]  reg_addr;
-  logic [DW-1:0]  reg_wdata;
+  logic [ AW-1:0] reg_addr;
+  logic [ DW-1:0] reg_wdata;
   logic [DBW-1:0] reg_be;
-  logic [DW-1:0]  reg_rdata;
+  logic [ DW-1:0] reg_rdata;
   logic           reg_error;
 
-  logic          addrmiss, wr_err;
+  logic addrmiss, wr_err;
 
   logic [DW-1:0] reg_rdata_next;
 
   tlul_pkg::tl_h2d_t tl_reg_h2d;
   tlul_pkg::tl_d2h_t tl_reg_d2h;
 
-  tlul_pkg::tl_h2d_t tl_socket_h2d [4];
-  tlul_pkg::tl_d2h_t tl_socket_d2h [4];
+  tlul_pkg::tl_h2d_t tl_socket_h2d[4];
+  tlul_pkg::tl_d2h_t tl_socket_d2h[4];
 
   logic [2:0] reg_steer;
 
@@ -66,28 +66,28 @@ module otp_ctrl_reg_top (
 
   // Create Socket_1n
   tlul_socket_1n #(
-    .N          (4),
-    .HReqPass   (1'b1),
-    .HRspPass   (1'b1),
-    .DReqPass   ({4{1'b1}}),
-    .DRspPass   ({4{1'b1}}),
-    .HReqDepth  (4'h0),
-    .HRspDepth  (4'h0),
-    .DReqDepth  ({4{4'h0}}),
-    .DRspDepth  ({4{4'h0}})
+      .N        (4),
+      .HReqPass (1'b1),
+      .HRspPass (1'b1),
+      .DReqPass ({4{1'b1}}),
+      .DRspPass ({4{1'b1}}),
+      .HReqDepth(4'h0),
+      .HRspDepth(4'h0),
+      .DReqDepth({4{4'h0}}),
+      .DRspDepth({4{4'h0}})
   ) u_socket (
-    .clk_i,
-    .rst_ni,
-    .tl_h_i (tl_i),
-    .tl_h_o (tl_o),
-    .tl_d_o (tl_socket_h2d),
-    .tl_d_i (tl_socket_d2h),
-    .dev_select_i (reg_steer)
+      .clk_i,
+      .rst_ni,
+      .tl_h_i(tl_i),
+      .tl_h_o(tl_o),
+      .tl_d_o(tl_socket_h2d),
+      .tl_d_i(tl_socket_d2h),
+      .dev_select_i(reg_steer)
   );
 
   // Create steering logic
   always_comb begin
-    reg_steer = 3;       // Default set to register
+    reg_steer = 3;  // Default set to register
 
     // TODO: Can below codes be unique case () inside ?
     if (tl_i.a_address[AW-1:0] >= 1024 && tl_i.a_address[AW-1:0] < 2048) begin
@@ -102,26 +102,26 @@ module otp_ctrl_reg_top (
   end
 
   tlul_adapter_reg #(
-    .RegAw(AW),
-    .RegDw(DW)
+      .RegAw(AW),
+      .RegDw(DW)
   ) u_reg_if (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    .tl_i (tl_reg_h2d),
-    .tl_o (tl_reg_d2h),
+      .tl_i(tl_reg_h2d),
+      .tl_o(tl_reg_d2h),
 
-    .we_o    (reg_we),
-    .re_o    (reg_re),
-    .addr_o  (reg_addr),
-    .wdata_o (reg_wdata),
-    .be_o    (reg_be),
-    .rdata_i (reg_rdata),
-    .error_i (reg_error)
+      .we_o   (reg_we),
+      .re_o   (reg_re),
+      .addr_o (reg_addr),
+      .wdata_o(reg_wdata),
+      .be_o   (reg_be),
+      .rdata_i(reg_rdata),
+      .error_i(reg_error)
   );
 
-  assign reg_rdata = reg_rdata_next ;
-  assign reg_error = (devmode_i & addrmiss) | wr_err ;
+  assign reg_rdata = reg_rdata_next;
+  assign reg_error = (devmode_i & addrmiss) | wr_err;
 
   // Define SW related signals
   // Format: <reg>_<field>_{wd|we|qs}
@@ -259,53 +259,53 @@ module otp_ctrl_reg_top (
 
   //   F[otp_operation_done]: 0:0
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h0)
   ) u_intr_state_otp_operation_done (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (intr_state_otp_operation_done_we),
-    .wd     (intr_state_otp_operation_done_wd),
+      // from register interface
+      .we(intr_state_otp_operation_done_we),
+      .wd(intr_state_otp_operation_done_wd),
 
-    // from internal hardware
-    .de     (hw2reg.intr_state.otp_operation_done.de),
-    .d      (hw2reg.intr_state.otp_operation_done.d ),
+      // from internal hardware
+      .de(hw2reg.intr_state.otp_operation_done.de),
+      .d (hw2reg.intr_state.otp_operation_done.d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.intr_state.otp_operation_done.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.intr_state.otp_operation_done.q),
 
-    // to register interface (read)
-    .qs     (intr_state_otp_operation_done_qs)
+      // to register interface (read)
+      .qs(intr_state_otp_operation_done_qs)
   );
 
 
   //   F[otp_error]: 1:1
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h0)
   ) u_intr_state_otp_error (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (intr_state_otp_error_we),
-    .wd     (intr_state_otp_error_wd),
+      // from register interface
+      .we(intr_state_otp_error_we),
+      .wd(intr_state_otp_error_wd),
 
-    // from internal hardware
-    .de     (hw2reg.intr_state.otp_error.de),
-    .d      (hw2reg.intr_state.otp_error.d ),
+      // from internal hardware
+      .de(hw2reg.intr_state.otp_error.de),
+      .d (hw2reg.intr_state.otp_error.d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.intr_state.otp_error.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.intr_state.otp_error.q),
 
-    // to register interface (read)
-    .qs     (intr_state_otp_error_qs)
+      // to register interface (read)
+      .qs(intr_state_otp_error_qs)
   );
 
 
@@ -313,53 +313,53 @@ module otp_ctrl_reg_top (
 
   //   F[otp_operation_done]: 0:0
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("RW"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("RW"),
+      .RESVAL  (1'h0)
   ) u_intr_enable_otp_operation_done (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (intr_enable_otp_operation_done_we),
-    .wd     (intr_enable_otp_operation_done_wd),
+      // from register interface
+      .we(intr_enable_otp_operation_done_we),
+      .wd(intr_enable_otp_operation_done_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.intr_enable.otp_operation_done.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.intr_enable.otp_operation_done.q),
 
-    // to register interface (read)
-    .qs     (intr_enable_otp_operation_done_qs)
+      // to register interface (read)
+      .qs(intr_enable_otp_operation_done_qs)
   );
 
 
   //   F[otp_error]: 1:1
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("RW"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("RW"),
+      .RESVAL  (1'h0)
   ) u_intr_enable_otp_error (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (intr_enable_otp_error_we),
-    .wd     (intr_enable_otp_error_wd),
+      // from register interface
+      .we(intr_enable_otp_error_we),
+      .wd(intr_enable_otp_error_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.intr_enable.otp_error.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.intr_enable.otp_error.q),
 
-    // to register interface (read)
-    .qs     (intr_enable_otp_error_qs)
+      // to register interface (read)
+      .qs(intr_enable_otp_error_qs)
   );
 
 
@@ -367,31 +367,31 @@ module otp_ctrl_reg_top (
 
   //   F[otp_operation_done]: 0:0
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_intr_test_otp_operation_done (
-    .re     (1'b0),
-    .we     (intr_test_otp_operation_done_we),
-    .wd     (intr_test_otp_operation_done_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.intr_test.otp_operation_done.qe),
-    .q      (reg2hw.intr_test.otp_operation_done.q ),
-    .qs     ()
+      .re (1'b0),
+      .we (intr_test_otp_operation_done_we),
+      .wd (intr_test_otp_operation_done_wd),
+      .d  ('0),
+      .qre(),
+      .qe (reg2hw.intr_test.otp_operation_done.qe),
+      .q  (reg2hw.intr_test.otp_operation_done.q),
+      .qs ()
   );
 
 
   //   F[otp_error]: 1:1
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_intr_test_otp_error (
-    .re     (1'b0),
-    .we     (intr_test_otp_error_we),
-    .wd     (intr_test_otp_error_wd),
-    .d      ('0),
-    .qre    (),
-    .qe     (reg2hw.intr_test.otp_error.qe),
-    .q      (reg2hw.intr_test.otp_error.q ),
-    .qs     ()
+      .re (1'b0),
+      .we (intr_test_otp_error_we),
+      .wd (intr_test_otp_error_wd),
+      .d  ('0),
+      .qre(),
+      .qe (reg2hw.intr_test.otp_error.qe),
+      .q  (reg2hw.intr_test.otp_error.q),
+      .qs ()
   );
 
 
@@ -399,151 +399,151 @@ module otp_ctrl_reg_top (
 
   //   F[creator_sw_cfg_error]: 0:0
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_creator_sw_cfg_error (
-    .re     (status_creator_sw_cfg_error_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.creator_sw_cfg_error.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_creator_sw_cfg_error_qs)
+      .re (status_creator_sw_cfg_error_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.creator_sw_cfg_error.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_creator_sw_cfg_error_qs)
   );
 
 
   //   F[owner_sw_cfg_error]: 1:1
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_owner_sw_cfg_error (
-    .re     (status_owner_sw_cfg_error_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.owner_sw_cfg_error.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_owner_sw_cfg_error_qs)
+      .re (status_owner_sw_cfg_error_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.owner_sw_cfg_error.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_owner_sw_cfg_error_qs)
   );
 
 
   //   F[hw_cfg_error]: 2:2
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_hw_cfg_error (
-    .re     (status_hw_cfg_error_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.hw_cfg_error.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_hw_cfg_error_qs)
+      .re (status_hw_cfg_error_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.hw_cfg_error.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_hw_cfg_error_qs)
   );
 
 
   //   F[secret0]: 3:3
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_secret0 (
-    .re     (status_secret0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.secret0.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_secret0_qs)
+      .re (status_secret0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.secret0.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_secret0_qs)
   );
 
 
   //   F[secret1]: 4:4
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_secret1 (
-    .re     (status_secret1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.secret1.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_secret1_qs)
+      .re (status_secret1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.secret1.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_secret1_qs)
   );
 
 
   //   F[secret2]: 5:5
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_secret2 (
-    .re     (status_secret2_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.secret2.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_secret2_qs)
+      .re (status_secret2_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.secret2.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_secret2_qs)
   );
 
 
   //   F[life_cycle]: 6:6
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_life_cycle (
-    .re     (status_life_cycle_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.life_cycle.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_life_cycle_qs)
+      .re (status_life_cycle_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.life_cycle.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_life_cycle_qs)
   );
 
 
   //   F[dai_error]: 7:7
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_dai_error (
-    .re     (status_dai_error_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.dai_error.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_dai_error_qs)
+      .re (status_dai_error_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.dai_error.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_dai_error_qs)
   );
 
 
   //   F[lci_error]: 8:8
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_lci_error (
-    .re     (status_lci_error_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.lci_error.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_lci_error_qs)
+      .re (status_lci_error_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.lci_error.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_lci_error_qs)
   );
 
 
   //   F[dai_idle]: 9:9
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_status_dai_idle (
-    .re     (status_dai_idle_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.status.dai_idle.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (status_dai_idle_qs)
+      .re (status_dai_idle_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.status.dai_idle.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (status_dai_idle_qs)
   );
 
 
@@ -553,121 +553,121 @@ module otp_ctrl_reg_top (
 
   // F[err_code_0]: 3:0
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_0 (
-    .re     (err_code_0_err_code_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_0_qs)
+      .re (err_code_0_err_code_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_0_qs)
   );
 
 
   // F[err_code_1]: 7:4
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_1 (
-    .re     (err_code_0_err_code_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_1_qs)
+      .re (err_code_0_err_code_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_1_qs)
   );
 
 
   // F[err_code_2]: 11:8
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_2 (
-    .re     (err_code_0_err_code_2_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[2].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_2_qs)
+      .re (err_code_0_err_code_2_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[2].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_2_qs)
   );
 
 
   // F[err_code_3]: 15:12
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_3 (
-    .re     (err_code_0_err_code_3_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[3].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_3_qs)
+      .re (err_code_0_err_code_3_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[3].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_3_qs)
   );
 
 
   // F[err_code_4]: 19:16
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_4 (
-    .re     (err_code_0_err_code_4_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[4].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_4_qs)
+      .re (err_code_0_err_code_4_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[4].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_4_qs)
   );
 
 
   // F[err_code_5]: 23:20
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_5 (
-    .re     (err_code_0_err_code_5_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[5].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_5_qs)
+      .re (err_code_0_err_code_5_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[5].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_5_qs)
   );
 
 
   // F[err_code_6]: 27:24
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_6 (
-    .re     (err_code_0_err_code_6_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[6].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_6_qs)
+      .re (err_code_0_err_code_6_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[6].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_6_qs)
   );
 
 
   // F[err_code_7]: 31:28
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_0_err_code_7 (
-    .re     (err_code_0_err_code_7_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[7].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_0_err_code_7_qs)
+      .re (err_code_0_err_code_7_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[7].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_0_err_code_7_qs)
   );
 
 
@@ -675,32 +675,32 @@ module otp_ctrl_reg_top (
   // R[err_code_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (4)
+      .DW(4)
   ) u_err_code_1 (
-    .re     (err_code_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.err_code[8].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (err_code_1_qs)
+      .re (err_code_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.err_code[8].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (err_code_1_qs)
   );
 
 
   // R[direct_access_regwen]: V(True)
 
   prim_subreg_ext #(
-    .DW    (1)
+      .DW(1)
   ) u_direct_access_regwen (
-    .re     (direct_access_regwen_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.direct_access_regwen.d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (direct_access_regwen_qs)
+      .re (direct_access_regwen_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.direct_access_regwen.d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (direct_access_regwen_qs)
   );
 
 
@@ -708,103 +708,103 @@ module otp_ctrl_reg_top (
 
   //   F[read]: 0:0
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h0)
   ) u_direct_access_cmd_read (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (direct_access_cmd_read_we & direct_access_regwen_qs),
-    .wd     (direct_access_cmd_read_wd),
+      // from register interface (qualified with register enable)
+      .we(direct_access_cmd_read_we & direct_access_regwen_qs),
+      .wd(direct_access_cmd_read_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (reg2hw.direct_access_cmd.read.qe),
-    .q      (reg2hw.direct_access_cmd.read.q ),
+      // to internal hardware
+      .qe(reg2hw.direct_access_cmd.read.qe),
+      .q (reg2hw.direct_access_cmd.read.q),
 
-    .qs     ()
+      .qs()
   );
 
 
   //   F[write]: 1:1
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h0)
   ) u_direct_access_cmd_write (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (direct_access_cmd_write_we & direct_access_regwen_qs),
-    .wd     (direct_access_cmd_write_wd),
+      // from register interface (qualified with register enable)
+      .we(direct_access_cmd_write_we & direct_access_regwen_qs),
+      .wd(direct_access_cmd_write_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (reg2hw.direct_access_cmd.write.qe),
-    .q      (reg2hw.direct_access_cmd.write.q ),
+      // to internal hardware
+      .qe(reg2hw.direct_access_cmd.write.qe),
+      .q (reg2hw.direct_access_cmd.write.q),
 
-    .qs     ()
+      .qs()
   );
 
 
   //   F[digest]: 2:2
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h0)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h0)
   ) u_direct_access_cmd_digest (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (direct_access_cmd_digest_we & direct_access_regwen_qs),
-    .wd     (direct_access_cmd_digest_wd),
+      // from register interface (qualified with register enable)
+      .we(direct_access_cmd_digest_we & direct_access_regwen_qs),
+      .wd(direct_access_cmd_digest_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (reg2hw.direct_access_cmd.digest.qe),
-    .q      (reg2hw.direct_access_cmd.digest.q ),
+      // to internal hardware
+      .qe(reg2hw.direct_access_cmd.digest.qe),
+      .q (reg2hw.direct_access_cmd.digest.q),
 
-    .qs     ()
+      .qs()
   );
 
 
   // R[direct_access_address]: V(False)
 
   prim_subreg #(
-    .DW      (11),
-    .SWACCESS("RW"),
-    .RESVAL  (11'h0)
+      .DW      (11),
+      .SWACCESS("RW"),
+      .RESVAL  (11'h0)
   ) u_direct_access_address (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (direct_access_address_we & direct_access_regwen_qs),
-    .wd     (direct_access_address_wd),
+      // from register interface (qualified with register enable)
+      .we(direct_access_address_we & direct_access_regwen_qs),
+      .wd(direct_access_address_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.direct_access_address.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.direct_access_address.q),
 
-    // to register interface (read)
-    .qs     (direct_access_address_qs)
+      // to register interface (read)
+      .qs(direct_access_address_qs)
   );
 
 
@@ -813,54 +813,54 @@ module otp_ctrl_reg_top (
   // R[direct_access_wdata_0]: V(False)
 
   prim_subreg #(
-    .DW      (32),
-    .SWACCESS("RW"),
-    .RESVAL  (32'h0)
+      .DW      (32),
+      .SWACCESS("RW"),
+      .RESVAL  (32'h0)
   ) u_direct_access_wdata_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (direct_access_wdata_0_we & direct_access_regwen_qs),
-    .wd     (direct_access_wdata_0_wd),
+      // from register interface (qualified with register enable)
+      .we(direct_access_wdata_0_we & direct_access_regwen_qs),
+      .wd(direct_access_wdata_0_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.direct_access_wdata[0].q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.direct_access_wdata[0].q),
 
-    // to register interface (read)
-    .qs     (direct_access_wdata_0_qs)
+      // to register interface (read)
+      .qs(direct_access_wdata_0_qs)
   );
 
   // Subregister 1 of Multireg direct_access_wdata
   // R[direct_access_wdata_1]: V(False)
 
   prim_subreg #(
-    .DW      (32),
-    .SWACCESS("RW"),
-    .RESVAL  (32'h0)
+      .DW      (32),
+      .SWACCESS("RW"),
+      .RESVAL  (32'h0)
   ) u_direct_access_wdata_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (direct_access_wdata_1_we & direct_access_regwen_qs),
-    .wd     (direct_access_wdata_1_wd),
+      // from register interface (qualified with register enable)
+      .we(direct_access_wdata_1_we & direct_access_regwen_qs),
+      .wd(direct_access_wdata_1_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.direct_access_wdata[1].q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.direct_access_wdata[1].q),
 
-    // to register interface (read)
-    .qs     (direct_access_wdata_1_qs)
+      // to register interface (read)
+      .qs(direct_access_wdata_1_qs)
   );
 
 
@@ -869,167 +869,167 @@ module otp_ctrl_reg_top (
   // R[direct_access_rdata_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_direct_access_rdata_0 (
-    .re     (direct_access_rdata_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.direct_access_rdata[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (direct_access_rdata_0_qs)
+      .re (direct_access_rdata_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.direct_access_rdata[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (direct_access_rdata_0_qs)
   );
 
   // Subregister 1 of Multireg direct_access_rdata
   // R[direct_access_rdata_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_direct_access_rdata_1 (
-    .re     (direct_access_rdata_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.direct_access_rdata[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (direct_access_rdata_1_qs)
+      .re (direct_access_rdata_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.direct_access_rdata[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (direct_access_rdata_1_qs)
   );
 
 
   // R[check_period_regen]: V(False)
 
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h1)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h1)
   ) u_check_period_regen (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (check_period_regen_we),
-    .wd     (check_period_regen_wd),
+      // from register interface
+      .we(check_period_regen_we),
+      .wd(check_period_regen_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.check_period_regen.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.check_period_regen.q),
 
-    // to register interface (read)
-    .qs     (check_period_regen_qs)
+      // to register interface (read)
+      .qs(check_period_regen_qs)
   );
 
 
   // R[integrity_check_period_msb]: V(False)
 
   prim_subreg #(
-    .DW      (6),
-    .SWACCESS("RW"),
-    .RESVAL  (6'h19)
+      .DW      (6),
+      .SWACCESS("RW"),
+      .RESVAL  (6'h19)
   ) u_integrity_check_period_msb (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (integrity_check_period_msb_we & check_period_regen_qs),
-    .wd     (integrity_check_period_msb_wd),
+      // from register interface (qualified with register enable)
+      .we(integrity_check_period_msb_we & check_period_regen_qs),
+      .wd(integrity_check_period_msb_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.integrity_check_period_msb.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.integrity_check_period_msb.q),
 
-    // to register interface (read)
-    .qs     (integrity_check_period_msb_qs)
+      // to register interface (read)
+      .qs(integrity_check_period_msb_qs)
   );
 
 
   // R[consistency_check_period_msb]: V(False)
 
   prim_subreg #(
-    .DW      (6),
-    .SWACCESS("RW"),
-    .RESVAL  (6'h22)
+      .DW      (6),
+      .SWACCESS("RW"),
+      .RESVAL  (6'h22)
   ) u_consistency_check_period_msb (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface (qualified with register enable)
-    .we     (consistency_check_period_msb_we & check_period_regen_qs),
-    .wd     (consistency_check_period_msb_wd),
+      // from register interface (qualified with register enable)
+      .we(consistency_check_period_msb_we & check_period_regen_qs),
+      .wd(consistency_check_period_msb_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.consistency_check_period_msb.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.consistency_check_period_msb.q),
 
-    // to register interface (read)
-    .qs     (consistency_check_period_msb_qs)
+      // to register interface (read)
+      .qs(consistency_check_period_msb_qs)
   );
 
 
   // R[creator_sw_cfg_read_lock]: V(False)
 
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h1)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h1)
   ) u_creator_sw_cfg_read_lock (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (creator_sw_cfg_read_lock_we),
-    .wd     (creator_sw_cfg_read_lock_wd),
+      // from register interface
+      .we(creator_sw_cfg_read_lock_we),
+      .wd(creator_sw_cfg_read_lock_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.creator_sw_cfg_read_lock.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.creator_sw_cfg_read_lock.q),
 
-    // to register interface (read)
-    .qs     (creator_sw_cfg_read_lock_qs)
+      // to register interface (read)
+      .qs(creator_sw_cfg_read_lock_qs)
   );
 
 
   // R[owner_sw_cfg_read_lock]: V(False)
 
   prim_subreg #(
-    .DW      (1),
-    .SWACCESS("W1C"),
-    .RESVAL  (1'h1)
+      .DW      (1),
+      .SWACCESS("W1C"),
+      .RESVAL  (1'h1)
   ) u_owner_sw_cfg_read_lock (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    // from register interface
-    .we     (owner_sw_cfg_read_lock_we),
-    .wd     (owner_sw_cfg_read_lock_wd),
+      // from register interface
+      .we(owner_sw_cfg_read_lock_we),
+      .wd(owner_sw_cfg_read_lock_wd),
 
-    // from internal hardware
-    .de     (1'b0),
-    .d      ('0  ),
+      // from internal hardware
+      .de(1'b0),
+      .d ('0),
 
-    // to internal hardware
-    .qe     (),
-    .q      (reg2hw.owner_sw_cfg_read_lock.q ),
+      // to internal hardware
+      .qe(),
+      .q (reg2hw.owner_sw_cfg_read_lock.q),
 
-    // to register interface (read)
-    .qs     (owner_sw_cfg_read_lock_qs)
+      // to register interface (read)
+      .qs(owner_sw_cfg_read_lock_qs)
   );
 
 
@@ -1038,32 +1038,32 @@ module otp_ctrl_reg_top (
   // R[creator_sw_cfg_digest_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_creator_sw_cfg_digest_0 (
-    .re     (creator_sw_cfg_digest_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.creator_sw_cfg_digest[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (creator_sw_cfg_digest_0_qs)
+      .re (creator_sw_cfg_digest_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.creator_sw_cfg_digest[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (creator_sw_cfg_digest_0_qs)
   );
 
   // Subregister 1 of Multireg creator_sw_cfg_digest
   // R[creator_sw_cfg_digest_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_creator_sw_cfg_digest_1 (
-    .re     (creator_sw_cfg_digest_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.creator_sw_cfg_digest[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (creator_sw_cfg_digest_1_qs)
+      .re (creator_sw_cfg_digest_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.creator_sw_cfg_digest[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (creator_sw_cfg_digest_1_qs)
   );
 
 
@@ -1072,32 +1072,32 @@ module otp_ctrl_reg_top (
   // R[owner_sw_cfg_digest_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_owner_sw_cfg_digest_0 (
-    .re     (owner_sw_cfg_digest_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.owner_sw_cfg_digest[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (owner_sw_cfg_digest_0_qs)
+      .re (owner_sw_cfg_digest_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.owner_sw_cfg_digest[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (owner_sw_cfg_digest_0_qs)
   );
 
   // Subregister 1 of Multireg owner_sw_cfg_digest
   // R[owner_sw_cfg_digest_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_owner_sw_cfg_digest_1 (
-    .re     (owner_sw_cfg_digest_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.owner_sw_cfg_digest[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (owner_sw_cfg_digest_1_qs)
+      .re (owner_sw_cfg_digest_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.owner_sw_cfg_digest[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (owner_sw_cfg_digest_1_qs)
   );
 
 
@@ -1106,32 +1106,32 @@ module otp_ctrl_reg_top (
   // R[hw_cfg_digest_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_hw_cfg_digest_0 (
-    .re     (hw_cfg_digest_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.hw_cfg_digest[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (hw_cfg_digest_0_qs)
+      .re (hw_cfg_digest_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.hw_cfg_digest[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (hw_cfg_digest_0_qs)
   );
 
   // Subregister 1 of Multireg hw_cfg_digest
   // R[hw_cfg_digest_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_hw_cfg_digest_1 (
-    .re     (hw_cfg_digest_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.hw_cfg_digest[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (hw_cfg_digest_1_qs)
+      .re (hw_cfg_digest_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.hw_cfg_digest[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (hw_cfg_digest_1_qs)
   );
 
 
@@ -1140,32 +1140,32 @@ module otp_ctrl_reg_top (
   // R[secret0_digest_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_secret0_digest_0 (
-    .re     (secret0_digest_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.secret0_digest[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (secret0_digest_0_qs)
+      .re (secret0_digest_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.secret0_digest[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (secret0_digest_0_qs)
   );
 
   // Subregister 1 of Multireg secret0_digest
   // R[secret0_digest_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_secret0_digest_1 (
-    .re     (secret0_digest_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.secret0_digest[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (secret0_digest_1_qs)
+      .re (secret0_digest_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.secret0_digest[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (secret0_digest_1_qs)
   );
 
 
@@ -1174,32 +1174,32 @@ module otp_ctrl_reg_top (
   // R[secret1_digest_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_secret1_digest_0 (
-    .re     (secret1_digest_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.secret1_digest[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (secret1_digest_0_qs)
+      .re (secret1_digest_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.secret1_digest[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (secret1_digest_0_qs)
   );
 
   // Subregister 1 of Multireg secret1_digest
   // R[secret1_digest_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_secret1_digest_1 (
-    .re     (secret1_digest_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.secret1_digest[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (secret1_digest_1_qs)
+      .re (secret1_digest_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.secret1_digest[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (secret1_digest_1_qs)
   );
 
 
@@ -1208,32 +1208,32 @@ module otp_ctrl_reg_top (
   // R[secret2_digest_0]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_secret2_digest_0 (
-    .re     (secret2_digest_0_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.secret2_digest[0].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (secret2_digest_0_qs)
+      .re (secret2_digest_0_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.secret2_digest[0].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (secret2_digest_0_qs)
   );
 
   // Subregister 1 of Multireg secret2_digest
   // R[secret2_digest_1]: V(True)
 
   prim_subreg_ext #(
-    .DW    (32)
+      .DW(32)
   ) u_secret2_digest_1 (
-    .re     (secret2_digest_1_re),
-    .we     (1'b0),
-    .wd     ('0),
-    .d      (hw2reg.secret2_digest[1].d),
-    .qre    (),
-    .qe     (),
-    .q      (),
-    .qs     (secret2_digest_1_qs)
+      .re (secret2_digest_1_re),
+      .we (1'b0),
+      .wd ('0),
+      .d  (hw2reg.secret2_digest[1].d),
+      .qre(),
+      .qe (),
+      .q  (),
+      .qs (secret2_digest_1_qs)
   );
 
 
@@ -1243,51 +1243,51 @@ module otp_ctrl_reg_top (
 
   // F[lc_state_0]: 15:0
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_0_lc_state_0 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[0].de),
-    .d      (hw2reg.lc_state[0].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[0].de),
+      .d (hw2reg.lc_state[0].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_0_lc_state_0_qs)
+      // to register interface (read)
+      .qs(lc_state_0_lc_state_0_qs)
   );
 
 
   // F[lc_state_1]: 31:16
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_0_lc_state_1 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[1].de),
-    .d      (hw2reg.lc_state[1].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[1].de),
+      .d (hw2reg.lc_state[1].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_0_lc_state_1_qs)
+      // to register interface (read)
+      .qs(lc_state_0_lc_state_1_qs)
   );
 
 
@@ -1296,51 +1296,51 @@ module otp_ctrl_reg_top (
 
   // F[lc_state_2]: 15:0
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_1_lc_state_2 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[2].de),
-    .d      (hw2reg.lc_state[2].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[2].de),
+      .d (hw2reg.lc_state[2].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_1_lc_state_2_qs)
+      // to register interface (read)
+      .qs(lc_state_1_lc_state_2_qs)
   );
 
 
   // F[lc_state_3]: 31:16
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_1_lc_state_3 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[3].de),
-    .d      (hw2reg.lc_state[3].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[3].de),
+      .d (hw2reg.lc_state[3].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_1_lc_state_3_qs)
+      // to register interface (read)
+      .qs(lc_state_1_lc_state_3_qs)
   );
 
 
@@ -1349,51 +1349,51 @@ module otp_ctrl_reg_top (
 
   // F[lc_state_4]: 15:0
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_2_lc_state_4 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[4].de),
-    .d      (hw2reg.lc_state[4].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[4].de),
+      .d (hw2reg.lc_state[4].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_2_lc_state_4_qs)
+      // to register interface (read)
+      .qs(lc_state_2_lc_state_4_qs)
   );
 
 
   // F[lc_state_5]: 31:16
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_2_lc_state_5 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[5].de),
-    .d      (hw2reg.lc_state[5].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[5].de),
+      .d (hw2reg.lc_state[5].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_2_lc_state_5_qs)
+      // to register interface (read)
+      .qs(lc_state_2_lc_state_5_qs)
   );
 
 
@@ -1402,51 +1402,51 @@ module otp_ctrl_reg_top (
 
   // F[lc_state_6]: 15:0
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_3_lc_state_6 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[6].de),
-    .d      (hw2reg.lc_state[6].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[6].de),
+      .d (hw2reg.lc_state[6].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_3_lc_state_6_qs)
+      // to register interface (read)
+      .qs(lc_state_3_lc_state_6_qs)
   );
 
 
   // F[lc_state_7]: 31:16
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_3_lc_state_7 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[7].de),
-    .d      (hw2reg.lc_state[7].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[7].de),
+      .d (hw2reg.lc_state[7].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_3_lc_state_7_qs)
+      // to register interface (read)
+      .qs(lc_state_3_lc_state_7_qs)
   );
 
 
@@ -1455,51 +1455,51 @@ module otp_ctrl_reg_top (
 
   // F[lc_state_8]: 15:0
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_4_lc_state_8 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[8].de),
-    .d      (hw2reg.lc_state[8].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[8].de),
+      .d (hw2reg.lc_state[8].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_4_lc_state_8_qs)
+      // to register interface (read)
+      .qs(lc_state_4_lc_state_8_qs)
   );
 
 
   // F[lc_state_9]: 31:16
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_4_lc_state_9 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[9].de),
-    .d      (hw2reg.lc_state[9].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[9].de),
+      .d (hw2reg.lc_state[9].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_4_lc_state_9_qs)
+      // to register interface (read)
+      .qs(lc_state_4_lc_state_9_qs)
   );
 
 
@@ -1508,51 +1508,51 @@ module otp_ctrl_reg_top (
 
   // F[lc_state_10]: 15:0
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_5_lc_state_10 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[10].de),
-    .d      (hw2reg.lc_state[10].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[10].de),
+      .d (hw2reg.lc_state[10].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_5_lc_state_10_qs)
+      // to register interface (read)
+      .qs(lc_state_5_lc_state_10_qs)
   );
 
 
   // F[lc_state_11]: 31:16
   prim_subreg #(
-    .DW      (16),
-    .SWACCESS("RO"),
-    .RESVAL  (16'h0)
+      .DW      (16),
+      .SWACCESS("RO"),
+      .RESVAL  (16'h0)
   ) u_lc_state_5_lc_state_11 (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_state[11].de),
-    .d      (hw2reg.lc_state[11].d ),
+      // from internal hardware
+      .de(hw2reg.lc_state[11].de),
+      .d (hw2reg.lc_state[11].d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_state_5_lc_state_11_qs)
+      // to register interface (read)
+      .qs(lc_state_5_lc_state_11_qs)
   );
 
 
@@ -1560,26 +1560,26 @@ module otp_ctrl_reg_top (
   // R[lc_transition_cnt]: V(False)
 
   prim_subreg #(
-    .DW      (32),
-    .SWACCESS("RO"),
-    .RESVAL  (32'h0)
+      .DW      (32),
+      .SWACCESS("RO"),
+      .RESVAL  (32'h0)
   ) u_lc_transition_cnt (
-    .clk_i   (clk_i    ),
-    .rst_ni  (rst_ni  ),
+      .clk_i (clk_i),
+      .rst_ni(rst_ni),
 
-    .we     (1'b0),
-    .wd     ('0  ),
+      .we(1'b0),
+      .wd('0),
 
-    // from internal hardware
-    .de     (hw2reg.lc_transition_cnt.de),
-    .d      (hw2reg.lc_transition_cnt.d ),
+      // from internal hardware
+      .de(hw2reg.lc_transition_cnt.de),
+      .d (hw2reg.lc_transition_cnt.d),
 
-    // to internal hardware
-    .qe     (),
-    .q      (),
+      // to internal hardware
+      .qe(),
+      .q (),
 
-    // to register interface (read)
-    .qs     (lc_transition_cnt_qs)
+      // to register interface (read)
+      .qs(lc_transition_cnt_qs)
   );
 
 
@@ -1588,16 +1588,16 @@ module otp_ctrl_reg_top (
   logic [36:0] addr_hit;
   always_comb begin
     addr_hit = '0;
-    addr_hit[ 0] = (reg_addr == OTP_CTRL_INTR_STATE_OFFSET);
-    addr_hit[ 1] = (reg_addr == OTP_CTRL_INTR_ENABLE_OFFSET);
-    addr_hit[ 2] = (reg_addr == OTP_CTRL_INTR_TEST_OFFSET);
-    addr_hit[ 3] = (reg_addr == OTP_CTRL_STATUS_OFFSET);
-    addr_hit[ 4] = (reg_addr == OTP_CTRL_ERR_CODE_0_OFFSET);
-    addr_hit[ 5] = (reg_addr == OTP_CTRL_ERR_CODE_1_OFFSET);
-    addr_hit[ 6] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_REGWEN_OFFSET);
-    addr_hit[ 7] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_CMD_OFFSET);
-    addr_hit[ 8] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_ADDRESS_OFFSET);
-    addr_hit[ 9] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_WDATA_0_OFFSET);
+    addr_hit[0] = (reg_addr == OTP_CTRL_INTR_STATE_OFFSET);
+    addr_hit[1] = (reg_addr == OTP_CTRL_INTR_ENABLE_OFFSET);
+    addr_hit[2] = (reg_addr == OTP_CTRL_INTR_TEST_OFFSET);
+    addr_hit[3] = (reg_addr == OTP_CTRL_STATUS_OFFSET);
+    addr_hit[4] = (reg_addr == OTP_CTRL_ERR_CODE_0_OFFSET);
+    addr_hit[5] = (reg_addr == OTP_CTRL_ERR_CODE_1_OFFSET);
+    addr_hit[6] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_REGWEN_OFFSET);
+    addr_hit[7] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_CMD_OFFSET);
+    addr_hit[8] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_ADDRESS_OFFSET);
+    addr_hit[9] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_WDATA_0_OFFSET);
     addr_hit[10] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_WDATA_1_OFFSET);
     addr_hit[11] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_RDATA_0_OFFSET);
     addr_hit[12] = (reg_addr == OTP_CTRL_DIRECT_ACCESS_RDATA_1_OFFSET);
@@ -1627,7 +1627,7 @@ module otp_ctrl_reg_top (
     addr_hit[36] = (reg_addr == OTP_CTRL_LC_TRANSITION_CNT_OFFSET);
   end
 
-  assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0 ;
+  assign addrmiss = (reg_re || reg_we) ? ~|addr_hit : 1'b0;
 
   // Check sub-word write is permitted
   always_comb begin

@@ -10,57 +10,45 @@ package nmi_gen_reg_pkg;
   // Typedefs for registers //
   ////////////////////////////
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } esc0;
-    struct packed {
-      logic        q;
-    } esc1;
-    struct packed {
-      logic        q;
-    } esc2;
+    struct packed {logic q;} esc0;
+    struct packed {logic q;} esc1;
+    struct packed {logic q;} esc2;
   } nmi_gen_reg2hw_intr_state_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } esc0;
-    struct packed {
-      logic        q;
-    } esc1;
-    struct packed {
-      logic        q;
-    } esc2;
+    struct packed {logic q;} esc0;
+    struct packed {logic q;} esc1;
+    struct packed {logic q;} esc2;
   } nmi_gen_reg2hw_intr_enable_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } esc0;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } esc1;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } esc2;
   } nmi_gen_reg2hw_intr_test_reg_t;
 
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } esc0;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } esc1;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } esc2;
   } nmi_gen_hw2reg_intr_state_reg_t;
 
@@ -69,9 +57,9 @@ package nmi_gen_reg_pkg;
   // Register to internal design logic //
   ///////////////////////////////////////
   typedef struct packed {
-    nmi_gen_reg2hw_intr_state_reg_t intr_state; // [11:9]
-    nmi_gen_reg2hw_intr_enable_reg_t intr_enable; // [8:6]
-    nmi_gen_reg2hw_intr_test_reg_t intr_test; // [5:0]
+    nmi_gen_reg2hw_intr_state_reg_t intr_state;  // [11:9]
+    nmi_gen_reg2hw_intr_enable_reg_t intr_enable;  // [8:6]
+    nmi_gen_reg2hw_intr_test_reg_t intr_test;  // [5:0]
   } nmi_gen_reg2hw_t;
 
   ///////////////////////////////////////
@@ -82,9 +70,9 @@ package nmi_gen_reg_pkg;
   } nmi_gen_hw2reg_t;
 
   // Register Address
-  parameter logic [3:0] NMI_GEN_INTR_STATE_OFFSET = 4'h 0;
-  parameter logic [3:0] NMI_GEN_INTR_ENABLE_OFFSET = 4'h 4;
-  parameter logic [3:0] NMI_GEN_INTR_TEST_OFFSET = 4'h 8;
+  parameter logic [3:0] NMI_GEN_INTR_STATE_OFFSET = 4'h0;
+  parameter logic [3:0] NMI_GEN_INTR_ENABLE_OFFSET = 4'h4;
+  parameter logic [3:0] NMI_GEN_INTR_TEST_OFFSET = 4'h8;
 
 
   // Register Index

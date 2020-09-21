@@ -3,36 +3,36 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module prim_generic_otp #(
-  // Native OTP word size. This determines the size_i granule.
-  parameter  int Width       = 16,
-  parameter  int Depth       = 1024,
-  parameter  int CmdWidth    = otp_ctrl_pkg::OtpCmdWidth,
-  // This determines the maximum number of native words that
-  // can be transferred accross the interface in one cycle.
-  parameter  int SizeWidth   = 2,
-  parameter  int ErrWidth    = otp_ctrl_pkg::OtpErrWidth,
-  localparam int AddrWidth   = prim_util_pkg::vbits(Depth),
-  localparam int IfWidth     = 2**SizeWidth*Width,
-  // VMEM file to initialize the memory with
-  parameter      MemInitFile = ""
+    // Native OTP word size. This determines the size_i granule.
+    parameter  int Width       = 16,
+    parameter  int Depth       = 1024,
+    parameter  int CmdWidth    = otp_ctrl_pkg::OtpCmdWidth,
+    // This determines the maximum number of native words that
+    // can be transferred accross the interface in one cycle.
+    parameter  int SizeWidth   = 2,
+    parameter  int ErrWidth    = otp_ctrl_pkg::OtpErrWidth,
+    localparam int AddrWidth   = prim_util_pkg::vbits (Depth),
+    localparam int IfWidth     = 2 ** SizeWidth * Width,
+    // VMEM file to initialize the memory with
+    parameter      MemInitFile = ""
 ) (
-  input                        clk_i,
-  input                        rst_ni,
-  // TODO: power sequencing signals from/to AST
-  // Test interface
-  input  tlul_pkg::tl_h2d_t    test_tl_i,
-  output tlul_pkg::tl_d2h_t    test_tl_o,
-  // Ready valid handshake for read/write command
-  output logic                 ready_o,
-  input                        valid_i,
-  input [SizeWidth-1:0]        size_i, // #(Native words)-1, e.g. size == 0 for 1 native word.
-  input [CmdWidth-1:0]         cmd_i,  // 00: read command, 01: write command, 11: init command
-  input [AddrWidth-1:0]        addr_i,
-  input [IfWidth-1:0]          wdata_i,
-  // Response channel
-  output logic                 valid_o,
-  output logic [IfWidth-1:0]   rdata_o,
-  output logic [ErrWidth-1:0]  err_o
+    input clk_i,
+    input rst_ni,
+    // TODO: power sequencing signals from/to AST
+    // Test interface
+    input tlul_pkg::tl_h2d_t test_tl_i,
+    output tlul_pkg::tl_d2h_t test_tl_o,
+    // Ready valid handshake for read/write command
+    output logic ready_o,
+    input valid_i,
+    input [SizeWidth-1:0] size_i,  // #(Native words)-1, e.g. size == 0 for 1 native word.
+    input [CmdWidth-1:0] cmd_i,  // 00: read command, 01: write command, 11: init command
+    input [AddrWidth-1:0] addr_i,
+    input [IfWidth-1:0] wdata_i,
+    // Response channel
+    output logic valid_o,
+    output logic [IfWidth-1:0] rdata_o,
+    output logic [ErrWidth-1:0] err_o
 );
 
   // TODO: need a randomized LFSR timer to add some reasonable, non-deterministic response delays.
@@ -40,7 +40,7 @@ module prim_generic_otp #(
   // Not supported in open-source emulation model.
   tlul_pkg::tl_h2d_t unused_test_tl;
   assign unused_test_tl = test_tl_i;
-  assign test_tl_o   = '0;
+  assign test_tl_o = '0;
 
   ///////////////////
   // Control logic //
@@ -76,7 +76,7 @@ module prim_generic_otp #(
   } state_e;
 
   state_e state_d, state_q;
-  logic  valid_d, valid_q;
+  logic valid_d, valid_q;
   logic [ErrWidth-1:0] err_d, err_q;
   logic req, wren, rvalid;
   logic [1:0] rerror;
@@ -87,8 +87,7 @@ module prim_generic_otp #(
   logic [SizeWidth-1:0] cnt_d, cnt_q;
   logic cnt_clr, cnt_en;
 
-  assign cnt_d = (cnt_clr) ? '0           :
-                 (cnt_en)  ? cnt_q + 1'b1 : cnt_q;
+  assign cnt_d   = (cnt_clr) ? '0 : (cnt_en) ? cnt_q + 1'b1 : cnt_q;
 
   assign valid_o = valid_q;
   assign rdata_o = rdata_q;
@@ -99,11 +98,11 @@ module prim_generic_otp #(
     state_d = state_q;
     ready_o = 1'b0;
     valid_d = 1'b0;
-    err_d   = otp_ctrl_pkg::NoErr;
-    req     = 1'b0;
-    wren    = 1'b0;
+    err_d = otp_ctrl_pkg::NoErr;
+    req = 1'b0;
+    wren = 1'b0;
     cnt_clr = 1'b0;
-    cnt_en  = 1'b0;
+    cnt_en = 1'b0;
 
     unique case (state_q)
       // Wait here until we receive an initialization command.
@@ -134,18 +133,18 @@ module prim_generic_otp #(
           unique case (cmd_i)
             otp_ctrl_pkg::OtpRead:  state_d = ReadSt;
             otp_ctrl_pkg::OtpWrite: state_d = WriteCheckSt;
-            default:  begin
+            default: begin
               // Invalid commands get caught here
               valid_d = 1'b1;
               err_d = otp_ctrl_pkg::OtpCmdInvErr;
             end
-          endcase // cmd_i
+          endcase  // cmd_i
         end
       end
       // Issue a read command to the macro.
       ReadSt: begin
         state_d = ReadWaitSt;
-        req     = 1'b1;
+        req = 1'b1;
       end
       // Wait for response from macro.
       ReadWaitSt: begin
@@ -174,7 +173,7 @@ module prim_generic_otp #(
       // First, perform a blank check.
       WriteCheckSt: begin
         state_d = WriteWaitSt;
-        req     = 1'b1;
+        req = 1'b1;
       end
       // Wait for readout to complete first.
       // If the word is not blank, or if we got an uncorrectable ECC error,
@@ -211,7 +210,7 @@ module prim_generic_otp #(
       default: begin
         state_d = ResetSt;
       end
-    endcase // state_q
+    endcase  // state_q
   end
 
   ///////////////////////////////////////////
@@ -222,24 +221,24 @@ module prim_generic_otp #(
   assign addr = addr_q + AddrWidth'(cnt_q);
 
   prim_ram_1p_adv #(
-    .Depth                (Depth),
-    .Width                (Width),
-    .MemInitFile          (MemInitFile),
-    .EnableECC            (1'b1),
-    .EnableInputPipeline  (1),
-    .EnableOutputPipeline (1)
+      .Depth               (Depth),
+      .Width               (Width),
+      .MemInitFile         (MemInitFile),
+      .EnableECC           (1'b1),
+      .EnableInputPipeline (1),
+      .EnableOutputPipeline(1)
   ) i_prim_ram_1p_adv (
-    .clk_i,
-    .rst_ni,
-    .req_i    ( req            ),
-    .write_i  ( wren           ),
-    .addr_i   ( addr           ),
-    .wdata_i  ( wdata_q[cnt_q] ),
-    .wmask_i  ( {Width{1'b1}}  ),
-    .rdata_o  ( rdata_d        ),
-    .rvalid_o ( rvalid         ),
-    .rerror_o ( rerror         ),
-    .cfg_i    (                )
+      .clk_i,
+      .rst_ni,
+      .req_i   (req),
+      .write_i (wren),
+      .addr_i  (addr),
+      .wdata_i (wdata_q[cnt_q]),
+      .wmask_i ({Width{1'b1}}),
+      .rdata_o (rdata_d),
+      .rvalid_o(rvalid),
+      .rerror_o(rerror),
+      .cfg_i   ()
   );
 
   // Currently it is assumed that no wrap arounds can occur.
@@ -253,21 +252,21 @@ module prim_generic_otp #(
     if (!rst_ni) begin
       state_q <= ResetSt;
       valid_q <= '0;
-      err_q   <= '0;
-      addr_q  <= '0;
+      err_q <= '0;
+      addr_q <= '0;
       wdata_q <= '0;
       rdata_q <= '0;
-      cnt_q   <= '0;
-      size_q  <= '0;
+      cnt_q <= '0;
+      size_q <= '0;
     end else begin
       state_q <= state_d;
       valid_q <= valid_d;
-      err_q   <= err_d;
-      cnt_q   <= cnt_d;
+      err_q <= err_d;
+      cnt_q <= cnt_d;
       if (ready_o && valid_i) begin
-        addr_q  <= addr_i;
+        addr_q <= addr_i;
         wdata_q <= wdata_i;
-        size_q  <= size_i;
+        size_q <= size_i;
       end
       if (rvalid) begin
         rdata_q[cnt_q] <= rdata_d;

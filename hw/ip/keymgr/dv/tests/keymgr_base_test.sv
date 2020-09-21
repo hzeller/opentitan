@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class keymgr_base_test extends cip_base_test #(
+class keymgr_base_test extends cip_base_test#(
     .CFG_T(keymgr_env_cfg),
     .ENV_T(keymgr_env)
-  );
+);
 
   `uvm_component_utils(keymgr_base_test)
   `uvm_component_new

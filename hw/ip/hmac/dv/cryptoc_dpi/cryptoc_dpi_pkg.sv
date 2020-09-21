@@ -31,8 +31,7 @@ package cryptoc_dpi_pkg;
                                                          output int unsigned hmac[8]);
 
   // sv wrapper functions
-  function automatic void sv_dpi_get_sha_digest(input bit[7:0] msg[],
-                                                output int unsigned hash[8]);
+  function automatic void sv_dpi_get_sha_digest(input bit [7:0] msg[], output int unsigned hash[8]);
     c_dpi_SHA_hash(msg, msg.size(), hash);
   endfunction
 

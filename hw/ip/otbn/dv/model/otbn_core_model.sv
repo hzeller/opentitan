@@ -10,28 +10,28 @@
  * This module is the top-level of the OTBN processing core.
  */
 module otbn_core_model
-  import otbn_pkg::*;
+import otbn_pkg::*;
 #(
-  // Size of the instruction memory, in bytes
-  parameter int ImemSizeByte = 4096,
-  // Size of the data memory, in bytes
-  parameter int DmemSizeByte = 4096,
+    // Size of the instruction memory, in bytes
+    parameter int ImemSizeByte = 4096,
+    // Size of the data memory, in bytes
+    parameter int DmemSizeByte = 4096,
 
-  // Scope of the instruction memory (for DPI)
-  parameter string ImemScope = "",
-  // Scope of the data memory (for DPI)
-  parameter string DmemScope = "",
+    // Scope of the instruction memory (for DPI)
+    parameter string ImemScope = "",
+    // Scope of the data memory (for DPI)
+    parameter string DmemScope = "",
 
-  localparam int ImemAddrWidth = prim_util_pkg::vbits(ImemSizeByte),
-  localparam int DmemAddrWidth = prim_util_pkg::vbits(DmemSizeByte)
-)(
-  input  logic  clk_i,
-  input  logic  rst_ni,
+    localparam int ImemAddrWidth = prim_util_pkg::vbits (ImemSizeByte),
+    localparam int DmemAddrWidth = prim_util_pkg::vbits (DmemSizeByte)
+) (
+    input logic clk_i,
+    input logic rst_ni,
 
-  input  logic  start_i, // start the operation
-  output logic  done_o,  // operation done
+    input  logic start_i,  // start the operation
+    output logic done_o,  // operation done
 
-  input  logic [ImemAddrWidth-1:0] start_addr_i // start byte address in IMEM
+    input logic [ImemAddrWidth-1:0] start_addr_i  // start byte address in IMEM
 );
 
   import "DPI-C" context function int run_model(string imem_scope,

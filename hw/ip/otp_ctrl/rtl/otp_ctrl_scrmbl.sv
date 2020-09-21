@@ -66,18 +66,20 @@
 //             - http://www.lightweightcrypto.org/present/present_ches2007.pdf
 //
 
-module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
-  input                               clk_i,
-  input                               rst_ni,
-  // input data and command
-  input otp_scrmbl_cmd_e              cmd_i,
-  input [ConstSelWidth-1:0]           sel_i,
-  input [ScrmblBlockWidth-1:0]        data_i,
-  input                               valid_i,
-  output logic                        ready_o,
-  // output data
-  output logic [ScrmblBlockWidth-1:0] data_o,
-  output logic                        valid_o
+module otp_ctrl_scrmbl
+import otp_ctrl_pkg::*;
+(
+    input                                          clk_i,
+    input                                          rst_ni,
+    // input data and command
+    input  otp_scrmbl_cmd_e                        cmd_i,
+    input                   [   ConstSelWidth-1:0] sel_i,
+    input                   [ScrmblBlockWidth-1:0] data_i,
+    input                                          valid_i,
+    output logic                                   ready_o,
+    // output data
+    output logic            [ScrmblBlockWidth-1:0] data_o,
+    output logic                                   valid_o
 );
 
   ////////////////////////
@@ -111,43 +113,47 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
   // Datapath //
   //////////////
 
-  logic [ScrmblKeyWidth-1:0]    key_state_d, key_state_q;
-  logic [ScrmblBlockWidth-1:0]  data_state_d, data_state_q, data_shadow_q;
-  logic [ScrmblBlockWidth-1:0]  digest_state_d, digest_state_q;
-  logic [ScrmblBlockWidth-1:0]  enc_data_out, dec_data_out;
-  logic [ScrmblKeyWidth-1:0]    dec_key_out, enc_key_out;
-  logic [ScrmblKeyWidth-1:0]    otp_digest_const_mux, otp_enc_key_mux, otp_dec_key_mux;
-  logic [ScrmblBlockWidth-1:0]  otp_digest_iv_mux;
+  logic [ScrmblKeyWidth-1:0] key_state_d, key_state_q;
+  logic [ScrmblBlockWidth-1:0] data_state_d, data_state_q, data_shadow_q;
+  logic [ScrmblBlockWidth-1:0] digest_state_d, digest_state_q;
+  logic [ScrmblBlockWidth-1:0] enc_data_out, dec_data_out;
+  logic [ScrmblKeyWidth-1:0] dec_key_out, enc_key_out;
+  logic [ScrmblKeyWidth-1:0] otp_digest_const_mux, otp_enc_key_mux, otp_dec_key_mux;
+  logic [ScrmblBlockWidth-1:0] otp_digest_iv_mux;
 
-  typedef enum logic [2:0] {SelEncDataOut,
-                            SelDecDataOut,
-                            SelDigestState,
-                            SelDigestIV,
-                            SelDataInput} data_state_sel_e;
+  typedef enum logic [2:0] {
+    SelEncDataOut,
+    SelDecDataOut,
+    SelDigestState,
+    SelDigestIV,
+    SelDataInput
+  } data_state_sel_e;
 
-  typedef enum logic [2:0] {SelDecKeyOut,
-                            SelEncKeyOut,
-                            SelDecKeyInit,
-                            SelEncKeyInit,
-                            SelDigestConst,
-                            SelDigestInput,
-                            SelDigestChained} key_state_sel_e;
+  typedef enum logic [2:0] {
+    SelDecKeyOut,
+    SelEncKeyOut,
+    SelDecKeyInit,
+    SelEncKeyInit,
+    SelDigestConst,
+    SelDigestInput,
+    SelDigestChained
+  } key_state_sel_e;
 
-  data_state_sel_e  data_state_sel;
-  key_state_sel_e   key_state_sel;
+  data_state_sel_e data_state_sel;
+  key_state_sel_e  key_state_sel;
   logic data_state_en, data_shadow_copy, data_shadow_load, digest_state_en, key_state_en;
   logic [ConstSelWidth-1:0] sel_d, sel_q;
   otp_digest_mode_e digest_mode_d, digest_mode_q;
 
-  assign otp_enc_key_mux      = (sel_d < NumScrmblKeys) ? OtpKey[sel_d]          : '0;
+  assign otp_enc_key_mux      = (sel_d < NumScrmblKeys) ? OtpKey[sel_d] : '0;
   assign otp_dec_key_mux      = (sel_d < NumScrmblKeys) ? otp_dec_key_lut[sel_d] : '0;
-  assign otp_digest_const_mux = (sel_d < NumDigestSets) ? OtpDigestConst[sel_d]  : '0;
-  assign otp_digest_iv_mux    = (sel_d < NumDigestSets) ? OtpDigestIV[sel_d]     : '0;
+  assign otp_digest_const_mux = (sel_d < NumDigestSets) ? OtpDigestConst[sel_d] : '0;
+  assign otp_digest_iv_mux    = (sel_d < NumDigestSets) ? OtpDigestIV[sel_d] : '0;
 
   // Make sure we always select a valid key / digest constant.
-  `ASSERT(CheckNumEncKeys_A, data_state_sel == SelEncKeyInit  |-> sel_d < NumScrmblKeys)
-  `ASSERT(CheckNumDecKeys_A, data_state_sel == SelDecKeyInit  |-> sel_d < NumScrmblKeys)
-  `ASSERT(CheckNumDigest0_A, data_state_sel == SelDigestIV    |-> sel_d < NumDigestSets)
+  `ASSERT(CheckNumEncKeys_A, data_state_sel == SelEncKeyInit |-> sel_d < NumScrmblKeys)
+  `ASSERT(CheckNumDecKeys_A, data_state_sel == SelDecKeyInit |-> sel_d < NumScrmblKeys)
+  `ASSERT(CheckNumDigest0_A, data_state_sel == SelDigestIV |-> sel_d < NumDigestSets)
   `ASSERT(CheckNumDigest1_A, data_state_sel == SelDigestConst |-> sel_d < NumDigestSets)
 
   assign data_state_d    = (data_state_sel == SelEncDataOut)  ? enc_data_out      :
@@ -164,7 +170,7 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
                            (key_state_sel == SelDigestChained)  ? {data_state_q, data_shadow_q} :
                                                                   {data_i, data_shadow_q};
 
-  assign digest_state_d  = enc_data_out;
+  assign digest_state_d = enc_data_out;
 
   assign data_o = data_state_q;
 
@@ -195,7 +201,7 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
     DigestSt  = 8'b00101111
   } state_e;
 
-  localparam int CntWidth = $clog2(NumPresentRounds+1);
+  localparam int CntWidth = $clog2(NumPresentRounds + 1);
   state_e state_d, state_q;
   logic [CntWidth-1:0] cnt_d, cnt_q;
   logic cnt_clr, cnt_en;
@@ -204,26 +210,24 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
 
   assign valid_o = valid_q;
 
-  assign cnt_d = (cnt_clr) ? '0        :
-                 (cnt_en)  ? cnt_q + 1 :
-                             cnt_q;
+  assign cnt_d   = (cnt_clr) ? '0 : (cnt_en) ? cnt_q + 1 : cnt_q;
 
   always_comb begin : p_fsm
-    state_d          = state_q;
-    is_first_d       = is_first_q;
-    sel_d            = sel_q;
-    digest_mode_d    = digest_mode_q;
-    data_state_sel   = SelDataInput;
-    key_state_sel    = SelDigestInput;
-    data_state_en    = 1'b0;
+    state_d = state_q;
+    is_first_d = is_first_q;
+    sel_d = sel_q;
+    digest_mode_d = digest_mode_q;
+    data_state_sel = SelDataInput;
+    key_state_sel = SelDigestInput;
+    data_state_en = 1'b0;
     data_shadow_copy = 1'b0;
     data_shadow_load = 1'b0;
-    key_state_en     = 1'b0;
-    digest_state_en  = 1'b0;
-    cnt_en           = 1'b0;
-    cnt_clr          = 1'b0;
-    valid_d          = 1'b0;
-    ready_o          = 1'b0;
+    key_state_en = 1'b0;
+    digest_state_en = 1'b0;
+    cnt_en = 1'b0;
+    cnt_clr = 1'b0;
+    valid_d = 1'b0;
+    ready_o = 1'b0;
 
     unique case (state_q)
       ///////////////////////////////////////////////////////////////////
@@ -237,18 +241,18 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
           sel_d = sel_q;
           unique case (cmd_i)
             Decrypt: begin
-              state_d       = DecryptSt;
+              state_d = DecryptSt;
               key_state_sel = SelDecKeyInit;
               data_state_en = 1'b1;
-              key_state_en  = 1'b1;
-              sel_d         = sel_i;
+              key_state_en = 1'b1;
+              sel_d = sel_i;
             end
             Encrypt: begin
-              state_d       = EncryptSt;
+              state_d = EncryptSt;
               key_state_sel = SelEncKeyInit;
               data_state_en = 1'b1;
-              key_state_en  = 1'b1;
-              sel_d         = sel_i;
+              key_state_en = 1'b1;
+              sel_d = sel_i;
             end
             LoadShadow: begin
               if (digest_mode_q == ChainedMode) begin
@@ -258,41 +262,41 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
               end
             end
             Digest: begin
-              state_d        = DigestSt;
+              state_d = DigestSt;
               data_state_sel = (is_first_q) ? SelDigestIV : SelDigestState;
-              key_state_sel  = (digest_mode_q == ChainedMode) ? SelDigestChained : SelDigestInput;
-              data_state_en  = 1'b1;
-              key_state_en   = 1'b1;
-              is_first_d     = 1'b0;
-              sel_d          = sel_i;
+              key_state_sel = (digest_mode_q == ChainedMode) ? SelDigestChained : SelDigestInput;
+              data_state_en = 1'b1;
+              key_state_en = 1'b1;
+              is_first_d = 1'b0;
+              sel_d = sel_i;
             end
             DigestInit: begin
-              digest_mode_d  = otp_digest_mode_e'(sel_i);
-              is_first_d     = 1'b1;
+              digest_mode_d = otp_digest_mode_e'(sel_i);
+              is_first_d = 1'b1;
             end
-            DigestFinalize:  begin
-              state_d        = DigestSt;
+            DigestFinalize: begin
+              state_d = DigestSt;
               data_state_sel = (is_first_q) ? SelDigestIV : SelDigestState;
-              key_state_sel  = SelDigestConst;
-              data_state_en  = 1'b1;
-              key_state_en   = 1'b1;
-              is_first_d     = 1'b1;
-              digest_mode_d  = StandardMode;
-              sel_d          = sel_i;
+              key_state_sel = SelDigestConst;
+              data_state_en = 1'b1;
+              key_state_en = 1'b1;
+              is_first_d = 1'b1;
+              digest_mode_d = StandardMode;
+              sel_d = sel_i;
             end
-            default: ; // ignore
-          endcase // cmd_i
+            default: ;  // ignore
+          endcase  // cmd_i
         end
       end
       ///////////////////////////////////////////////////////////////////
       // Perform decrypt rounds.
       DecryptSt: begin
         data_state_sel = SelDecDataOut;
-        key_state_sel  = SelDecKeyOut;
-        data_state_en  = 1'b1;
-        key_state_en   = 1'b1;
-        cnt_en         = 1'b1;
-        if (cnt_q == NumPresentRounds-1) begin
+        key_state_sel = SelDecKeyOut;
+        data_state_en = 1'b1;
+        key_state_en = 1'b1;
+        cnt_en = 1'b1;
+        if (cnt_q == NumPresentRounds - 1) begin
           state_d = IdleSt;
           valid_d = 1'b1;
         end
@@ -301,11 +305,11 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
       // Perform encrypt rounds.
       EncryptSt: begin
         data_state_sel = SelEncDataOut;
-        key_state_sel  = SelEncKeyOut;
-        data_state_en  = 1'b1;
-        key_state_en   = 1'b1;
-        cnt_en         = 1'b1;
-        if (cnt_q == NumPresentRounds-1) begin
+        key_state_sel = SelEncKeyOut;
+        data_state_en = 1'b1;
+        key_state_en = 1'b1;
+        cnt_en = 1'b1;
+        if (cnt_q == NumPresentRounds - 1) begin
           state_d = IdleSt;
           valid_d = 1'b1;
         end
@@ -315,11 +319,11 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
       // employs the PRESENT encryption datapath.
       DigestSt: begin
         data_state_sel = SelEncDataOut;
-        key_state_sel  = SelEncKeyOut;
-        data_state_en  = 1'b1;
-        key_state_en   = 1'b1;
-        cnt_en         = 1'b1;
-        if (cnt_q == NumPresentRounds-1) begin
+        key_state_sel = SelEncKeyOut;
+        data_state_en = 1'b1;
+        key_state_en = 1'b1;
+        cnt_en = 1'b1;
+        if (cnt_q == NumPresentRounds - 1) begin
           state_d = IdleSt;
           valid_d = 1'b1;
           // Backup digest state for next round of updates. We can't keep this state in the
@@ -334,7 +338,7 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
         state_d = IdleSt;
       end
       ///////////////////////////////////////////////////////////////////
-    endcase // state_q
+    endcase  // state_q
   end
 
   /////////////////////////////
@@ -342,24 +346,24 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
   /////////////////////////////
 
   prim_present #(
-    .KeyWidth(128),
-    .NumRounds(1)
+      .KeyWidth (128),
+      .NumRounds(1)
   ) u_prim_present_enc (
-    .data_i ( data_state_q ),
-    .key_i  ( key_state_q  ),
-    .data_o ( enc_data_out ),
-    .key_o  ( enc_key_out  )
+      .data_i(data_state_q),
+      .key_i (key_state_q),
+      .data_o(enc_data_out),
+      .key_o (enc_key_out)
   );
 
   prim_present #(
-    .KeyWidth(128),
-    .NumRounds(1),
-    .Decrypt(1)
+      .KeyWidth (128),
+      .NumRounds(1),
+      .Decrypt  (1)
   ) u_prim_present_dec (
-    .data_i ( data_state_q ),
-    .key_i  ( key_state_q  ),
-    .data_o ( dec_data_out ),
-    .key_o  ( dec_key_out  )
+      .data_i(data_state_q),
+      .key_i (key_state_q),
+      .data_o(dec_data_out),
+      .key_o (dec_key_out)
   );
 
   ///////////////
@@ -368,27 +372,27 @@ module otp_ctrl_scrmbl import otp_ctrl_pkg::*; (
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
-      state_q        <= IdleSt;
-      cnt_q          <= '0;
-      key_state_q    <= '0;
-      data_state_q   <= '0;
-      data_shadow_q  <= '0;
+      state_q <= IdleSt;
+      cnt_q <= '0;
+      key_state_q <= '0;
+      data_state_q <= '0;
+      data_shadow_q <= '0;
       digest_state_q <= '0;
-      valid_q        <= 1'b0;
-      is_first_q     <= 1'b1;
-      sel_q          <= '0;
-      digest_mode_q  <= 1'b0;
+      valid_q <= 1'b0;
+      is_first_q <= 1'b1;
+      sel_q <= '0;
+      digest_mode_q <= 1'b0;
     end else begin
-      state_q       <= state_d;
-      cnt_q         <= cnt_d;
-      valid_q       <= valid_d;
-      is_first_q    <= is_first_d;
-      sel_q         <= sel_d;
+      state_q <= state_d;
+      cnt_q <= cnt_d;
+      valid_q <= valid_d;
+      is_first_q <= is_first_d;
+      sel_q <= sel_d;
       digest_mode_q <= digest_mode_d;
 
       // enable regs
       if (key_state_en) begin
-        key_state_q  <= key_state_d;
+        key_state_q <= key_state_d;
       end
       if (data_state_en) begin
         data_state_q <= data_state_d;

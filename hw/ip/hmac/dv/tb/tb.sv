@@ -17,7 +17,7 @@ module tb;
 
   wire clk, rst_n;
   wire devmode;
-  wire [NUM_MAX_INTERRUPTS-1:0]  interrupts;
+  wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
 
   wire intr_hmac_done;
   wire intr_fifo_empty;
@@ -27,26 +27,35 @@ module tb;
   string list_of_alerts[] = {"msg_push_sha_disabled"};
 
   // interfaces
-  clk_rst_if clk_rst_if(.clk(clk), .rst_n(rst_n));
-  pins_if #(NUM_MAX_INTERRUPTS) intr_if(.pins(interrupts));
-  pins_if #(1) devmode_if(devmode);
-  tl_if tl_if(.clk(clk), .rst_n(rst_n));
-  alert_esc_if alert_if_msg_push_sha_disabled(.clk(clk), .rst_n(rst_n));
+  clk_rst_if clk_rst_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  pins_if #(NUM_MAX_INTERRUPTS) intr_if (.pins(interrupts));
+  pins_if #(1) devmode_if (devmode);
+  tl_if tl_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  alert_esc_if alert_if_msg_push_sha_disabled (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
 
   // dut
   hmac dut (
-    .clk_i              ( clk            ),
-    .rst_ni             ( rst_n          ),
+      .clk_i (clk),
+      .rst_ni(rst_n),
 
-    .tl_i               ( tl_if.h2d      ),
-    .tl_o               ( tl_if.d2h      ),
+      .tl_i(tl_if.h2d),
+      .tl_o(tl_if.d2h),
 
-    .intr_hmac_done_o   ( intr_hmac_done ),
-    .intr_fifo_empty_o  ( intr_fifo_empty ),
-    .intr_hmac_err_o    ( intr_hmac_err  ),
+      .intr_hmac_done_o (intr_hmac_done),
+      .intr_fifo_empty_o(intr_fifo_empty),
+      .intr_hmac_err_o  (intr_hmac_err),
 
-    .alert_rx_i         ( alert_if_msg_push_sha_disabled.alert_rx ),
-    .alert_tx_o         ( alert_if_msg_push_sha_disabled.alert_tx )
+      .alert_rx_i(alert_if_msg_push_sha_disabled.alert_rx),
+      .alert_tx_o(alert_if_msg_push_sha_disabled.alert_tx)
   );
 
   assign interrupts[HmacDone]         = intr_hmac_done;

@@ -17,157 +17,129 @@ package aes_reg_pkg;
   ////////////////////////////
   typedef struct packed {
     logic [31:0] q;
-    logic        qe;
+    logic qe;
   } aes_reg2hw_key_share0_mreg_t;
 
   typedef struct packed {
     logic [31:0] q;
-    logic        qe;
+    logic qe;
   } aes_reg2hw_key_share1_mreg_t;
 
   typedef struct packed {
     logic [31:0] q;
-    logic        qe;
+    logic qe;
   } aes_reg2hw_iv_mreg_t;
 
   typedef struct packed {
     logic [31:0] q;
-    logic        qe;
+    logic qe;
   } aes_reg2hw_data_in_mreg_t;
 
   typedef struct packed {
     logic [31:0] q;
-    logic        re;
+    logic re;
   } aes_reg2hw_data_out_mreg_t;
 
   typedef struct packed {
     struct packed {
-      logic        q;
-      logic        qe;
-      logic        re;
+      logic q;
+      logic qe;
+      logic re;
     } operation;
     struct packed {
-      logic [5:0]  q;
-      logic        qe;
-      logic        re;
+      logic [5:0] q;
+      logic qe;
+      logic re;
     } mode;
     struct packed {
-      logic [2:0]  q;
-      logic        qe;
-      logic        re;
+      logic [2:0] q;
+      logic qe;
+      logic re;
     } key_len;
     struct packed {
-      logic        q;
-      logic        qe;
-      logic        re;
+      logic q;
+      logic qe;
+      logic re;
     } manual_operation;
   } aes_reg2hw_ctrl_shadowed_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } start;
-    struct packed {
-      logic        q;
-    } key_clear;
-    struct packed {
-      logic        q;
-    } iv_clear;
-    struct packed {
-      logic        q;
-    } data_in_clear;
-    struct packed {
-      logic        q;
-    } data_out_clear;
-    struct packed {
-      logic        q;
-    } prng_reseed;
+    struct packed {logic q;} start;
+    struct packed {logic q;} key_clear;
+    struct packed {logic q;} iv_clear;
+    struct packed {logic q;} data_in_clear;
+    struct packed {logic q;} data_out_clear;
+    struct packed {logic q;} prng_reseed;
   } aes_reg2hw_trigger_reg_t;
 
 
-  typedef struct packed {
-    logic [31:0] d;
-  } aes_hw2reg_key_share0_mreg_t;
+  typedef struct packed {logic [31:0] d;} aes_hw2reg_key_share0_mreg_t;
+
+  typedef struct packed {logic [31:0] d;} aes_hw2reg_key_share1_mreg_t;
+
+  typedef struct packed {logic [31:0] d;} aes_hw2reg_iv_mreg_t;
 
   typedef struct packed {
     logic [31:0] d;
-  } aes_hw2reg_key_share1_mreg_t;
-
-  typedef struct packed {
-    logic [31:0] d;
-  } aes_hw2reg_iv_mreg_t;
-
-  typedef struct packed {
-    logic [31:0] d;
-    logic        de;
+    logic de;
   } aes_hw2reg_data_in_mreg_t;
 
-  typedef struct packed {
-    logic [31:0] d;
-  } aes_hw2reg_data_out_mreg_t;
+  typedef struct packed {logic [31:0] d;} aes_hw2reg_data_out_mreg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        d;
-    } operation;
-    struct packed {
-      logic [5:0]  d;
-    } mode;
-    struct packed {
-      logic [2:0]  d;
-    } key_len;
-    struct packed {
-      logic        d;
-    } manual_operation;
+    struct packed {logic d;} operation;
+    struct packed {logic [5:0] d;} mode;
+    struct packed {logic [2:0] d;} key_len;
+    struct packed {logic d;} manual_operation;
   } aes_hw2reg_ctrl_shadowed_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } start;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } key_clear;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } iv_clear;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } data_in_clear;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } data_out_clear;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } prng_reseed;
   } aes_hw2reg_trigger_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } idle;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } stall;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } output_valid;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } input_ready;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } ctrl_err_storage;
   } aes_hw2reg_status_reg_t;
 
@@ -176,61 +148,61 @@ package aes_reg_pkg;
   // Register to internal design logic //
   ///////////////////////////////////////
   typedef struct packed {
-    aes_reg2hw_key_share0_mreg_t [7:0] key_share0; // [944:681]
-    aes_reg2hw_key_share1_mreg_t [7:0] key_share1; // [680:417]
-    aes_reg2hw_iv_mreg_t [3:0] iv; // [416:285]
-    aes_reg2hw_data_in_mreg_t [3:0] data_in; // [284:153]
-    aes_reg2hw_data_out_mreg_t [3:0] data_out; // [152:21]
-    aes_reg2hw_ctrl_shadowed_reg_t ctrl_shadowed; // [20:6]
-    aes_reg2hw_trigger_reg_t trigger; // [5:0]
+    aes_reg2hw_key_share0_mreg_t [7:0] key_share0;  // [944:681]
+    aes_reg2hw_key_share1_mreg_t [7:0] key_share1;  // [680:417]
+    aes_reg2hw_iv_mreg_t [3:0] iv;  // [416:285]
+    aes_reg2hw_data_in_mreg_t [3:0] data_in;  // [284:153]
+    aes_reg2hw_data_out_mreg_t [3:0] data_out;  // [152:21]
+    aes_reg2hw_ctrl_shadowed_reg_t ctrl_shadowed;  // [20:6]
+    aes_reg2hw_trigger_reg_t trigger;  // [5:0]
   } aes_reg2hw_t;
 
   ///////////////////////////////////////
   // Internal design logic to register //
   ///////////////////////////////////////
   typedef struct packed {
-    aes_hw2reg_key_share0_mreg_t [7:0] key_share0; // [932:677]
-    aes_hw2reg_key_share1_mreg_t [7:0] key_share1; // [676:421]
-    aes_hw2reg_iv_mreg_t [3:0] iv; // [420:293]
-    aes_hw2reg_data_in_mreg_t [3:0] data_in; // [292:161]
-    aes_hw2reg_data_out_mreg_t [3:0] data_out; // [160:33]
-    aes_hw2reg_ctrl_shadowed_reg_t ctrl_shadowed; // [32:18]
-    aes_hw2reg_trigger_reg_t trigger; // [17:12]
-    aes_hw2reg_status_reg_t status; // [11:12]
+    aes_hw2reg_key_share0_mreg_t [7:0] key_share0;  // [932:677]
+    aes_hw2reg_key_share1_mreg_t [7:0] key_share1;  // [676:421]
+    aes_hw2reg_iv_mreg_t [3:0] iv;  // [420:293]
+    aes_hw2reg_data_in_mreg_t [3:0] data_in;  // [292:161]
+    aes_hw2reg_data_out_mreg_t [3:0] data_out;  // [160:33]
+    aes_hw2reg_ctrl_shadowed_reg_t ctrl_shadowed;  // [32:18]
+    aes_hw2reg_trigger_reg_t trigger;  // [17:12]
+    aes_hw2reg_status_reg_t status;  // [11:12]
   } aes_hw2reg_t;
 
   // Register Address
-  parameter logic [6:0] AES_KEY_SHARE0_0_OFFSET = 7'h 0;
-  parameter logic [6:0] AES_KEY_SHARE0_1_OFFSET = 7'h 4;
-  parameter logic [6:0] AES_KEY_SHARE0_2_OFFSET = 7'h 8;
-  parameter logic [6:0] AES_KEY_SHARE0_3_OFFSET = 7'h c;
-  parameter logic [6:0] AES_KEY_SHARE0_4_OFFSET = 7'h 10;
-  parameter logic [6:0] AES_KEY_SHARE0_5_OFFSET = 7'h 14;
-  parameter logic [6:0] AES_KEY_SHARE0_6_OFFSET = 7'h 18;
-  parameter logic [6:0] AES_KEY_SHARE0_7_OFFSET = 7'h 1c;
-  parameter logic [6:0] AES_KEY_SHARE1_0_OFFSET = 7'h 20;
-  parameter logic [6:0] AES_KEY_SHARE1_1_OFFSET = 7'h 24;
-  parameter logic [6:0] AES_KEY_SHARE1_2_OFFSET = 7'h 28;
-  parameter logic [6:0] AES_KEY_SHARE1_3_OFFSET = 7'h 2c;
-  parameter logic [6:0] AES_KEY_SHARE1_4_OFFSET = 7'h 30;
-  parameter logic [6:0] AES_KEY_SHARE1_5_OFFSET = 7'h 34;
-  parameter logic [6:0] AES_KEY_SHARE1_6_OFFSET = 7'h 38;
-  parameter logic [6:0] AES_KEY_SHARE1_7_OFFSET = 7'h 3c;
-  parameter logic [6:0] AES_IV_0_OFFSET = 7'h 40;
-  parameter logic [6:0] AES_IV_1_OFFSET = 7'h 44;
-  parameter logic [6:0] AES_IV_2_OFFSET = 7'h 48;
-  parameter logic [6:0] AES_IV_3_OFFSET = 7'h 4c;
-  parameter logic [6:0] AES_DATA_IN_0_OFFSET = 7'h 50;
-  parameter logic [6:0] AES_DATA_IN_1_OFFSET = 7'h 54;
-  parameter logic [6:0] AES_DATA_IN_2_OFFSET = 7'h 58;
-  parameter logic [6:0] AES_DATA_IN_3_OFFSET = 7'h 5c;
-  parameter logic [6:0] AES_DATA_OUT_0_OFFSET = 7'h 60;
-  parameter logic [6:0] AES_DATA_OUT_1_OFFSET = 7'h 64;
-  parameter logic [6:0] AES_DATA_OUT_2_OFFSET = 7'h 68;
-  parameter logic [6:0] AES_DATA_OUT_3_OFFSET = 7'h 6c;
-  parameter logic [6:0] AES_CTRL_SHADOWED_OFFSET = 7'h 70;
-  parameter logic [6:0] AES_TRIGGER_OFFSET = 7'h 74;
-  parameter logic [6:0] AES_STATUS_OFFSET = 7'h 78;
+  parameter logic [6:0] AES_KEY_SHARE0_0_OFFSET = 7'h0;
+  parameter logic [6:0] AES_KEY_SHARE0_1_OFFSET = 7'h4;
+  parameter logic [6:0] AES_KEY_SHARE0_2_OFFSET = 7'h8;
+  parameter logic [6:0] AES_KEY_SHARE0_3_OFFSET = 7'hc;
+  parameter logic [6:0] AES_KEY_SHARE0_4_OFFSET = 7'h10;
+  parameter logic [6:0] AES_KEY_SHARE0_5_OFFSET = 7'h14;
+  parameter logic [6:0] AES_KEY_SHARE0_6_OFFSET = 7'h18;
+  parameter logic [6:0] AES_KEY_SHARE0_7_OFFSET = 7'h1c;
+  parameter logic [6:0] AES_KEY_SHARE1_0_OFFSET = 7'h20;
+  parameter logic [6:0] AES_KEY_SHARE1_1_OFFSET = 7'h24;
+  parameter logic [6:0] AES_KEY_SHARE1_2_OFFSET = 7'h28;
+  parameter logic [6:0] AES_KEY_SHARE1_3_OFFSET = 7'h2c;
+  parameter logic [6:0] AES_KEY_SHARE1_4_OFFSET = 7'h30;
+  parameter logic [6:0] AES_KEY_SHARE1_5_OFFSET = 7'h34;
+  parameter logic [6:0] AES_KEY_SHARE1_6_OFFSET = 7'h38;
+  parameter logic [6:0] AES_KEY_SHARE1_7_OFFSET = 7'h3c;
+  parameter logic [6:0] AES_IV_0_OFFSET = 7'h40;
+  parameter logic [6:0] AES_IV_1_OFFSET = 7'h44;
+  parameter logic [6:0] AES_IV_2_OFFSET = 7'h48;
+  parameter logic [6:0] AES_IV_3_OFFSET = 7'h4c;
+  parameter logic [6:0] AES_DATA_IN_0_OFFSET = 7'h50;
+  parameter logic [6:0] AES_DATA_IN_1_OFFSET = 7'h54;
+  parameter logic [6:0] AES_DATA_IN_2_OFFSET = 7'h58;
+  parameter logic [6:0] AES_DATA_IN_3_OFFSET = 7'h5c;
+  parameter logic [6:0] AES_DATA_OUT_0_OFFSET = 7'h60;
+  parameter logic [6:0] AES_DATA_OUT_1_OFFSET = 7'h64;
+  parameter logic [6:0] AES_DATA_OUT_2_OFFSET = 7'h68;
+  parameter logic [6:0] AES_DATA_OUT_3_OFFSET = 7'h6c;
+  parameter logic [6:0] AES_CTRL_SHADOWED_OFFSET = 7'h70;
+  parameter logic [6:0] AES_TRIGGER_OFFSET = 7'h74;
+  parameter logic [6:0] AES_STATUS_OFFSET = 7'h78;
 
 
   // Register Index

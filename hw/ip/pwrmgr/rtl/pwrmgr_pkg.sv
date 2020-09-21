@@ -11,12 +11,12 @@ package pwrmgr_pkg;
   parameter int ALWAYS_ON_DOMAIN = 0;
 
   // variables referenced by other modules / packages
-  parameter int HwRstReqs = 2;    // this needs to be a topgen populated number, or from topcfg?
-  parameter int PowerDomains = 2; // this needs to be a topgen populated number, or from topcfg?
+  parameter int HwRstReqs = 2;  // this needs to be a topgen populated number, or from topcfg?
+  parameter int PowerDomains = 2;  // this needs to be a topgen populated number, or from topcfg?
 
   // variables referenced only by pwrmgr
   // pwrmgr_reg_pkg::NumWkups; // should this be coming from top_pkg instead?
-  localparam int TotalWakeWidth = pwrmgr_reg_pkg::NumWkups + 2; // Abort and fall through are added
+  localparam int TotalWakeWidth = pwrmgr_reg_pkg::NumWkups + 2;  // Abort and fall through are added
 
   // pwrmgr to ast
   typedef struct packed {
@@ -51,10 +51,10 @@ package pwrmgr_pkg;
 
   // reasons for pwrmgr reset reset
   typedef enum logic [1:0] {
-    ResetNone = 0,     // there is no reset
-    LowPwrEntry = 1,   // reset is caused by low power entry
-    HwReq = 2,         // reset is caused by peripheral reset requests
-    ResetUndefined = 3 // this should never happen outside of POR
+    ResetNone      = 0,  // there is no reset
+    LowPwrEntry    = 1,  // reset is caused by low power entry
+    HwReq          = 2,  // reset is caused by peripheral reset requests
+    ResetUndefined = 3  // this should never happen outside of POR
   } reset_cause_e;
 
   // pwrmgr to rstmgr
@@ -77,19 +77,13 @@ package pwrmgr_pkg;
   };
 
   // pwrmgr to clkmgr
-  typedef struct packed {
-    logic ip_clk_en;
-  } pwr_clk_req_t;
+  typedef struct packed {logic ip_clk_en;} pwr_clk_req_t;
 
   // clkmgr to powrmgr
-  typedef struct packed {
-    logic clk_status;
-  } pwr_clk_rsp_t;
+  typedef struct packed {logic clk_status;} pwr_clk_rsp_t;
 
   // pwrmgr to otp
-  typedef struct packed {
-    logic otp_init;
-  } pwr_otp_req_t;
+  typedef struct packed {logic otp_init;} pwr_otp_req_t;
 
   // otp to pwrmgr
   typedef struct packed {
@@ -98,15 +92,10 @@ package pwrmgr_pkg;
   } pwr_otp_rsp_t;
 
   // default value (for dangling ports)
-  parameter pwr_otp_rsp_t PWR_OTP_RSP_DEFAULT = '{
-    otp_done: 1'b1,
-    otp_idle: 1'b1
-  };
+  parameter pwr_otp_rsp_t PWR_OTP_RSP_DEFAULT = '{otp_done: 1'b1, otp_idle: 1'b1};
 
   // pwrmgr to lifecycle
-  typedef struct packed {
-    logic lc_init;
-  } pwr_lc_req_t;
+  typedef struct packed {logic lc_init;} pwr_lc_req_t;
 
   // lifecycle to pwrmgr
   typedef struct packed {
@@ -115,15 +104,10 @@ package pwrmgr_pkg;
   } pwr_lc_rsp_t;
 
   // default value (for dangling ports)
-  parameter pwr_lc_rsp_t PWR_LC_RSP_DEFAULT = '{
-    lc_done: 1'b1,
-    lc_idle: 1'b1
-  };
+  parameter pwr_lc_rsp_t PWR_LC_RSP_DEFAULT = '{lc_done: 1'b1, lc_idle: 1'b1};
 
   // flash to pwrmgr
-  typedef struct packed {
-    logic flash_init;
-  } pwr_flash_req_t;
+  typedef struct packed {logic flash_init;} pwr_flash_req_t;
 
   typedef struct packed {
     logic flash_done;
@@ -131,24 +115,15 @@ package pwrmgr_pkg;
   } pwr_flash_rsp_t;
 
   // default value (for dangling ports)
-  parameter pwr_flash_req_t PWR_FLASH_REQ_DEFAULT = '{
-    flash_init: 1'b1
-  };
+  parameter pwr_flash_req_t PWR_FLASH_REQ_DEFAULT = '{flash_init: 1'b1};
 
-  parameter pwr_flash_rsp_t PWR_FLASH_RSP_DEFAULT = '{
-    flash_done: 1'b1,
-    flash_idle: 1'b1
-  };
+  parameter pwr_flash_rsp_t PWR_FLASH_RSP_DEFAULT = '{flash_done: 1'b1, flash_idle: 1'b1};
 
   // processor to pwrmgr
-  typedef struct packed {
-    logic core_sleeping;
-  } pwr_cpu_t;
+  typedef struct packed {logic core_sleeping;} pwr_cpu_t;
 
   // default value (for dangling ports)
-  parameter pwr_cpu_t PWR_CPU_DEFAULT = '{
-    core_sleeping: 1'b0
-  };
+  parameter pwr_cpu_t PWR_CPU_DEFAULT = '{core_sleeping: 1'b0};
 
   // default value (for dangling ports)
   parameter int WAKEUPS_DEFAULT = '0;
@@ -174,4 +149,4 @@ package pwrmgr_pkg;
   } low_power_hint_e;
 
 
-endpackage // pwrmgr_pkg
+endpackage  // pwrmgr_pkg

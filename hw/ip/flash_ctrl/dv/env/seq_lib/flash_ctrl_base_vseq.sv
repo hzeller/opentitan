@@ -2,19 +2,17 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class flash_ctrl_base_vseq extends cip_base_vseq #(
-    .RAL_T               (flash_ctrl_reg_block),
-    .CFG_T               (flash_ctrl_env_cfg),
-    .COV_T               (flash_ctrl_env_cov),
-    .VIRTUAL_SEQUENCER_T (flash_ctrl_virtual_sequencer)
-  );
+class flash_ctrl_base_vseq extends cip_base_vseq#(
+    .RAL_T              (flash_ctrl_reg_block),
+    .CFG_T              (flash_ctrl_env_cfg),
+    .COV_T              (flash_ctrl_env_cov),
+    .VIRTUAL_SEQUENCER_T(flash_ctrl_virtual_sequencer)
+);
   `uvm_object_utils(flash_ctrl_base_vseq)
 
   // flash ctrl configuration settings.
 
-  constraint num_trans_c {
-    num_trans inside {[1:cfg.seq_cfg.max_num_trans]};
-  }
+  constraint num_trans_c {num_trans inside {[1 : cfg.seq_cfg.max_num_trans]};}
 
   `uvm_object_new
 
@@ -36,7 +34,7 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
     // We probably need a parameter to skip this for certain tests
     csr_spinwait(.ptr(ral.status.init_wip), .exp_data(1'b0));
 
-  endtask // apply_reset
+  endtask  // apply_reset
 
   // Configure the memory protection regions.
   virtual task flash_ctrl_mp_region_cfg(uint index, flash_mp_region_cfg_t region_cfg);
@@ -88,13 +86,10 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
   virtual task wait_flash_op_done(bit clear_op_status = 1'b1);
     uvm_reg_data_t data;
     bit done;
-    `DV_SPINWAIT(
-      do begin
+    `DV_SPINWAIT(do begin
         csr_rd(.ptr(ral.op_status), .value(data));
         done = get_field_val(ral.op_status.done, data);
-      end while (done == 1'b0);,
-      "wait_flash_op_done timeout occurred!"
-    )
+      end while (done == 1'b0);, "wait_flash_op_done timeout occurred!")
     if (clear_op_status) begin
       data = get_csr_val_with_updated_field(ral.op_status.done, data, 0);
       csr_wr(.csr(ral.op_status), .value(data));
@@ -105,13 +100,10 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
   virtual task wait_flash_op_err(bit clear_op_status = 1'b1);
     uvm_reg_data_t data;
     bit err;
-    `DV_SPINWAIT(
-      do begin
+    `DV_SPINWAIT(do begin
         csr_rd(.ptr(ral.op_status), .value(data));
         err = get_field_val(ral.op_status.err, data);
-      end while (err == 1'b0);,
-      "wait_flash_op_err timeout occurred!"
-    )
+      end while (err == 1'b0);, "wait_flash_op_err timeout occurred!")
     if (clear_op_status) begin
       data = get_csr_val_with_updated_field(ral.op_status.err, data, 0);
       csr_wr(.csr(ral.op_status), .value(data));
@@ -122,24 +114,18 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
   virtual task wait_flash_ctrl_prog_fifo_not_full();
     // TODO: if intr enabled, then check interrupt, else check status.
     bit prog_full;
-    `DV_SPINWAIT(
-      do begin
+    `DV_SPINWAIT(do begin
         csr_rd(.ptr(ral.status.prog_full), .value(prog_full));
-      end while (prog_full);,
-      "wait_flash_ctrl_prog_fifo_not_full timeout occurred!"
-    )
+      end while (prog_full);, "wait_flash_ctrl_prog_fifo_not_full timeout occurred!")
   endtask
 
   // Wait for rd fifo to not be empty.
   virtual task wait_flash_ctrl_rd_fifo_not_empty();
     // TODO: if intr enabled, then check interrupt, else check status.
     bit read_empty;
-    `DV_SPINWAIT(
-      do begin
+    `DV_SPINWAIT(do begin
         csr_rd(.ptr(ral.status.rd_empty), .value(read_empty));
-      end while (read_empty);,
-      "wait_flash_ctrl_rd_fifo_not_empty timeout occurred!"
-    )
+      end while (read_empty);, "wait_flash_ctrl_rd_fifo_not_empty timeout occurred!")
   endtask
 
   virtual task flash_ctrl_start_op(flash_op_t flash_op);
@@ -207,13 +193,11 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
   // Reads flash mem contents via backdoor.
   // The addr arg need not be word aligned- its the same addr programmed into the `control` CSR.
   // TODO: support for partition.
-  virtual function void flash_mem_bkdr_read(flash_op_t flash_op,
-                                            ref logic [TL_DW-1:0] data[$]);
+  virtual function void flash_mem_bkdr_read(flash_op_t flash_op, ref logic [TL_DW-1:0] data[$]);
     flash_mem_addr_attrs addr_attrs = new(flash_op.addr);
     data.delete();
     for (int i = 0; i < flash_op.num_words; i++) begin
-      data[i] = cfg.mem_bkdr_vifs[flash_op.partition][addr_attrs.bank].read32(
-          addr_attrs.bank_addr);
+      data[i] = cfg.mem_bkdr_vifs[flash_op.partition][addr_attrs.bank].read32(addr_attrs.bank_addr);
       `uvm_info(`gfn, $sformatf("flash_mem_bkdr_read: {%s} = 0x%0h",
                                 addr_attrs.sprint(), data[i]), UVM_MEDIUM)
       addr_attrs.incr(TL_DBW);
@@ -221,7 +205,7 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
   endfunction
 
   // Helper macro for the `flash_mem_bkdr_write` function below.
-`define FLASH_MEM_BKDR_WRITE_CASE(_data) \
+  `define FLASH_MEM_BKDR_WRITE_CASE(_data) \
   for (int i = 0; i < flash_op.num_words; i++) begin \
     logic [TL_DW-1:0] loc_data = _data; \
     cfg.mem_bkdr_vifs[flash_op.partition][addr_attrs.bank].write32( \
@@ -258,7 +242,7 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
     endcase
   endfunction
 
-`undef FLASH_MEM_BKDR_WRITE_CASE
+  `undef FLASH_MEM_BKDR_WRITE_CASE
 
   // Checks flash mem contents via backdoor.
   // The addr arg need not be word aligned- its the same addr programmed into the `control` CSR.
@@ -274,9 +258,9 @@ class flash_ctrl_base_vseq extends cip_base_vseq #(
 
   // Ensure that the flash page / bank has indeed been erased.
   virtual function void flash_mem_bkdr_erase_check(flash_op_t flash_op);
-    flash_mem_addr_attrs    addr_attrs = new(flash_op.addr);
-    bit [TL_AW-1:0]         erase_check_addr;
-    uint                    num_words;
+    flash_mem_addr_attrs addr_attrs = new(flash_op.addr);
+    bit [TL_AW-1:0] erase_check_addr;
+    uint num_words;
 
     case (flash_op.erase_type)
       flash_ctrl_pkg::FlashErasePage: begin

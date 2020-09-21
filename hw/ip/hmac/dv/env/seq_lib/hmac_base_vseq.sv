@@ -2,28 +2,30 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class hmac_base_vseq extends cip_base_vseq #(.CFG_T               (hmac_env_cfg),
-                                             .RAL_T               (hmac_reg_block),
-                                             .COV_T               (hmac_env_cov),
-                                             .VIRTUAL_SEQUENCER_T (hmac_virtual_sequencer));
+class hmac_base_vseq extends cip_base_vseq#(
+    .CFG_T              (hmac_env_cfg),
+    .RAL_T              (hmac_reg_block),
+    .COV_T              (hmac_env_cov),
+    .VIRTUAL_SEQUENCER_T(hmac_virtual_sequencer)
+);
   `uvm_object_utils(hmac_base_vseq)
   `uvm_object_new
 
-  bit do_hmac_init     = 1'b1;
-  bit do_back_pressure = 1'b0;
-  bit do_burst_wr      = 1'b0;
+  bit                   do_hmac_init           = 1'b1;
+  bit                   do_back_pressure       = 1'b0;
+  bit                   do_burst_wr            = 1'b0;
   rand bit [TL_AW-1:0]  wr_addr;
   rand bit [TL_DBW-1:0] wr_mask;
-  rand bit wr_config_during_hash, wr_key_during_hash;
+  rand bit              wr_config_during_hash,         wr_key_during_hash;
 
-  constraint wr_addr_c {
-    wr_addr inside {[HMAC_MSG_FIFO_BASE : HMAC_MSG_FIFO_LAST_ADDR]};
-  }
+  constraint wr_addr_c {wr_addr inside {[HMAC_MSG_FIFO_BASE : HMAC_MSG_FIFO_LAST_ADDR]};}
 
   constraint wr_mask_c {
-    $countones(wr_mask) dist {
-        TL_DBW       :/ 1,
-        [1:TL_DBW-1] :/ 1
+    $countones(
+        wr_mask
+    ) dist {
+      TL_DBW :/ 1,
+      [1 : TL_DBW - 1] :/ 1
     };
   }
 
@@ -85,14 +87,14 @@ class hmac_base_vseq extends cip_base_vseq #(.CFG_T               (hmac_env_cfg)
   virtual task write_discard_key();
     bit [TL_DW-1:0] rand_key_value = $urandom();
     randcase
-      1:  csr_wr(ral.key_0, rand_key_value);
-      1:  csr_wr(ral.key_1, rand_key_value);
-      1:  csr_wr(ral.key_2, rand_key_value);
-      1:  csr_wr(ral.key_3, rand_key_value);
-      1:  csr_wr(ral.key_4, rand_key_value);
-      1:  csr_wr(ral.key_5, rand_key_value);
-      1:  csr_wr(ral.key_6, rand_key_value);
-      1:  csr_wr(ral.key_7, rand_key_value);
+      1: csr_wr(ral.key_0, rand_key_value);
+      1: csr_wr(ral.key_1, rand_key_value);
+      1: csr_wr(ral.key_2, rand_key_value);
+      1: csr_wr(ral.key_3, rand_key_value);
+      1: csr_wr(ral.key_4, rand_key_value);
+      1: csr_wr(ral.key_5, rand_key_value);
+      1: csr_wr(ral.key_6, rand_key_value);
+      1: csr_wr(ral.key_7, rand_key_value);
     endcase
   endtask
 
@@ -118,7 +120,7 @@ class hmac_base_vseq extends cip_base_vseq #(.CFG_T               (hmac_env_cfg)
     csr_rd_digest(digest);
   endtask
 
-    // read digest value and output read value
+  // read digest value and output read value
   virtual task csr_rd_digest(output bit [TL_DW-1:0] digest[8]);
     csr_rd(.ptr(ral.digest_0), .value(digest[0]));
     csr_rd(.ptr(ral.digest_1), .value(digest[1]));
@@ -192,8 +194,8 @@ class hmac_base_vseq extends cip_base_vseq #(.CFG_T               (hmac_env_cfg)
 
   // read fifo_depth reg and burst write a chunk of words
   virtual task burst_wr_msg(bit [7:0] msg[], int burst_wr_length);
-    bit [7:0]       msg_q[$] = msg;
-    bit [7:0]       word_unpack[4];
+    bit [7:0] msg_q[$] = msg;
+    bit [7:0] word_unpack[4];
     bit [TL_DW-1:0] word;
     while (msg_q.size() > 0) begin
       // wait until HMAC has enough space to burst write
@@ -215,12 +217,12 @@ class hmac_base_vseq extends cip_base_vseq #(.CFG_T               (hmac_env_cfg)
         end else begin
           check_error_code();
         end
-      end else begin // remaining msg is smaller than the burst_wr_length
+      end else begin  // remaining msg is smaller than the burst_wr_length
         wr_msg(msg_q);
         break;
       end
-    csr_utils_pkg::wait_no_outstanding_access();
-    if ($urandom_range(0, 1)) rd_msg_length();
+      csr_utils_pkg::wait_no_outstanding_access();
+      if ($urandom_range(0, 1)) rd_msg_length();
     end
   endtask
 

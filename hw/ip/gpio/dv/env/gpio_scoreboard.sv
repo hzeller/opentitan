@@ -1,14 +1,16 @@
 // Copyright lowRISC contributors.
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
-class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
-                                                    .RAL_T (gpio_reg_block),
-                                                    .COV_T (gpio_env_cov));
+class gpio_scoreboard extends cip_base_scoreboard#(
+    .CFG_T(gpio_env_cfg),
+    .RAL_T(gpio_reg_block),
+    .COV_T(gpio_env_cov)
+);
 
   // predicted value of DATA_OUT rtl implementation register
-  bit   [NUM_GPIOS-1:0] data_out;
+  bit [NUM_GPIOS-1:0] data_out;
   // predicted updated value of DATA_OE rtl implementation register
-  bit   [NUM_GPIOS-1:0] data_oe;
+  bit [NUM_GPIOS-1:0] data_oe;
   // input presented by driving gpio_i
   logic [NUM_GPIOS-1:0] gpio_i_driven;
   // gpio input pins if previous out value
@@ -58,8 +60,8 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
   // process monitored tl transaction
   virtual task process_tl_access(tl_seq_item item, tl_channels_e channel = DataChannel);
     uvm_reg csr;
-    bit do_read_check       = 1'b1;
-    bit write               = item.is_write();
+    bit do_read_check = 1'b1;
+    bit write = item.is_write();
     uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
@@ -82,7 +84,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
             (int'((crnt_time - data_in_update_queue[$].eval_time) / clk_period)) > 1) begin
           void'(ral.data_in.predict(.value(data_in_update_queue[$].reg_value),
                                     .kind(UVM_PREDICT_READ)));
-        end else if(data_in_update_queue[$ - 1].needs_update == 1'b1) begin
+        end else if (data_in_update_queue[$ - 1].needs_update == 1'b1) begin
           // Use previous updated value for "data_in" prediction
           void'(ral.data_in.predict(.value(data_in_update_queue[$ - 1].reg_value),
                                     .kind(UVM_PREDICT_READ)));
@@ -98,7 +100,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
             (int'((crnt_time - intr_state_update_queue[$].eval_time) / clk_period)) > 1) begin
           void'(ral.intr_state.predict(.value(intr_state_update_queue[$].reg_value),
                                        .kind(UVM_PREDICT_READ)));
-        end else if(intr_state_update_queue[$ - 1].needs_update == 1'b1) begin
+        end else if (intr_state_update_queue[$ - 1].needs_update == 1'b1) begin
           // Use previous updated value for "intr_state" prediction
           void'(ral.intr_state.predict(.value(intr_state_update_queue[$ - 1].reg_value),
                                        .kind(UVM_PREDICT_READ)));
@@ -139,7 +141,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
               // Re-apply interrupt update
               intr_state_write_to_clear_update.reg_value |= last_intr_update_except_clearing;
               // Delete last entry with same time stamp
-              intr_state_update_queue.delete(intr_state_update_queue.size()-1);
+              intr_state_update_queue.delete(intr_state_update_queue.size() - 1);
               // Coverage Sampling: cover a scenario wherein cleared interrupt state bit
               // is re-asserted due to still active interrupt event
               // Note: In this case, both interrupt clearing event and INTR_STATE reg write
@@ -197,8 +199,8 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
         end
         `uvm_info(`gfn, "Calling gpio_predict_and_compare on reg write", UVM_HIGH)
         gpio_predict_and_compare(csr);
-      end // if (write)
-    end else begin // if (channel == DataChannel)
+      end  // if (write)
+    end else begin  // if (channel == DataChannel)
       if (write == 0) begin
         `uvm_info(`gfn, $sformatf("csr read on %0s", csr.get_name()), UVM_HIGH)
         // If do_read_check, is set, then check mirrored_value against item.d_data
@@ -224,7 +226,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
             join_none
           end
         end
-      end // if (write == 0)
+      end  // if (write == 0)
     end
   endtask : process_tl_access
 
@@ -267,7 +269,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
           // Flag to indicate:
           // (i) if there was any change in value on gpio_i pin - Bit0
           // (ii) what change occurred on gpio_i pin - Bit1
-          gpio_transition_t [NUM_GPIOS-1:0] gpio_i_transition;
+          gpio_transition_t[NUM_GPIOS-1:0] gpio_i_transition;
           foreach (prev_gpio_i[pin]) begin
             gpio_i_transition[pin].transition_occurred =
                 (cfg.gpio_vif.pins[pin] !== prev_gpio_i[pin]);
@@ -329,7 +331,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
                                   prv_gpio_i_pins_oe, prv_gpio_i_pins_oe), UVM_HIGH)
       end
 
-    end // monitor_pins_if
+    end  // monitor_pins_if
 
   endtask : monitor_gpio_i
 
@@ -379,8 +381,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
         "masked_out_lower": begin
           uvm_reg_data_t data = ral.masked_out_lower.data.get_mirrored_value();
 
-          for (uint pin_idx = 0;
-               pin_idx < ral.masked_out_lower.mask.get_n_bits(); pin_idx++) begin
+          for (uint pin_idx = 0; pin_idx < ral.masked_out_lower.mask.get_n_bits(); pin_idx++) begin
             if (masked_out_lower_mask[pin_idx] == 1'b1) begin
               data_out[pin_idx] = data[pin_idx];
             end
@@ -546,8 +547,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
 
       // Checker-1: Compare predicted and actual values of gpio pins
       // Avoid calling this checker due to weak pull-up or pull-down effect
-      if ((csr != null) ||
-          ((|gpio_i_driven === 1'b1) && (actual_gpio_i_activity() == 1))) begin
+      if ((csr != null) || ((|gpio_i_driven === 1'b1) && (actual_gpio_i_activity() == 1))) begin
         `DV_CHECK_CASE_EQ(pred_val_gpio_pins, cfg.gpio_vif.pins)
       end
     end
@@ -561,12 +561,12 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
       input gpio_transition_t [NUM_GPIOS-1:0] gpio_i_transition = {NUM_GPIOS{2'b00}});
 
     string msg_id = {`gfn, $sformatf(" gpio_interrupt_predict: ")};
-    bit [TL_DW-1:0] intr_enable          = ral.intr_enable.get_mirrored_value();
-    bit [TL_DW-1:0] intr_state           = ral.intr_state.get_mirrored_value();
-    bit [TL_DW-1:0] intr_ctrl_en_rising  = ral.intr_ctrl_en_rising.get_mirrored_value();
+    bit [TL_DW-1:0] intr_enable = ral.intr_enable.get_mirrored_value();
+    bit [TL_DW-1:0] intr_state = ral.intr_state.get_mirrored_value();
+    bit [TL_DW-1:0] intr_ctrl_en_rising = ral.intr_ctrl_en_rising.get_mirrored_value();
     bit [TL_DW-1:0] intr_ctrl_en_falling = ral.intr_ctrl_en_falling.get_mirrored_value();
     bit [TL_DW-1:0] intr_ctrl_en_lvlhigh = ral.intr_ctrl_en_lvlhigh.get_mirrored_value();
-    bit [TL_DW-1:0] intr_ctrl_en_lvllow  = ral.intr_ctrl_en_lvllow.get_mirrored_value();
+    bit [TL_DW-1:0] intr_ctrl_en_lvllow = ral.intr_ctrl_en_lvllow.get_mirrored_value();
     // expected(predicted) value of interrupt status
     bit [TL_DW-1:0] exp_intr_status;
 
@@ -787,7 +787,7 @@ class gpio_scoreboard extends cip_base_scoreboard #(.CFG_T (gpio_env_cfg),
     ral.reset(kind);
     // Reset scoreboard variables
     data_out = '0;
-    data_oe  = '0;
+    data_oe = '0;
     intr_state_update_queue = {};
     data_in_update_queue = {};
     last_intr_update_except_clearing = '0;

@@ -8,24 +8,24 @@
 `include "prim_assert.sv"
 
 module prim_alert_rxtx_async_assert_fpv (
-  input        clk_i,
-  input        rst_ni,
-  // for sigint error and skew injection only
-  input        ping_err_pi,
-  input        ping_err_ni,
-  input [1:0]  ping_skew_i,
-  input        ack_err_pi,
-  input        ack_err_ni,
-  input [1:0]  ack_skew_i,
-  input        alert_err_pi,
-  input        alert_err_ni,
-  input [1:0]  alert_skew_i,
-  // normal I/Os
-  input        alert_i,
-  input        ping_req_i,
-  input        ping_ok_o,
-  input        integ_fail_o,
-  input        alert_o
+    input       clk_i,
+    input       rst_ni,
+    // for sigint error and skew injection only
+    input       ping_err_pi,
+    input       ping_err_ni,
+    input [1:0] ping_skew_i,
+    input       ack_err_pi,
+    input       ack_err_ni,
+    input [1:0] ack_skew_i,
+    input       alert_err_pi,
+    input       alert_err_ni,
+    input [1:0] alert_skew_i,
+    // normal I/Os
+    input       alert_i,
+    input       ping_req_i,
+    input       ping_ok_o,
+    input       integ_fail_o,
+    input       alert_o
 );
 
   logic error_present;
@@ -50,8 +50,8 @@ module prim_alert_rxtx_async_assert_fpv (
   end
 
   // Note: we can only detect sigint errors where one wire is flipped.
-  `ASSUME_FPV(PingErrorsAreOH_M,  $onehot0({ping_err_pi, ping_err_ni})  )
-  `ASSUME_FPV(AckErrorsAreOH_M,   $onehot0({ack_err_pi, ack_err_ni})    )
+  `ASSUME_FPV(PingErrorsAreOH_M, $onehot0({ping_err_pi, ping_err_ni}))
+  `ASSUME_FPV(AckErrorsAreOH_M, $onehot0({ack_err_pi, ack_err_ni}))
   `ASSUME_FPV(AlertErrorsAreOH_M, $onehot0({alert_err_pi, alert_err_ni}))
 
   // ping will stay high until ping ok received, then it must be deasserted
@@ -66,13 +66,21 @@ module prim_alert_rxtx_async_assert_fpv (
   // be parameterized accordingly if different clock ratios are to be used here.
   // TODO: tighten bounds if possible
   sequence FullHandshake_S;
-    $rose(prim_alert_rxtx_async_fpv.alert_pd)   ##[3:5]
-    $rose(prim_alert_rxtx_async_fpv.ack_pd)     &&
-    $stable(prim_alert_rxtx_async_fpv.alert_pd) ##[3:5]
-    $fell(prim_alert_rxtx_async_fpv.alert_pd)   &&
-    $stable(prim_alert_rxtx_async_fpv.ack_pd)   ##[3:5]
-    $fell(prim_alert_rxtx_async_fpv.ack_pd)     &&
-    $stable(prim_alert_rxtx_async_fpv.alert_pd);
+    $rose(
+        prim_alert_rxtx_async_fpv.alert_pd
+    ) ##[3:5] $rose(
+        prim_alert_rxtx_async_fpv.ack_pd
+    ) && $stable(
+        prim_alert_rxtx_async_fpv.alert_pd
+    ) ##[3:5] $fell(
+        prim_alert_rxtx_async_fpv.alert_pd
+    ) && $stable(
+        prim_alert_rxtx_async_fpv.ack_pd
+    ) ##[3:5] $fell(
+        prim_alert_rxtx_async_fpv.ack_pd
+    ) && $stable(
+        prim_alert_rxtx_async_fpv.alert_pd
+    );
   endsequence
 
   // note: injected errors may lockup the FSMs, and hence the full HS can
@@ -93,16 +101,14 @@ module prim_alert_rxtx_async_assert_fpv (
   // transmission of pings
   // this bound is relatively large as in the worst case, we need to resolve
   // staggered differential signal patterns on all three differential channels
-  `ASSERT(AlertPing_A, $rose(ping_req_i) |-> ##[1:23] ping_ok_o,
-      clk_i, !rst_ni || error_setreg_q)
+  `ASSERT(AlertPing_A, $rose(ping_req_i) |-> ##[1:23] ping_ok_o, clk_i, !rst_ni || error_setreg_q)
   // transmission of first alert assertion (no ping collision)
   `ASSERT(AlertCheck0_A, !ping_req_i [*10] ##1 $rose(alert_i) &&
       (prim_alert_rxtx_async_fpv.i_prim_alert_sender.state_q ==
       prim_alert_rxtx_async_fpv.i_prim_alert_sender.Idle) |->
       ##[3:5] alert_o, clk_i, !rst_ni || ping_req_i || error_setreg_q)
   // eventual transmission of alerts in the general case which can include ping collisions
-  `ASSERT(AlertCheck1_A, alert_i |-> ##[1:25] alert_o,
-      clk_i, !rst_ni || error_setreg_q)
+  `ASSERT(AlertCheck1_A, alert_i |-> ##[1:25] alert_o, clk_i, !rst_ni || error_setreg_q)
 
   // basic liveness of FSMs in case no errors are present
   `ASSERT(FsmLivenessSender_A, !error_present [*2] ##1 !error_present &&

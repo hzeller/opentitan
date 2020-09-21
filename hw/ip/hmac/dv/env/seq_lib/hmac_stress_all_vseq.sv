@@ -20,9 +20,9 @@ class hmac_stress_all_vseq extends hmac_base_vseq;
                           "hmac_test_vectors_sha_vseq",
                           "hmac_test_vectors_hmac_vseq"};
     for (int i = 1; i <= num_trans; i++) begin
-      uvm_sequence   seq;
+      uvm_sequence seq;
       hmac_base_vseq hmac_vseq;
-      uint           seq_idx = $urandom_range(0, seq_names.size - 1);
+      uint seq_idx = $urandom_range(0, seq_names.size - 1);
 
       seq = create_seq_by_name(seq_names[seq_idx]);
       `downcast(hmac_vseq, seq)

@@ -6,22 +6,22 @@
 
 module prim_sync_reqack_tb #(
 ) (
-  input  logic clk_i,
-  input  logic rst_ni,
+    input logic clk_i,
+    input logic rst_ni,
 
-  output logic test_done_o,
-  output logic test_passed_o
+    output logic test_done_o,
+    output logic test_passed_o
 );
 
   // TB configuration
   localparam int unsigned NumTransactions = 8;
-  localparam logic        FastToSlow = 1'b1; // Select 1'b0 for SlowToFast
-  localparam int unsigned Ratio = 4; // must be even and greater equal 2
+  localparam logic FastToSlow = 1'b1;  // Select 1'b0 for SlowToFast
+  localparam int unsigned Ratio = 4;  // must be even and greater equal 2
 
   // Derivation of parameters
-  localparam int unsigned Ticks = Ratio/2;
-  localparam int unsigned WidthTicks = $clog2(Ticks)+1;
-  localparam int unsigned WidthTrans = $clog2(NumTransactions)+1;
+  localparam int unsigned Ticks = Ratio / 2;
+  localparam int unsigned WidthTicks = $clog2(Ticks) + 1;
+  localparam int unsigned WidthTrans = $clog2(NumTransactions) + 1;
 
   // Derive slow clock (using a counter)
   logic [WidthTicks-1:0] count_clk_d, count_clk_q;
@@ -31,7 +31,7 @@ module prim_sync_reqack_tb #(
   end
 
   logic clk_slow_d, clk_slow_q, clk_slow;
-  assign clk_slow_d = count_clk_q == (Ticks[WidthTicks-1:0]-1) ? !clk_slow_q : clk_slow_q;
+  assign clk_slow_d = count_clk_q == (Ticks[WidthTicks-1:0] - 1) ? !clk_slow_q : clk_slow_q;
   always_ff @(posedge clk_i) begin : reg_clk_slow
     clk_slow_q <= clk_slow_d;
   end
@@ -47,7 +47,7 @@ module prim_sync_reqack_tb #(
 
   // Connect clocks
   logic clk_src, clk_dst;
-  assign clk_src = FastToSlow ? clk_i    : clk_slow;
+  assign clk_src = FastToSlow ? clk_i : clk_slow;
   assign clk_dst = FastToSlow ? clk_slow : clk_i;
 
   logic src_req, dst_req;
@@ -56,15 +56,15 @@ module prim_sync_reqack_tb #(
 
   // Instantiate DUT
   prim_sync_reqack prim_sync_reqack (
-    .clk_src_i  (clk_src),
-    .rst_src_ni (rst_slow_n),
-    .clk_dst_i  (clk_dst),
-    .rst_dst_ni (rst_slow_n),
+      .clk_src_i (clk_src),
+      .rst_src_ni(rst_slow_n),
+      .clk_dst_i (clk_dst),
+      .rst_dst_ni(rst_slow_n),
 
-    .src_req_i  (src_req),
-    .src_ack_o  (src_ack),
-    .dst_req_o  (dst_req),
-    .dst_ack_i  (dst_ack)
+      .src_req_i(src_req),
+      .src_ack_o(src_ack),
+      .dst_req_o(dst_req),
+      .dst_ack_i(dst_ack)
   );
 
   // Make sure we do not apply stimuli before the reset.
@@ -78,17 +78,17 @@ module prim_sync_reqack_tb #(
 
   // Create randomized ACK delay
   localparam int WIDTH_COUNT = 3;
-  logic [31:0]             tmp;
+  logic [            31:0] tmp;
   logic [31-WIDTH_COUNT:0] unused_tmp;
   assign unused_tmp = tmp[31:WIDTH_COUNT];
-  logic [WIDTH_COUNT-1:0]  dst_count_clk_d, dst_count_clk_q;
-  logic [WIDTH_COUNT-1:0]  dst_count_clk_max_d, dst_count_clk_max_q;
-  logic                    count_exp;
+  logic [WIDTH_COUNT-1:0] dst_count_clk_d, dst_count_clk_q;
+  logic [WIDTH_COUNT-1:0] dst_count_clk_max_d, dst_count_clk_max_q;
+  logic count_exp;
   assign count_exp = dst_count_clk_q == dst_count_clk_max_q;
   always_comb begin
-    dst_count_clk_d     = dst_count_clk_q;
+    dst_count_clk_d = dst_count_clk_q;
     dst_count_clk_max_d = dst_count_clk_max_q;
-    tmp                 = '0;
+    tmp = '0;
     if (dst_req && count_exp) begin
       // Clear counter
       dst_count_clk_d = '0;
@@ -97,15 +97,15 @@ module prim_sync_reqack_tb #(
       dst_count_clk_max_d = tmp[2:0];
     end else if (dst_req) begin
       // Increment
-      dst_count_clk_d = dst_count_clk_q + {{WIDTH_COUNT-1{1'b0}},{1'b1}};
+      dst_count_clk_d = dst_count_clk_q + {{WIDTH_COUNT - 1{1'b0}}, {1'b1}};
     end
   end
   always_ff @(posedge clk_dst or negedge rst_slow_n) begin : reg_dst_count_clk
     if (!rst_slow_n) begin
-      dst_count_clk_q     <= '0;
+      dst_count_clk_q <= '0;
       dst_count_clk_max_q <= '0;
     end else begin
-      dst_count_clk_q     <= dst_count_clk_d;
+      dst_count_clk_q <= dst_count_clk_d;
       dst_count_clk_max_q <= dst_count_clk_max_d;
     end
   end
@@ -149,7 +149,7 @@ module prim_sync_reqack_tb #(
 
   // Check responses, signal end of simulation
   always_ff @(posedge clk_i) begin : tb_ctrl
-    test_done_o   <= 1'b0;
+    test_done_o <= 1'b0;
     test_passed_o <= 1'b1;
 
     if ((src_count_q == NumTransactions[WidthTrans-1:0]) &&
@@ -159,14 +159,14 @@ module prim_sync_reqack_tb #(
           NumTransactions);
       $display("Finishing simulation now.\n");
       test_passed_o <= 1'b1;
-      test_done_o   <= 1'b1;
+      test_done_o <= 1'b1;
     end else if (((src_count_q > dst_count_q) && ((src_count_q - dst_count_q) > 1)) ||
                  ((dst_count_q > src_count_q) && ((dst_count_q - src_count_q) > 1))) begin // Failed
       $display("\nERROR: Performed %0d handshakes in source domain, and %0d in destination domain.",
           src_count_q, dst_count_q);
       $display("Finishing simulation now.\n");
       test_passed_o <= 1'b0;
-      test_done_o   <= 1'b1;
+      test_done_o <= 1'b1;
     end
   end
 

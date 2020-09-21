@@ -2,67 +2,63 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class i2c_base_vseq extends cip_base_vseq #(
-    .CFG_T               (i2c_env_cfg),
-    .RAL_T               (i2c_reg_block),
-    .COV_T               (i2c_env_cov),
-    .VIRTUAL_SEQUENCER_T (i2c_virtual_sequencer)
-  );
+class i2c_base_vseq extends cip_base_vseq#(
+    .CFG_T              (i2c_env_cfg),
+    .RAL_T              (i2c_reg_block),
+    .COV_T              (i2c_env_cov),
+    .VIRTUAL_SEQUENCER_T(i2c_virtual_sequencer)
+);
   `uvm_object_utils(i2c_base_vseq)
 
   // class property
-  bit                         do_interrupt = 1'b1;
-  bit                         program_incorrect_regs = 1'b0;
+  bit do_interrupt = 1'b1;
+  bit program_incorrect_regs = 1'b0;
 
-  local timing_cfg_t          timing_cfg;
-  bit [7:0]                   rd_data;
-  i2c_item                    fmt_item;
+  local timing_cfg_t timing_cfg;
+  bit [7:0] rd_data;
+  i2c_item fmt_item;
 
   // random property
-  rand uint                   fmt_fifo_access_dly;
-  rand uint                   rx_fifo_access_dly;
-  rand uint                   clear_intr_dly;
+  rand uint fmt_fifo_access_dly;
+  rand uint rx_fifo_access_dly;
+  rand uint clear_intr_dly;
 
-  rand uint                   num_trans;
-  rand uint                   num_wr_bytes;
-  rand uint                   num_rd_bytes;
-  rand uint                   num_data_ovf;
-  rand bit                    rw_bit;
-  rand bit   [7:0]            wr_data[$];
-  rand bit   [9:0]            addr;  // support both 7-bit and 10-bit target address
-  rand bit   [2:0]            rxilvl;
-  rand bit   [1:0]            fmtilvl;
+  rand uint num_trans;
+  rand uint num_wr_bytes;
+  rand uint num_rd_bytes;
+  rand uint num_data_ovf;
+  rand bit rw_bit;
+  rand bit [7:0] wr_data[$];
+  rand bit [9:0] addr;  // support both 7-bit and 10-bit target address
+  rand bit [2:0] rxilvl;
+  rand bit [1:0] fmtilvl;
 
   // timing property
-  rand bit [15:0]             thigh;      // high period of the SCL in clock units
-  rand bit [15:0]             tlow;       // low period of the SCL in clock units
-  rand bit [15:0]             t_r;        // rise time of both SDA and SCL in clock units
-  rand bit [15:0]             t_f;        // fall time of both SDA and SCL in clock units
-  rand bit [15:0]             thd_sta;    // hold time for (repeated) START in clock units
-  rand bit [15:0]             tsu_sta;    // setup time for repeated START in clock units
-  rand bit [15:0]             tsu_sto;    // setup time for STOP in clock units
-  rand bit [15:0]             tsu_dat;    // data setup time in clock units
-  rand bit [15:0]             thd_dat;    // data hold time in clock units
-  rand bit [15:0]             t_buf;      // bus free time between STOP and START in clock units
-  rand bit [30:0]             t_timeout;  // max time target may stretch the clock
-  rand bit                    e_timeout;  // max time target may stretch the clock
-  rand uint                   t_sda_unstable;     // sda unstable time during the posedge_clock
-  rand uint                   t_sda_interference; // sda interference time during the posedge_clock
-  rand uint                   t_scl_interference; // scl interference time during the posedge_clock
+  rand bit [15:0] thigh;  // high period of the SCL in clock units
+  rand bit [15:0] tlow;  // low period of the SCL in clock units
+  rand bit [15:0] t_r;  // rise time of both SDA and SCL in clock units
+  rand bit [15:0] t_f;  // fall time of both SDA and SCL in clock units
+  rand bit [15:0] thd_sta;  // hold time for (repeated) START in clock units
+  rand bit [15:0] tsu_sta;  // setup time for repeated START in clock units
+  rand bit [15:0] tsu_sto;  // setup time for STOP in clock units
+  rand bit [15:0] tsu_dat;  // data setup time in clock units
+  rand bit [15:0] thd_dat;  // data hold time in clock units
+  rand bit [15:0] t_buf;  // bus free time between STOP and START in clock units
+  rand bit [30:0] t_timeout;  // max time target may stretch the clock
+  rand bit e_timeout;  // max time target may stretch the clock
+  rand uint t_sda_unstable;  // sda unstable time during the posedge_clock
+  rand uint t_sda_interference;  // sda interference time during the posedge_clock
+  rand uint t_scl_interference;  // scl interference time during the posedge_clock
 
   // error intrs probability
-  rand uint                   prob_sda_unstable;
-  rand uint                   prob_sda_interference;
-  rand uint                   prob_scl_interference;
-  rand uint                   num_resets; // the max. num. of on-the-fly reset if error irq occurs
+  rand uint prob_sda_unstable;
+  rand uint prob_sda_interference;
+  rand uint prob_scl_interference;
+  rand uint num_resets;  // the max. num. of on-the-fly reset if error irq occurs
 
   // constraints
-  constraint addr_c {
-    addr inside {[cfg.seq_cfg.i2c_min_addr : cfg.seq_cfg.i2c_max_addr]};
-  }
-  constraint fmtilvl_c {
-    fmtilvl inside {[0 : cfg.seq_cfg.i2c_max_fmtilvl]};
-  }
+  constraint addr_c {addr inside {[cfg.seq_cfg.i2c_min_addr : cfg.seq_cfg.i2c_max_addr]};}
+  constraint fmtilvl_c {fmtilvl inside {[0 : cfg.seq_cfg.i2c_max_fmtilvl]};}
   constraint num_trans_c {
     num_trans inside {[cfg.seq_cfg.i2c_min_num_trans : cfg.seq_cfg.i2c_max_num_trans]};
   }
@@ -71,40 +67,38 @@ class i2c_base_vseq extends cip_base_vseq #(
   constraint wr_data_c {
     solve num_wr_bytes before wr_data;
     wr_data.size == num_wr_bytes;
-    unique { wr_data };
+    unique {wr_data};
   }
 
   // number of extra data write written to fmt to trigger interrupts
   // i.e. overflow, watermark
-  constraint num_data_ovf_c {
-    num_data_ovf inside {[I2C_RX_FIFO_DEPTH/4 : I2C_RX_FIFO_DEPTH/2]};
-  }
+  constraint num_data_ovf_c {num_data_ovf inside {[I2C_RX_FIFO_DEPTH / 4 : I2C_RX_FIFO_DEPTH / 2]};}
 
   // create uniform assertion distributions of rx_watermark interrupt
   constraint rxilvl_c {
     rxilvl dist {
-      [0:4] :/ 5,
-      [5:cfg.seq_cfg.i2c_max_rxilvl] :/ 1
+      [0 : 4] :/ 5,
+      [5 : cfg.seq_cfg.i2c_max_rxilvl] :/ 1
     };
   }
   constraint num_wr_bytes_c {
     num_wr_bytes dist {
-      1       :/ 2,
-      [2:4]   :/ 2,
-      [5:8]   :/ 2,
-      [9:31]  :/ 1,
-      32      :/ 1
+      1 :/ 2,
+      [2 : 4] :/ 2,
+      [5 : 8] :/ 2,
+      [9 : 31] :/ 1,
+      32 :/ 1
     };
   }
   constraint num_rd_bytes_c {
     num_rd_bytes < 256;
     num_rd_bytes dist {
-      1       :/ 2,
-      [2:4]   :/ 2,
-      [5:8]   :/ 2,
-      [9:16]  :/ 1,
-      [17:31] :/ 1,
-      32      :/ 1
+      1 :/ 2,
+      [2 : 4] :/ 2,
+      [5 : 8] :/ 2,
+      [9 : 16] :/ 1,
+      [17 : 31] :/ 1,
+      32 :/ 1
     };
   }
   constraint num_reset_max_c {
@@ -113,12 +107,18 @@ class i2c_base_vseq extends cip_base_vseq #(
 
   // use this prob_dist value to make interrupt assertion more discrepancy
   constraint prob_error_intr_c {
-    prob_sda_unstable     dist {0 :/ (100 - cfg.seq_cfg.i2c_prob_sda_unstable),
-                                1 :/ cfg.seq_cfg.i2c_prob_sda_unstable};
-    prob_sda_interference dist {0 :/ (100 - cfg.seq_cfg.i2c_prob_sda_interference),
-                                1 :/ cfg.seq_cfg.i2c_prob_sda_interference};
-    prob_scl_interference dist {0 :/ (100 - cfg.seq_cfg.i2c_prob_scl_interference),
-                                1 :/ cfg.seq_cfg.i2c_prob_scl_interference};
+    prob_sda_unstable dist {
+      0 :/ (100 - cfg.seq_cfg.i2c_prob_sda_unstable),
+      1 :/ cfg.seq_cfg.i2c_prob_sda_unstable
+    };
+    prob_sda_interference dist {
+      0 :/ (100 - cfg.seq_cfg.i2c_prob_sda_interference),
+      1 :/ cfg.seq_cfg.i2c_prob_sda_interference
+    };
+    prob_scl_interference dist {
+      0 :/ (100 - cfg.seq_cfg.i2c_prob_scl_interference),
+      1 :/ cfg.seq_cfg.i2c_prob_scl_interference
+    };
   }
 
   // contraints for fifo access delay
@@ -138,33 +138,33 @@ class i2c_base_vseq extends cip_base_vseq #(
   }
 
   constraint timing_val_c {
-    thigh   inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
-    t_r     inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
-    t_f     inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
+    thigh inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
+    t_r inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
+    t_f inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
     thd_sta inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
     tsu_sto inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
     tsu_dat inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
     thd_dat inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
 
     solve t_r, tsu_dat, thd_dat before tlow;
-    solve t_r                   before t_buf;
-    solve t_f, thigh            before t_sda_unstable, t_sda_interference;
+    solve t_r before t_buf;
+    solve t_f, thigh before t_sda_unstable, t_sda_interference;
     if (program_incorrect_regs) {
       // force derived timing parameters to be negative (incorrect DUT config)
       tsu_sta == t_r + t_buf + 1;  // negative tHoldStop
-      tlow    == 2;                // negative tClockLow
-      t_buf   == 2;
-      t_sda_unstable     == 0;
+      tlow == 2;  // negative tClockLow
+      t_buf == 2;
+      t_sda_unstable == 0;
       t_sda_interference == 0;
       t_scl_interference == 0;
-    } else {
+    }
+        else {
       tsu_sta inside {[cfg.seq_cfg.i2c_min_timing : cfg.seq_cfg.i2c_max_timing]};
       // force derived timing parameters to be positive (correct DUT config)
       tlow    inside {[(t_r + tsu_dat + thd_dat + 1) :
                        (t_r + tsu_dat + thd_dat + 1) + cfg.seq_cfg.i2c_time_range]};
-      t_buf   inside {[(tsu_sta - t_r + 1) :
-                       (tsu_sta - t_r + 1) + cfg.seq_cfg.i2c_time_range]};
-      t_sda_unstable     inside {[0 : t_r + thigh + t_f - 1]};
+      t_buf inside {[(tsu_sta - t_r + 1) : (tsu_sta - t_r + 1) + cfg.seq_cfg.i2c_time_range]};
+      t_sda_unstable inside {[0 : t_r + thigh + t_f - 1]};
       t_sda_interference inside {[0 : t_r + thigh + t_f - 1]};
       t_scl_interference inside {[0 : t_r + thigh + t_f - 1]};
     }
@@ -182,7 +182,7 @@ class i2c_base_vseq extends cip_base_vseq #(
         m_dev_seq.start(p_sequencer.i2c_sequencer_h);
       join_none
       // prevent multiple starts of m_dev_seq 
-      cfg.start_dev_seq = 1'b1; 
+      cfg.start_dev_seq = 1'b1;
     end
   endtask : device_init
 
@@ -222,26 +222,25 @@ class i2c_base_vseq extends cip_base_vseq #(
 
   function automatic void get_timing_values();
     // derived timing parameters
-    timing_cfg.enbTimeOut  = e_timeout;
-    timing_cfg.tTimeOut    = t_timeout;
+    timing_cfg.enbTimeOut = e_timeout;
+    timing_cfg.tTimeOut = t_timeout;
     timing_cfg.tSetupStart = t_r + tsu_sta;
-    timing_cfg.tHoldStart  = t_f + thd_sta;
+    timing_cfg.tHoldStart = t_f + thd_sta;
     timing_cfg.tClockStart = thd_dat;
-    timing_cfg.tClockLow   = tlow - t_r - tsu_dat - thd_dat;
-    timing_cfg.tSetupBit   = t_r + tsu_dat;
+    timing_cfg.tClockLow = tlow - t_r - tsu_dat - thd_dat;
+    timing_cfg.tSetupBit = t_r + tsu_dat;
     timing_cfg.tClockPulse = t_r + thigh + t_f;
-    timing_cfg.tHoldBit    = t_f + thd_dat;
-    timing_cfg.tClockStop  = t_f + tlow - thd_dat;
-    timing_cfg.tSetupStop  = t_r + tsu_sto;
-    timing_cfg.tHoldStop   = t_r + t_buf - tsu_sta;
+    timing_cfg.tHoldBit = t_f + thd_dat;
+    timing_cfg.tClockStop = t_f + tlow - thd_dat;
+    timing_cfg.tSetupStop = t_r + tsu_sto;
+    timing_cfg.tHoldStop = t_r + t_buf - tsu_sta;
 
     // control interference and unstable interrupts
     timing_cfg.tSclInterference = (cfg.en_scl_interference) ?
                                   prob_scl_interference * t_scl_interference : 0;
     timing_cfg.tSdaInterference = (cfg.en_sda_interference) ?
                                   prob_sda_interference * t_sda_interference : 0;
-    timing_cfg.tSdaUnstable     = (cfg.en_sda_unstable) ?
-                                  prob_sda_unstable * t_sda_unstable : 0;
+    timing_cfg.tSdaUnstable = (cfg.en_sda_unstable) ? prob_sda_unstable * t_sda_unstable : 0;
     `uvm_info(`gfn, $sformatf("\ntSclItf = %0d, tSdaItf = %0d, tSdaUnstable = %0d",
         timing_cfg.tSclInterference,
         timing_cfg.tSdaInterference,

@@ -5,13 +5,15 @@
 // ---------------------------------------------
 // Xbar environment class
 // ---------------------------------------------
-class xbar_env extends dv_base_env#(.CFG_T              (xbar_env_cfg),
-                                    .VIRTUAL_SEQUENCER_T(xbar_virtual_sequencer),
-                                    .SCOREBOARD_T       (xbar_scoreboard),
-                                    .COV_T              (xbar_env_cov));
+class xbar_env extends dv_base_env#(
+    .CFG_T              (xbar_env_cfg),
+    .VIRTUAL_SEQUENCER_T(xbar_virtual_sequencer),
+    .SCOREBOARD_T       (xbar_scoreboard),
+    .COV_T              (xbar_env_cov)
+);
 
-  tl_agent          host_agent[];
-  tl_agent          device_agent[];
+  tl_agent host_agent[];
+  tl_agent device_agent[];
 
   `uvm_component_utils(xbar_env)
 
