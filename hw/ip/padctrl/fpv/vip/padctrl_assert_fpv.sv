@@ -9,16 +9,14 @@
 `include "prim_assert.sv"
 
 module padctrl_assert_fpv (
-  input                                       clk_i,
-  input                                       rst_ni,
+  input                                                                                 clk_i,
+  input                                                                                 rst_ni,
   // Bus Interface (device)
-  input tlul_pkg::tl_h2d_t                    tl_i,
-  input tlul_pkg::tl_d2h_t                    tl_o,
+  input tlul_pkg::tl_h2d_t                                                              tl_i,
+  input tlul_pkg::tl_d2h_t                                                              tl_o,
   // pad attributes to chip level instance
-  input logic[padctrl_reg_pkg::NMioPads-1:0]
-              [padctrl_reg_pkg::AttrDw-1:0]   mio_attr_o,
-  input logic[padctrl_reg_pkg::NDioPads-1:0]
-              [padctrl_reg_pkg::AttrDw-1:0]   dio_attr_o
+  input logic              [padctrl_reg_pkg::NMioPads-1:0][padctrl_reg_pkg::AttrDw-1:0] mio_attr_o,
+  input logic              [padctrl_reg_pkg::NDioPads-1:0][padctrl_reg_pkg::AttrDw-1:0] dio_attr_o
 );
 
   import prim_pkg::*;
@@ -34,16 +32,16 @@ module padctrl_assert_fpv (
   logic [padctrl_reg_pkg::NMioPads-1:0][padctrl_reg_pkg::AttrDw-1:0] mio_warl_masks;
   for (genvar k = 0; k < padctrl_reg_pkg::NMioPads; k++) begin : gen_mio_attr
     prim_generic_pad_wrapper #(
-      .AttrDw   ( padctrl_reg_pkg::AttrDw ),
-      .WarlOnly ( 1'b1                    )
+        .AttrDw  (padctrl_reg_pkg::AttrDw),
+        .WarlOnly(1'b1)
     ) dut (
-      .inout_io (                   ),
-      .in_o     (                   ),
-      .ie_i     ( 1'b0              ),
-      .out_i    ( 1'b0              ),
-      .oe_i     ( 1'b0              ),
-      .attr_i   ( '0                ),
-      .warl_o   ( mio_warl_masks[k] )
+        .inout_io(),
+        .in_o    (),
+        .ie_i    (1'b0),
+        .out_i   (1'b0),
+        .oe_i    (1'b0),
+        .attr_i  ('0),
+        .warl_o  (mio_warl_masks[k])
     );
   end
 
@@ -66,16 +64,16 @@ module padctrl_assert_fpv (
   logic [padctrl_reg_pkg::NDioPads-1:0][padctrl_reg_pkg::AttrDw-1:0] dio_warl_masks;
   for (genvar k = 0; k < padctrl_reg_pkg::NDioPads; k++) begin : gen_dio_attr
     prim_generic_pad_wrapper #(
-      .AttrDw   ( padctrl_reg_pkg::AttrDw ),
-      .WarlOnly ( 1'b1                    )
+        .AttrDw  (padctrl_reg_pkg::AttrDw),
+        .WarlOnly(1'b1)
     ) i_prim_generic_pad_wrapper (
-      .inout_io (                   ),
-      .in_o     (                   ),
-      .ie_i     ( 1'b0              ),
-      .out_i    ( 1'b0              ),
-      .oe_i     ( 1'b0              ),
-      .attr_i   ( '0                ),
-      .warl_o   ( dio_warl_masks[k] )
+        .inout_io(),
+        .in_o    (),
+        .ie_i    (1'b0),
+        .out_i   (1'b0),
+        .oe_i    (1'b0),
+        .attr_i  ('0),
+        .warl_o  (dio_warl_masks[k])
     );
   end
 

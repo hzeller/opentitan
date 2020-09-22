@@ -10,7 +10,7 @@ class spi_agent extends dv_base_agent#(
     .SEQUENCER_T    (spi_sequencer),
     .MONITOR_T      (spi_monitor),
     .COV_T          (spi_agent_cov)
-  );
+);
   `uvm_component_utils(spi_agent)
 
   `uvm_component_new

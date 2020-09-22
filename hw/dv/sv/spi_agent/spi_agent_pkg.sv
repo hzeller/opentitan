@@ -15,9 +15,9 @@ package spi_agent_pkg;
   // local types
   // transaction type
   typedef enum {
-    SpiTransNormal,    // normal SPI trans
+    SpiTransNormal,  // normal SPI trans
     SpiTransSckNoCsb,  // bad SPI trans with clk but no sb
-    SpiTransCsbNoScb   // bad SPI trans with csb but no clk
+    SpiTransCsbNoScb  // bad SPI trans with csb but no clk
   } spi_trans_type_e;
 
   // sck edge type - used by driver and monitor to wait for the right edge based on CPOL / CPHA
@@ -41,4 +41,4 @@ package spi_agent_pkg;
   `include "spi_agent.sv"
   `include "spi_seq_list.sv"
 
-endpackage: spi_agent_pkg
+endpackage : spi_agent_pkg

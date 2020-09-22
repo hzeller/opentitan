@@ -15,10 +15,10 @@
 
 // Auto-generated code
 module debug_rom_one_scratch (
-  input  logic         clk_i,
-  input  logic         req_i,
-  input  logic [63:0]  addr_i,
-  output logic [63:0]  rdata_o
+  input  logic        clk_i,
+  input  logic        req_i,
+  input  logic [63:0] addr_i,
+  output logic [63:0] rdata_o
 );
 
   localparam int unsigned RomSize = 13;
@@ -52,7 +52,7 @@ module debug_rom_one_scratch (
   always_comb begin : p_outmux
     rdata_o = '0;
     if (addr_q < $clog2(RomSize)'(RomSize)) begin
-        rdata_o = mem[addr_q];
+      rdata_o = mem[addr_q];
     end
   end
 

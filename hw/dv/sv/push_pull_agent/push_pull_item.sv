@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class push_pull_item #(parameter int DataWidth = 32) extends uvm_sequence_item;
+class push_pull_item #(
+  parameter int DataWidth = 32
+) extends uvm_sequence_item;
 
   rand bit [DataWidth-1:0] data;
 
@@ -13,8 +15,8 @@ class push_pull_item #(parameter int DataWidth = 32) extends uvm_sequence_item;
   rand int unsigned device_delay;
 
   `uvm_object_param_utils_begin(push_pull_item#(DataWidth))
-    `uvm_field_int(data,         UVM_DEFAULT)
-    `uvm_field_int(host_delay,   UVM_DEFAULT)
+    `uvm_field_int(data, UVM_DEFAULT)
+    `uvm_field_int(host_delay, UVM_DEFAULT)
     `uvm_field_int(device_delay, UVM_DEFAULT)
   `uvm_object_utils_end
 

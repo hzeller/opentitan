@@ -6,12 +6,12 @@
 
 module usb_fs_tx_mux (
   // interface to IN Protocol Engine
-  input  logic in_tx_pkt_start_i,
-  input  logic [3:0] in_tx_pid_i,
+  input logic in_tx_pkt_start_i,
+  input logic [3:0] in_tx_pid_i,
 
   // interface to OUT Protocol Engine
-  input  logic out_tx_pkt_start_i,
-  input  logic [3:0] out_tx_pid_i,
+  input logic out_tx_pkt_start_i,
+  input logic [3:0] out_tx_pid_i,
 
   // interface to tx module
   output logic tx_pkt_start_o,

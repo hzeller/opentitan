@@ -21,9 +21,9 @@
 
 class riscv_data_page_gen extends uvm_object;
 
-  riscv_instr_gen_config  cfg;
-  string                  data_page_str[$];
-  mem_region_t            mem_region_setting[$];
+  riscv_instr_gen_config cfg;
+  string                 data_page_str[$];
+  mem_region_t           mem_region_setting[$];
 
   `uvm_object_utils(riscv_data_page_gen)
 
@@ -39,8 +39,8 @@ class riscv_data_page_gen extends uvm_object;
                                  output bit [7:0] data[]);
     bit [7:0] temp_data;
     data = new[num_of_bytes];
-    foreach(data[i]) begin
-      if(pattern == RAND_DATA) begin
+    foreach (data[i]) begin
+      if (pattern == RAND_DATA) begin
         `DV_CHECK_STD_RANDOMIZE_FATAL(temp_data)
         data[i] = temp_data;
       end else if (pattern == INCR_VAL) begin
@@ -92,11 +92,11 @@ class riscv_data_page_gen extends uvm_object;
                                           {hart_prefix(hart_id), mem_region_setting[i].name}));
       end
       page_size = mem_region_setting[i].size_in_bytes;
-      for(int i = 0; i < page_size; i+= 32) begin
-        if (page_size-i >= 32) begin
+      for (int i = 0; i < page_size; i += 32) begin
+        if (page_size - i >= 32) begin
           gen_data(.idx(i), .pattern(pattern), .num_of_bytes(32), .data(tmp_data));
         end else begin
-          gen_data(.idx(i), .pattern(pattern), .num_of_bytes(page_size-i), .data(tmp_data));
+          gen_data(.idx(i), .pattern(pattern), .num_of_bytes(page_size - i), .data(tmp_data));
         end
         tmp_str = format_string($sformatf(".word %0s", format_data(tmp_data)), LABEL_STR_LEN);
         data_page_str.push_back(tmp_str);

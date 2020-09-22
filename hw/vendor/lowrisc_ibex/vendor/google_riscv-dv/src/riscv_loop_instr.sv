@@ -19,29 +19,27 @@
 
 class riscv_loop_instr extends riscv_rand_instr_stream;
 
-  rand riscv_reg_t         loop_cnt_reg[];
-  rand riscv_reg_t         loop_limit_reg[];
-  rand int                 loop_init_val[];
-  rand int                 loop_step_val[];
-  rand int                 loop_limit_val[];
-  rand bit [2:0]           num_of_nested_loop;
-  rand int                 num_of_instr_in_loop;
-  rand riscv_instr_name_t  branch_type[];
-  riscv_instr              loop_init_instr[];
-  riscv_instr              loop_update_instr[];
-  riscv_instr              loop_branch_instr[];
-  riscv_instr              loop_branch_target_instr[];
+  rand riscv_reg_t        loop_cnt_reg[];
+  rand riscv_reg_t        loop_limit_reg[];
+  rand int                loop_init_val[];
+  rand int                loop_step_val[];
+  rand int                loop_limit_val[];
+  rand bit [2:0]          num_of_nested_loop;
+  rand int                num_of_instr_in_loop;
+  rand riscv_instr_name_t branch_type[];
+  riscv_instr             loop_init_instr[];
+  riscv_instr             loop_update_instr[];
+  riscv_instr             loop_branch_instr[];
+  riscv_instr             loop_branch_target_instr[];
   // Aggregated loop instruction stream
-  riscv_instr         loop_instr[];
+  riscv_instr             loop_instr[];
 
   constraint legal_loop_regs_c {
     solve num_of_nested_loop before loop_cnt_reg;
     solve num_of_nested_loop before loop_limit_reg;
     foreach (loop_cnt_reg[i]) {
       loop_cnt_reg[i] != ZERO;
-      foreach (cfg.reserved_regs[j]) {
-        loop_cnt_reg[i] != cfg.reserved_regs[j];
-      }
+      foreach (cfg.reserved_regs[j]) {loop_cnt_reg[i] != cfg.reserved_regs[j];}
     }
     foreach (loop_limit_reg[i]) {
       foreach (cfg.reserved_regs[j]) {
@@ -61,8 +59,8 @@ class riscv_loop_instr extends riscv_rand_instr_stream;
     solve branch_type before loop_init_val;
     solve branch_type before loop_step_val;
     solve branch_type before loop_limit_val;
-    num_of_instr_in_loop inside {[1:25]};
-    num_of_nested_loop inside {[1:2]};
+    num_of_instr_in_loop inside {[1 : 25]};
+    num_of_nested_loop inside {[1 : 2]};
     loop_init_val.size() == num_of_nested_loop;
     loop_step_val.size() == num_of_nested_loop;
     loop_limit_val.size() == num_of_nested_loop;
@@ -74,33 +72,42 @@ class riscv_loop_instr extends riscv_rand_instr_stream;
         branch_type[i] inside {BEQ, BNE, BLTU, BLT, BGEU, BGE};
       }
     }
-    foreach(loop_init_val[i]) {
+    foreach (loop_init_val[i]) {
       if (branch_type[i] inside {C_BNEZ, C_BEQZ}) {
         loop_limit_val[i] == 0;
         loop_limit_reg[i] == ZERO;
         loop_cnt_reg[i] inside {riscv_instr_pkg::compressed_gpr};
-      } else {
-        loop_limit_val[i] inside {[-20:20]};
+      }
+          else {
+        loop_limit_val[i] inside {[-20 : 20]};
         loop_limit_reg[i] != ZERO;
       }
       if (branch_type[i] inside {C_BNEZ, C_BEQZ, BEQ, BNE}) {
         ((loop_limit_val[i] - loop_init_val[i]) % loop_step_val[i] == 0) &&
         (loop_limit_val[i] != loop_init_val[i]);
-      } else if (branch_type[i] == BGE) {
+      }
+          else
+      if (branch_type[i] == BGE) {
         loop_step_val[i] < 0;
-      } else if (branch_type[i] == BGEU) {
+      }
+          else
+      if (branch_type[i] == BGEU) {
         loop_step_val[i] < 0;
         loop_init_val[i] > 0;
         // Avoid count to negative
         loop_step_val[i] + loop_limit_val[i] > 0;
-      } else if (branch_type[i] == BLT) {
+      }
+          else
+      if (branch_type[i] == BLT) {
         loop_step_val[i] > 0;
-      } else if (branch_type[i] == BLTU) {
+      }
+          else
+      if (branch_type[i] == BLTU) {
         loop_step_val[i] > 0;
         loop_limit_val[i] > 0;
       }
-      loop_init_val[i]  inside {[-10:10]};
-      loop_step_val[i]  inside {[-10:10]};
+      loop_init_val[i] inside {[-10 : 10]};
+      loop_step_val[i] inside {[-10 : 10]};
       if(loop_init_val[i] < loop_limit_val[i]) {
         loop_step_val[i] > 0;
       } else {
@@ -118,11 +125,11 @@ class riscv_loop_instr extends riscv_rand_instr_stream;
     initialize_instr_list(num_of_instr_in_loop);
     gen_instr(1'b1);
     // Randomize the key loop instructions
-    loop_init_instr   = new[num_of_nested_loop*2];
+    loop_init_instr = new[num_of_nested_loop * 2];
     loop_update_instr = new[num_of_nested_loop];
     loop_branch_instr = new[num_of_nested_loop];
     loop_branch_target_instr = new[num_of_nested_loop];
-    for(int i = 0; i < num_of_nested_loop; i++) begin
+    for (int i = 0; i < num_of_nested_loop; i++) begin
       // Instruction to init the loop counter
       loop_init_instr[2*i] = riscv_instr::get_rand_instr(.include_instr({ADDI}));
       `DV_CHECK_RANDOMIZE_WITH_FATAL(loop_init_instr[2*i],
@@ -178,7 +185,7 @@ class riscv_loop_instr extends riscv_rand_instr_stream;
     // Randomly distribute the loop instruction in the existing instruction stream
     build_loop_instr_stream();
     mix_instr_stream(loop_instr, 1'b1);
-    foreach(instr_list[i]) begin
+    foreach (instr_list[i]) begin
       if(instr_list[i].label != "")
         instr_list[i].has_label = 1'b1;
       else

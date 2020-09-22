@@ -8,22 +8,20 @@
 `include "prim_assert.sv"
 
 module padring_assert_fpv (
-  input                                 clk_pad_i,
-  input                                 rst_pad_ni,
-  input                                 clk_o,
-  input                                 rst_no,
-  input [padctrl_reg_pkg::NMioPads-1:0] mio_pad_io,
-  input [padctrl_reg_pkg::NDioPads-1:0] dio_pad_io,
-  input [padctrl_reg_pkg::NMioPads-1:0] mio_out_i,
-  input [padctrl_reg_pkg::NMioPads-1:0] mio_oe_i,
-  input [padctrl_reg_pkg::NMioPads-1:0] mio_in_o,
-  input [padctrl_reg_pkg::NDioPads-1:0] dio_out_i,
-  input [padctrl_reg_pkg::NDioPads-1:0] dio_oe_i,
-  input [padctrl_reg_pkg::NDioPads-1:0] dio_in_o,
-  input [padctrl_reg_pkg::NMioPads-1:0]
-        [padctrl_reg_pkg::AttrDw-1:0]   mio_attr_i,
-  input [padctrl_reg_pkg::NDioPads-1:0]
-        [padctrl_reg_pkg::AttrDw-1:0]   dio_attr_i
+  input                                                              clk_pad_i,
+  input                                                              rst_pad_ni,
+  input                                                              clk_o,
+  input                                                              rst_no,
+  input [padctrl_reg_pkg::NMioPads-1:0]                              mio_pad_io,
+  input [padctrl_reg_pkg::NDioPads-1:0]                              dio_pad_io,
+  input [padctrl_reg_pkg::NMioPads-1:0]                              mio_out_i,
+  input [padctrl_reg_pkg::NMioPads-1:0]                              mio_oe_i,
+  input [padctrl_reg_pkg::NMioPads-1:0]                              mio_in_o,
+  input [padctrl_reg_pkg::NDioPads-1:0]                              dio_out_i,
+  input [padctrl_reg_pkg::NDioPads-1:0]                              dio_oe_i,
+  input [padctrl_reg_pkg::NDioPads-1:0]                              dio_in_o,
+  input [padctrl_reg_pkg::NMioPads-1:0][padctrl_reg_pkg::AttrDw-1:0] mio_attr_i,
+  input [padctrl_reg_pkg::NDioPads-1:0][padctrl_reg_pkg::AttrDw-1:0] dio_attr_i
 );
 
   // symbolic vars for FPV

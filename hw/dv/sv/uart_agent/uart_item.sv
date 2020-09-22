@@ -18,27 +18,21 @@ class uart_item extends uvm_sequence_item;
   rand bit ovrd_en_parity = 1'b0;
 
   // dont override start_bit unless testing an error scenario
-  constraint start_bit_c {
-    start_bit == 1'b0;
-  }
+  constraint start_bit_c {start_bit == 1'b0;}
 
   // dont override stop_bit unless testing an error scenario
-  constraint stop_bit_c {
-    stop_bit == 1'b1;
-  }
+  constraint stop_bit_c {stop_bit == 1'b1;}
 
   // dont override parity setting unless testing an error scenario
-  constraint ovrd_en_parity_c {
-    ovrd_en_parity == 1'b0;
-  }
+  constraint ovrd_en_parity_c {ovrd_en_parity == 1'b0;}
 
   `uvm_object_utils_begin(uart_item)
-    `uvm_field_int(start_bit,       UVM_DEFAULT | UVM_NOCOMPARE | UVM_NOPRINT)
-    `uvm_field_int(data,            UVM_DEFAULT)
-    // parity & stop_bit are checked in monitor
-    `uvm_field_int(parity,          UVM_DEFAULT | UVM_NOCOMPARE)
-    `uvm_field_int(stop_bit,        UVM_DEFAULT | UVM_NOCOMPARE | UVM_NOPRINT)
-    `uvm_field_int(ovrd_en_parity,  UVM_DEFAULT | UVM_NOCOMPARE | UVM_NOPRINT)
+    `uvm_field_int(start_bit, UVM_DEFAULT | UVM_NOCOMPARE | UVM_NOPRINT)
+    `uvm_field_int(data, UVM_DEFAULT)
+  // parity & stop_bit are checked in monitor
+    `uvm_field_int(parity, UVM_DEFAULT | UVM_NOCOMPARE)
+    `uvm_field_int(stop_bit, UVM_DEFAULT | UVM_NOCOMPARE | UVM_NOPRINT)
+    `uvm_field_int(ovrd_en_parity, UVM_DEFAULT | UVM_NOCOMPARE | UVM_NOPRINT)
   `uvm_object_utils_end
 
   `uvm_object_new

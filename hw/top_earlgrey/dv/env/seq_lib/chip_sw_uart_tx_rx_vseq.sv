@@ -29,7 +29,7 @@ class chip_sw_uart_tx_rx_vseq extends chip_sw_base_vseq;
     8'hf5, 8'hb1, 8'hab, 8'hef, 8'h6f, 8'hd8, 8'h23, 8'hfd
   };
 
-// A set of bytes to be send back over RX.
+  // A set of bytes to be send back over RX.
   byte uart_rx_data[] = {
     8'h1b, 8'h95, 8'hc5, 8'hb5, 8'h8a, 8'ha4, 8'ha8, 8'h9f,
     8'h6a, 8'h7d, 8'h6b, 8'h0c, 8'hcd, 8'hd5, 8'ha6, 8'h8f,
@@ -53,7 +53,9 @@ class chip_sw_uart_tx_rx_vseq extends chip_sw_base_vseq;
     super.body();
 
     // Spawn off a thread to retrieve UART TX items.
-    fork get_uart_tx_items(); join_none
+    fork
+      get_uart_tx_items();
+    join_none
 
     // Wait until we receive at least 1 byte from the DUT (SW test).
     wait(uart_tx_data_q.size() > 0);

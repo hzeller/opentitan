@@ -44,8 +44,7 @@ class uart_logger extends uvm_component;
         if (item.data inside {lf, cr}) begin
           print_log(log);
           log = "";
-        end
-        else begin
+        end else begin
           log = {log, char};
         end
       end
@@ -61,10 +60,10 @@ class uart_logger extends uvm_component;
   // See sw/device/lib/base/log.h for details on how the severity is indicated.
   // TODO: Add support for verbosity when the severity is info.
   virtual function void print_log(string log);
-    string info   = "INFO: *";
-    string warn   = "WARNING: *";
-    string error  = "ERROR: *";
-    string fatal  = "FATAL: *";
+    string info = "INFO: *";
+    string warn = "WARNING: *";
+    string error = "ERROR: *";
+    string fatal = "FATAL: *";
 
     if (log == "") return;
     case (1)

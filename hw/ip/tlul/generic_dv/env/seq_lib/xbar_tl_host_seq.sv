@@ -37,21 +37,20 @@ class xbar_tl_host_seq extends tl_host_seq;
       is_mapped_addr = $urandom_range(0, 1);
     end else begin
       is_mapped_addr = 1;
-      addr_range_id = $urandom_range(0, xbar_devices[device_id].addr_ranges.size() - 1);
+      addr_range_id  = $urandom_range(0, xbar_devices[device_id].addr_ranges.size() - 1);
     end
     if (!(req.randomize() with {
-        a_valid_delay inside {[min_req_delay:max_req_delay]};
-        // Keep msb to zero as it's reserved to add host ID
-        (a_source >> valid_host_id_width) == 0;
-        if (override_a_source_val) {
-          a_source == overridden_a_source_val;
-        } else {
-          // keep a_source unique
-          foreach (pending_req[i]) {
-            a_source != pending_req[i].a_source;
+          a_valid_delay inside {[min_req_delay : max_req_delay]};
+          // Keep msb to zero as it's reserved to add host ID
+          (a_source >> valid_host_id_width) == 0;
+          if (override_a_source_val) {
+            a_source == overridden_a_source_val;
           }
-        }
-        if (is_mapped_addr) {
+              else {
+            // keep a_source unique
+            foreach (pending_req[i]) {a_source != pending_req[i].a_source;}
+          }
+          if (is_mapped_addr) {
           a_addr inside {[xbar_devices[device_id].addr_ranges[addr_range_id].start_addr :
                           xbar_devices[device_id].addr_ranges[addr_range_id].end_addr]};
         } else {
@@ -59,7 +58,8 @@ class xbar_tl_host_seq extends tl_host_seq;
             !(a_addr inside {[xbar_devices[device_id].addr_ranges[i].start_addr :
                               xbar_devices[device_id].addr_ranges[i].end_addr]});
           }
-        }})) begin
+        }
+        })) begin
       `uvm_fatal(get_full_name(), "Cannot randomize req")
     end
   endfunction

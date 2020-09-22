@@ -8,9 +8,9 @@
 // available at https://hdl.handle.net/10945/25608
 
 module aes_sbox_canright (
-  input  aes_pkg::ciph_op_e op_i,
-  input  logic [7:0]        data_i,
-  output logic [7:0]        data_o
+  input  aes_pkg::ciph_op_e       op_i,
+  input  logic              [7:0] data_i,
+  output logic              [7:0] data_o
 );
 
   import aes_pkg::*;
@@ -55,8 +55,7 @@ module aes_sbox_canright (
   logic [7:0] data_basis_x, data_inverse;
 
   // Convert to normal basis X.
-  assign data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) :
-                                             aes_mvm(data_i ^ 8'h63, S2X);
+  assign data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) : aes_mvm(data_i ^ 8'h63, S2X);
 
   // Do the inversion in normal basis X.
   assign data_inverse = aes_inverse_gf2p8(data_basis_x);

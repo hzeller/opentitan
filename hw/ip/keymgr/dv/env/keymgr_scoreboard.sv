@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class keymgr_scoreboard extends cip_base_scoreboard #(
+class keymgr_scoreboard extends cip_base_scoreboard#(
     .CFG_T(keymgr_env_cfg),
     .RAL_T(keymgr_reg_block),
     .COV_T(keymgr_env_cov)
-  );
+);
   `uvm_component_utils(keymgr_scoreboard)
 
   // local variables
@@ -32,22 +32,21 @@ class keymgr_scoreboard extends cip_base_scoreboard #(
   endtask
 
   virtual task process_tl_access(tl_seq_item item, tl_channels_e channel = DataChannel);
-    uvm_reg csr;
-    bit     do_read_check   = 1'b1;
-    bit     write           = item.is_write();
+    uvm_reg        csr;
+    bit            do_read_check = 1'b1;
+    bit            write = item.is_write();
     uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
 
-    bit addr_phase_read   = (!write && channel == AddrChannel);
-    bit addr_phase_write  = (write && channel == AddrChannel);
-    bit data_phase_read   = (!write && channel == DataChannel);
-    bit data_phase_write  = (write && channel == DataChannel);
+    bit            addr_phase_read = (!write && channel == AddrChannel);
+    bit            addr_phase_write = (write && channel == AddrChannel);
+    bit            data_phase_read = (!write && channel == DataChannel);
+    bit            data_phase_write = (write && channel == DataChannel);
 
     // if access was to a valid csr, get the csr handle
     if (csr_addr inside {cfg.csr_addrs}) begin
       csr = ral.default_map.get_reg_by_offset(csr_addr);
       `DV_CHECK_NE_FATAL(csr, null)
-    end
-    else begin
+    end else begin
       `uvm_fatal(`gfn, $sformatf("Access unexpected addr 0x%0h", csr_addr))
     end
 

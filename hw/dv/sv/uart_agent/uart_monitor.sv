@@ -4,10 +4,10 @@
 
 
 class uart_monitor extends dv_base_monitor#(
-    .ITEM_T (uart_item),
-    .CFG_T  (uart_agent_cfg),
-    .COV_T  (uart_agent_cov)
-  );
+    .ITEM_T(uart_item),
+    .CFG_T (uart_agent_cfg),
+    .COV_T (uart_agent_cov)
+);
   `uvm_component_utils(uart_monitor)
 
   // Analysis port for the collected transfer.
@@ -62,8 +62,7 @@ class uart_monitor extends dv_base_monitor#(
           if (cfg.en_tx_checks && item.parity != `GET_PARITY(item.data, cfg.odd_parity)) begin
             `uvm_error(`gtn, "Parity failed")
           end
-        end
-        else item.parity = 1'b0;
+        end else item.parity = 1'b0;
 
         // get the stop bit
         @(cfg.vif.mon_tx_mp.mon_tx_cb);
@@ -110,8 +109,7 @@ class uart_monitor extends dv_base_monitor#(
           if (cfg.en_rx_checks && item.parity != `GET_PARITY(item.data, cfg.odd_parity)) begin
             `uvm_error(`gtn, "Parity failed")
           end
-        end
-        else item.parity = 1'b0;
+        end else item.parity = 1'b0;
 
         // get the stop bit
         @(cfg.vif.mon_rx_mp.mon_rx_cb);

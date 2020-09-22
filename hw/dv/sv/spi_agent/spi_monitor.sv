@@ -3,10 +3,10 @@
 // SPDX-License-Identifier: Apache-2.0
 
 class spi_monitor extends dv_base_monitor#(
-    .ITEM_T (spi_item),
-    .CFG_T  (spi_agent_cfg),
-    .COV_T  (spi_agent_cov)
-  );
+    .ITEM_T(spi_item),
+    .CFG_T (spi_agent_cfg),
+    .COV_T (spi_agent_cov)
+);
   `uvm_component_utils(spi_monitor)
 
   spi_item host_item;
@@ -20,7 +20,7 @@ class spi_monitor extends dv_base_monitor#(
 
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
-    host_analysis_port = new("host_analysis_port", this);
+    host_analysis_port   = new("host_analysis_port", this);
     device_analysis_port = new("device_analysis_port", this);
   endfunction
 
@@ -42,16 +42,16 @@ class spi_monitor extends dv_base_monitor#(
   virtual protected task collect_curr_trans();
 
     fork
-      begin: isolation_thread
+      begin : isolation_thread
         fork
-          begin: csb_deassert_thread
+          begin : csb_deassert_thread
             wait(cfg.vif.csb == 1'b1);
           end
-          begin: sample_thread
+          begin : sample_thread
             // for mode 1 and 3, get the leading edges out of the way
             cfg.wait_sck_edge(LeadingEdge);
             forever begin
-              bit [7:0] host_byte;    // from sdi
+              bit [7:0] host_byte;  // from sdi
               bit [7:0] device_byte;  // from sdo
               int       which_bit;
               for (int i = 0; i < 8; i++) begin
@@ -90,8 +90,8 @@ class spi_monitor extends dv_base_monitor#(
                 host_item   = spi_item::type_id::create("host_item", this);
                 device_item = spi_item::type_id::create("device_item", this);
               end
-            end // forever
-          end: sample_thread
+            end  // forever
+          end : sample_thread
         join_any
         disable fork;
       end

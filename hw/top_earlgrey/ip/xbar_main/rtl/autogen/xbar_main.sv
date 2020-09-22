@@ -135,135 +135,135 @@ module xbar_main (
   logic unused_scanmode;
   assign unused_scanmode = scanmode_i;
 
-  tl_h2d_t tl_s1n_18_us_h2d ;
-  tl_d2h_t tl_s1n_18_us_d2h ;
+  tl_h2d_t tl_s1n_18_us_h2d;
+  tl_d2h_t tl_s1n_18_us_d2h;
 
 
-  tl_h2d_t tl_s1n_18_ds_h2d [4];
-  tl_d2h_t tl_s1n_18_ds_d2h [4];
+  tl_h2d_t tl_s1n_18_ds_h2d[4];
+  tl_d2h_t tl_s1n_18_ds_d2h[4];
 
   // Create steering signal
   logic [2:0] dev_sel_s1n_18;
 
 
-  tl_h2d_t tl_sm1_19_us_h2d [3];
-  tl_d2h_t tl_sm1_19_us_d2h [3];
+  tl_h2d_t tl_sm1_19_us_h2d[3];
+  tl_d2h_t tl_sm1_19_us_d2h[3];
 
-  tl_h2d_t tl_sm1_19_ds_h2d ;
-  tl_d2h_t tl_sm1_19_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_20_us_h2d [2];
-  tl_d2h_t tl_sm1_20_us_d2h [2];
-
-  tl_h2d_t tl_sm1_20_ds_h2d ;
-  tl_d2h_t tl_sm1_20_ds_d2h ;
+  tl_h2d_t tl_sm1_19_ds_h2d;
+  tl_d2h_t tl_sm1_19_ds_d2h;
 
 
-  tl_h2d_t tl_sm1_21_us_h2d [3];
-  tl_d2h_t tl_sm1_21_us_d2h [3];
+  tl_h2d_t tl_sm1_20_us_h2d[2];
+  tl_d2h_t tl_sm1_20_us_d2h[2];
 
-  tl_h2d_t tl_sm1_21_ds_h2d ;
-  tl_d2h_t tl_sm1_21_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_22_us_h2d [3];
-  tl_d2h_t tl_sm1_22_us_d2h [3];
-
-  tl_h2d_t tl_sm1_22_ds_h2d ;
-  tl_d2h_t tl_sm1_22_ds_d2h ;
-
-  tl_h2d_t tl_s1n_23_us_h2d ;
-  tl_d2h_t tl_s1n_23_us_d2h ;
+  tl_h2d_t tl_sm1_20_ds_h2d;
+  tl_d2h_t tl_sm1_20_ds_d2h;
 
 
-  tl_h2d_t tl_s1n_23_ds_h2d [15];
-  tl_d2h_t tl_s1n_23_ds_d2h [15];
+  tl_h2d_t tl_sm1_21_us_h2d[3];
+  tl_d2h_t tl_sm1_21_us_d2h[3];
+
+  tl_h2d_t tl_sm1_21_ds_h2d;
+  tl_d2h_t tl_sm1_21_ds_d2h;
+
+
+  tl_h2d_t tl_sm1_22_us_h2d[3];
+  tl_d2h_t tl_sm1_22_us_d2h[3];
+
+  tl_h2d_t tl_sm1_22_ds_h2d;
+  tl_d2h_t tl_sm1_22_ds_d2h;
+
+  tl_h2d_t tl_s1n_23_us_h2d;
+  tl_d2h_t tl_s1n_23_us_d2h;
+
+
+  tl_h2d_t tl_s1n_23_ds_h2d[15];
+  tl_d2h_t tl_s1n_23_ds_d2h[15];
 
   // Create steering signal
   logic [3:0] dev_sel_s1n_23;
 
-  tl_h2d_t tl_asf_24_us_h2d ;
-  tl_d2h_t tl_asf_24_us_d2h ;
-  tl_h2d_t tl_asf_24_ds_h2d ;
-  tl_d2h_t tl_asf_24_ds_d2h ;
+  tl_h2d_t tl_asf_24_us_h2d;
+  tl_d2h_t tl_asf_24_us_d2h;
+  tl_h2d_t tl_asf_24_ds_h2d;
+  tl_d2h_t tl_asf_24_ds_d2h;
 
 
-  tl_h2d_t tl_sm1_25_us_h2d [2];
-  tl_d2h_t tl_sm1_25_us_d2h [2];
+  tl_h2d_t tl_sm1_25_us_h2d[2];
+  tl_d2h_t tl_sm1_25_us_d2h[2];
 
-  tl_h2d_t tl_sm1_25_ds_h2d ;
-  tl_d2h_t tl_sm1_25_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_26_us_h2d [2];
-  tl_d2h_t tl_sm1_26_us_d2h [2];
-
-  tl_h2d_t tl_sm1_26_ds_h2d ;
-  tl_d2h_t tl_sm1_26_ds_d2h ;
+  tl_h2d_t tl_sm1_25_ds_h2d;
+  tl_d2h_t tl_sm1_25_ds_d2h;
 
 
-  tl_h2d_t tl_sm1_27_us_h2d [2];
-  tl_d2h_t tl_sm1_27_us_d2h [2];
+  tl_h2d_t tl_sm1_26_us_h2d[2];
+  tl_d2h_t tl_sm1_26_us_d2h[2];
 
-  tl_h2d_t tl_sm1_27_ds_h2d ;
-  tl_d2h_t tl_sm1_27_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_28_us_h2d [2];
-  tl_d2h_t tl_sm1_28_us_d2h [2];
-
-  tl_h2d_t tl_sm1_28_ds_h2d ;
-  tl_d2h_t tl_sm1_28_ds_d2h ;
+  tl_h2d_t tl_sm1_26_ds_h2d;
+  tl_d2h_t tl_sm1_26_ds_d2h;
 
 
-  tl_h2d_t tl_sm1_29_us_h2d [2];
-  tl_d2h_t tl_sm1_29_us_d2h [2];
+  tl_h2d_t tl_sm1_27_us_h2d[2];
+  tl_d2h_t tl_sm1_27_us_d2h[2];
 
-  tl_h2d_t tl_sm1_29_ds_h2d ;
-  tl_d2h_t tl_sm1_29_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_30_us_h2d [2];
-  tl_d2h_t tl_sm1_30_us_d2h [2];
-
-  tl_h2d_t tl_sm1_30_ds_h2d ;
-  tl_d2h_t tl_sm1_30_ds_d2h ;
+  tl_h2d_t tl_sm1_27_ds_h2d;
+  tl_d2h_t tl_sm1_27_ds_d2h;
 
 
-  tl_h2d_t tl_sm1_31_us_h2d [2];
-  tl_d2h_t tl_sm1_31_us_d2h [2];
+  tl_h2d_t tl_sm1_28_us_h2d[2];
+  tl_d2h_t tl_sm1_28_us_d2h[2];
 
-  tl_h2d_t tl_sm1_31_ds_h2d ;
-  tl_d2h_t tl_sm1_31_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_32_us_h2d [2];
-  tl_d2h_t tl_sm1_32_us_d2h [2];
-
-  tl_h2d_t tl_sm1_32_ds_h2d ;
-  tl_d2h_t tl_sm1_32_ds_d2h ;
+  tl_h2d_t tl_sm1_28_ds_h2d;
+  tl_d2h_t tl_sm1_28_ds_d2h;
 
 
-  tl_h2d_t tl_sm1_33_us_h2d [2];
-  tl_d2h_t tl_sm1_33_us_d2h [2];
+  tl_h2d_t tl_sm1_29_us_h2d[2];
+  tl_d2h_t tl_sm1_29_us_d2h[2];
 
-  tl_h2d_t tl_sm1_33_ds_h2d ;
-  tl_d2h_t tl_sm1_33_ds_d2h ;
-
-
-  tl_h2d_t tl_sm1_34_us_h2d [2];
-  tl_d2h_t tl_sm1_34_us_d2h [2];
-
-  tl_h2d_t tl_sm1_34_ds_h2d ;
-  tl_d2h_t tl_sm1_34_ds_d2h ;
-
-  tl_h2d_t tl_s1n_35_us_h2d ;
-  tl_d2h_t tl_s1n_35_us_d2h ;
+  tl_h2d_t tl_sm1_29_ds_h2d;
+  tl_d2h_t tl_sm1_29_ds_d2h;
 
 
-  tl_h2d_t tl_s1n_35_ds_h2d [13];
-  tl_d2h_t tl_s1n_35_ds_d2h [13];
+  tl_h2d_t tl_sm1_30_us_h2d[2];
+  tl_d2h_t tl_sm1_30_us_d2h[2];
+
+  tl_h2d_t tl_sm1_30_ds_h2d;
+  tl_d2h_t tl_sm1_30_ds_d2h;
+
+
+  tl_h2d_t tl_sm1_31_us_h2d[2];
+  tl_d2h_t tl_sm1_31_us_d2h[2];
+
+  tl_h2d_t tl_sm1_31_ds_h2d;
+  tl_d2h_t tl_sm1_31_ds_d2h;
+
+
+  tl_h2d_t tl_sm1_32_us_h2d[2];
+  tl_d2h_t tl_sm1_32_us_d2h[2];
+
+  tl_h2d_t tl_sm1_32_ds_h2d;
+  tl_d2h_t tl_sm1_32_ds_d2h;
+
+
+  tl_h2d_t tl_sm1_33_us_h2d[2];
+  tl_d2h_t tl_sm1_33_us_d2h[2];
+
+  tl_h2d_t tl_sm1_33_ds_h2d;
+  tl_d2h_t tl_sm1_33_ds_d2h;
+
+
+  tl_h2d_t tl_sm1_34_us_h2d[2];
+  tl_d2h_t tl_sm1_34_us_d2h[2];
+
+  tl_h2d_t tl_sm1_34_ds_h2d;
+  tl_d2h_t tl_sm1_34_ds_d2h;
+
+  tl_h2d_t tl_s1n_35_us_h2d;
+  tl_d2h_t tl_s1n_35_us_d2h;
+
+
+  tl_h2d_t tl_s1n_35_ds_h2d[13];
+  tl_d2h_t tl_s1n_35_ds_d2h[13];
 
   // Create steering signal
   logic [3:0] dev_sel_s1n_35;
@@ -434,7 +434,7 @@ module xbar_main (
 
     end else if ((tl_s1n_18_us_h2d.a_address & ~(ADDR_MASK_EFLASH)) == ADDR_SPACE_EFLASH) begin
       dev_sel_s1n_18 = 3'd3;
-end
+    end
   end
 
   always_comb begin
@@ -496,7 +496,7 @@ end
 
     end else if ((tl_s1n_23_us_h2d.a_address & ~(ADDR_MASK_KEYMGR)) == ADDR_SPACE_KEYMGR) begin
       dev_sel_s1n_23 = 4'd14;
-end
+    end
   end
 
   always_comb begin
@@ -552,266 +552,266 @@ end
 
     end else if ((tl_s1n_35_us_h2d.a_address & ~(ADDR_MASK_OTBN)) == ADDR_SPACE_OTBN) begin
       dev_sel_s1n_35 = 4'd12;
-end
+    end
   end
 
 
   // Instantiation phase
   tlul_socket_1n #(
-    .HReqDepth (4'h0),
-    .HRspDepth (4'h0),
-    .DReqDepth (16'h0),
-    .DRspDepth (16'h0),
-    .N         (4)
+      .HReqDepth(4'h0),
+      .HRspDepth(4'h0),
+      .DReqDepth(16'h0),
+      .DRspDepth(16'h0),
+      .N        (4)
   ) u_s1n_18 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_s1n_18_us_h2d),
-    .tl_h_o       (tl_s1n_18_us_d2h),
-    .tl_d_o       (tl_s1n_18_ds_h2d),
-    .tl_d_i       (tl_s1n_18_ds_d2h),
-    .dev_select_i (dev_sel_s1n_18)
+      .clk_i       (clk_main_i),
+      .rst_ni      (rst_main_ni),
+      .tl_h_i      (tl_s1n_18_us_h2d),
+      .tl_h_o      (tl_s1n_18_us_d2h),
+      .tl_d_o      (tl_s1n_18_ds_h2d),
+      .tl_d_i      (tl_s1n_18_ds_d2h),
+      .dev_select_i(dev_sel_s1n_18)
   );
   tlul_socket_m1 #(
-    .HReqDepth (12'h0),
-    .HRspDepth (12'h0),
-    .DReqDepth (4'h0),
-    .DRspDepth (4'h0),
-    .M         (3)
+      .HReqDepth(12'h0),
+      .HRspDepth(12'h0),
+      .DReqDepth(4'h0),
+      .DRspDepth(4'h0),
+      .M        (3)
   ) u_sm1_19 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_19_us_h2d),
-    .tl_h_o       (tl_sm1_19_us_d2h),
-    .tl_d_o       (tl_sm1_19_ds_h2d),
-    .tl_d_i       (tl_sm1_19_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_19_us_h2d),
+      .tl_h_o(tl_sm1_19_us_d2h),
+      .tl_d_o(tl_sm1_19_ds_h2d),
+      .tl_d_i(tl_sm1_19_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_20 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_20_us_h2d),
-    .tl_h_o       (tl_sm1_20_us_d2h),
-    .tl_d_o       (tl_sm1_20_ds_h2d),
-    .tl_d_i       (tl_sm1_20_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_20_us_h2d),
+      .tl_h_o(tl_sm1_20_us_d2h),
+      .tl_d_o(tl_sm1_20_ds_h2d),
+      .tl_d_i(tl_sm1_20_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (12'h0),
-    .HRspDepth (12'h0),
-    .DReqDepth (4'h0),
-    .DRspDepth (4'h0),
-    .M         (3)
+      .HReqDepth(12'h0),
+      .HRspDepth(12'h0),
+      .DReqDepth(4'h0),
+      .DRspDepth(4'h0),
+      .M        (3)
   ) u_sm1_21 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_21_us_h2d),
-    .tl_h_o       (tl_sm1_21_us_d2h),
-    .tl_d_o       (tl_sm1_21_ds_h2d),
-    .tl_d_i       (tl_sm1_21_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_21_us_h2d),
+      .tl_h_o(tl_sm1_21_us_d2h),
+      .tl_d_o(tl_sm1_21_ds_h2d),
+      .tl_d_i(tl_sm1_21_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (12'h0),
-    .HRspDepth (12'h0),
-    .DReqDepth (4'h0),
-    .DRspDepth (4'h0),
-    .M         (3)
+      .HReqDepth(12'h0),
+      .HRspDepth(12'h0),
+      .DReqDepth(4'h0),
+      .DRspDepth(4'h0),
+      .M        (3)
   ) u_sm1_22 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_22_us_h2d),
-    .tl_h_o       (tl_sm1_22_us_d2h),
-    .tl_d_o       (tl_sm1_22_ds_h2d),
-    .tl_d_i       (tl_sm1_22_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_22_us_h2d),
+      .tl_h_o(tl_sm1_22_us_d2h),
+      .tl_d_o(tl_sm1_22_ds_h2d),
+      .tl_d_i(tl_sm1_22_ds_d2h)
   );
   tlul_socket_1n #(
-    .HReqDepth (4'h0),
-    .HRspDepth (4'h0),
-    .DReqPass  (15'h3fff),
-    .DRspPass  (15'h3fff),
-    .DReqDepth (60'h200000000000000),
-    .DRspDepth (60'h200000000000000),
-    .N         (15)
+      .HReqDepth(4'h0),
+      .HRspDepth(4'h0),
+      .DReqPass (15'h3fff),
+      .DRspPass (15'h3fff),
+      .DReqDepth(60'h200000000000000),
+      .DRspDepth(60'h200000000000000),
+      .N        (15)
   ) u_s1n_23 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_s1n_23_us_h2d),
-    .tl_h_o       (tl_s1n_23_us_d2h),
-    .tl_d_o       (tl_s1n_23_ds_h2d),
-    .tl_d_i       (tl_s1n_23_ds_d2h),
-    .dev_select_i (dev_sel_s1n_23)
+      .clk_i       (clk_main_i),
+      .rst_ni      (rst_main_ni),
+      .tl_h_i      (tl_s1n_23_us_h2d),
+      .tl_h_o      (tl_s1n_23_us_d2h),
+      .tl_d_o      (tl_s1n_23_ds_h2d),
+      .tl_d_i      (tl_s1n_23_ds_d2h),
+      .dev_select_i(dev_sel_s1n_23)
   );
   tlul_fifo_async #(
-    .ReqDepth        (3),// At least 3 to make async work
-    .RspDepth        (3) // At least 3 to make async work
+      .ReqDepth(3),  // At least 3 to make async work
+      .RspDepth(3)  // At least 3 to make async work
   ) u_asf_24 (
-    .clk_h_i      (clk_main_i),
-    .rst_h_ni     (rst_main_ni),
-    .clk_d_i      (clk_fixed_i),
-    .rst_d_ni     (rst_fixed_ni),
-    .tl_h_i       (tl_asf_24_us_h2d),
-    .tl_h_o       (tl_asf_24_us_d2h),
-    .tl_d_o       (tl_asf_24_ds_h2d),
-    .tl_d_i       (tl_asf_24_ds_d2h)
+      .clk_h_i (clk_main_i),
+      .rst_h_ni(rst_main_ni),
+      .clk_d_i (clk_fixed_i),
+      .rst_d_ni(rst_fixed_ni),
+      .tl_h_i  (tl_asf_24_us_h2d),
+      .tl_h_o  (tl_asf_24_us_d2h),
+      .tl_d_o  (tl_asf_24_ds_h2d),
+      .tl_d_i  (tl_asf_24_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqDepth (4'h0),
-    .DRspDepth (4'h0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqDepth(4'h0),
+      .DRspDepth(4'h0),
+      .M        (2)
   ) u_sm1_25 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_25_us_h2d),
-    .tl_h_o       (tl_sm1_25_us_d2h),
-    .tl_d_o       (tl_sm1_25_ds_h2d),
-    .tl_d_i       (tl_sm1_25_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_25_us_h2d),
+      .tl_h_o(tl_sm1_25_us_d2h),
+      .tl_d_o(tl_sm1_25_ds_h2d),
+      .tl_d_i(tl_sm1_25_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_26 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_26_us_h2d),
-    .tl_h_o       (tl_sm1_26_us_d2h),
-    .tl_d_o       (tl_sm1_26_ds_h2d),
-    .tl_d_i       (tl_sm1_26_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_26_us_h2d),
+      .tl_h_o(tl_sm1_26_us_d2h),
+      .tl_d_o(tl_sm1_26_ds_h2d),
+      .tl_d_i(tl_sm1_26_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_27 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_27_us_h2d),
-    .tl_h_o       (tl_sm1_27_us_d2h),
-    .tl_d_o       (tl_sm1_27_ds_h2d),
-    .tl_d_i       (tl_sm1_27_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_27_us_h2d),
+      .tl_h_o(tl_sm1_27_us_d2h),
+      .tl_d_o(tl_sm1_27_ds_h2d),
+      .tl_d_i(tl_sm1_27_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_28 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_28_us_h2d),
-    .tl_h_o       (tl_sm1_28_us_d2h),
-    .tl_d_o       (tl_sm1_28_ds_h2d),
-    .tl_d_i       (tl_sm1_28_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_28_us_h2d),
+      .tl_h_o(tl_sm1_28_us_d2h),
+      .tl_d_o(tl_sm1_28_ds_h2d),
+      .tl_d_i(tl_sm1_28_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_29 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_29_us_h2d),
-    .tl_h_o       (tl_sm1_29_us_d2h),
-    .tl_d_o       (tl_sm1_29_ds_h2d),
-    .tl_d_i       (tl_sm1_29_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_29_us_h2d),
+      .tl_h_o(tl_sm1_29_us_d2h),
+      .tl_d_o(tl_sm1_29_ds_h2d),
+      .tl_d_i(tl_sm1_29_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_30 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_30_us_h2d),
-    .tl_h_o       (tl_sm1_30_us_d2h),
-    .tl_d_o       (tl_sm1_30_ds_h2d),
-    .tl_d_i       (tl_sm1_30_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_30_us_h2d),
+      .tl_h_o(tl_sm1_30_us_d2h),
+      .tl_d_o(tl_sm1_30_ds_h2d),
+      .tl_d_i(tl_sm1_30_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_31 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_31_us_h2d),
-    .tl_h_o       (tl_sm1_31_us_d2h),
-    .tl_d_o       (tl_sm1_31_ds_h2d),
-    .tl_d_i       (tl_sm1_31_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_31_us_h2d),
+      .tl_h_o(tl_sm1_31_us_d2h),
+      .tl_d_o(tl_sm1_31_ds_h2d),
+      .tl_d_i(tl_sm1_31_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_32 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_32_us_h2d),
-    .tl_h_o       (tl_sm1_32_us_d2h),
-    .tl_d_o       (tl_sm1_32_ds_h2d),
-    .tl_d_i       (tl_sm1_32_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_32_us_h2d),
+      .tl_h_o(tl_sm1_32_us_d2h),
+      .tl_d_o(tl_sm1_32_ds_h2d),
+      .tl_d_i(tl_sm1_32_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_33 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_33_us_h2d),
-    .tl_h_o       (tl_sm1_33_us_d2h),
-    .tl_d_o       (tl_sm1_33_ds_h2d),
-    .tl_d_i       (tl_sm1_33_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_33_us_h2d),
+      .tl_h_o(tl_sm1_33_us_d2h),
+      .tl_d_o(tl_sm1_33_ds_h2d),
+      .tl_d_i(tl_sm1_33_ds_d2h)
   );
   tlul_socket_m1 #(
-    .HReqDepth (8'h0),
-    .HRspDepth (8'h0),
-    .DReqPass  (1'b0),
-    .DRspPass  (1'b0),
-    .M         (2)
+      .HReqDepth(8'h0),
+      .HRspDepth(8'h0),
+      .DReqPass (1'b0),
+      .DRspPass (1'b0),
+      .M        (2)
   ) u_sm1_34 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_sm1_34_us_h2d),
-    .tl_h_o       (tl_sm1_34_us_d2h),
-    .tl_d_o       (tl_sm1_34_ds_h2d),
-    .tl_d_i       (tl_sm1_34_ds_d2h)
+      .clk_i (clk_main_i),
+      .rst_ni(rst_main_ni),
+      .tl_h_i(tl_sm1_34_us_h2d),
+      .tl_h_o(tl_sm1_34_us_d2h),
+      .tl_d_o(tl_sm1_34_ds_h2d),
+      .tl_d_i(tl_sm1_34_ds_d2h)
   );
   tlul_socket_1n #(
-    .HReqPass  (1'b0),
-    .HRspPass  (1'b0),
-    .DReqDepth (52'h0),
-    .DRspDepth (52'h0),
-    .N         (13)
+      .HReqPass (1'b0),
+      .HRspPass (1'b0),
+      .DReqDepth(52'h0),
+      .DRspDepth(52'h0),
+      .N        (13)
   ) u_s1n_35 (
-    .clk_i        (clk_main_i),
-    .rst_ni       (rst_main_ni),
-    .tl_h_i       (tl_s1n_35_us_h2d),
-    .tl_h_o       (tl_s1n_35_us_d2h),
-    .tl_d_o       (tl_s1n_35_ds_h2d),
-    .tl_d_i       (tl_s1n_35_ds_d2h),
-    .dev_select_i (dev_sel_s1n_35)
+      .clk_i       (clk_main_i),
+      .rst_ni      (rst_main_ni),
+      .tl_h_i      (tl_s1n_35_us_h2d),
+      .tl_h_o      (tl_s1n_35_us_d2h),
+      .tl_d_o      (tl_s1n_35_ds_h2d),
+      .tl_d_i      (tl_s1n_35_ds_d2h),
+      .dev_select_i(dev_sel_s1n_35)
   );
 
 endmodule

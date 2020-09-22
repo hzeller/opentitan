@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module pwrmgr_wake_info import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
+module pwrmgr_wake_info
+import pwrmgr_pkg::*;
+import pwrmgr_reg_pkg::*;
 (
   input clk_i,
   input rst_ni,
@@ -44,8 +46,8 @@ module pwrmgr_wake_info import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
     if (!rst_ni) begin
       info_o <= '0;
     end else if (wr_i) begin
-      info_o <= info_o & ~data_i; // W1C
-    end else if (record_en) begin // If set once, hold until clear
+      info_o <= info_o & ~data_i;  // W1C
+    end else if (record_en) begin  // If set once, hold until clear
       info_o[0 +: NumWkups] <= info_o[0 +: NumWkups] | wakeups_i;
       info_o[NumWkups +: 2] <= info_o[NumWkups +: 2] | {abort_i, fall_through_i};
     end

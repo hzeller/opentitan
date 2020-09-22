@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module pwrmgr_slow_fsm import pwrmgr_pkg::*; (
+module pwrmgr_slow_fsm
+import pwrmgr_pkg::*;
+(
   input clk_i,
   input rst_ni,
 
@@ -29,7 +31,7 @@ module pwrmgr_slow_fsm import pwrmgr_pkg::*; (
   input core_clk_en_i,
 
   // AST interface
-  input pwr_ast_rsp_t ast_i,
+  input  pwr_ast_rsp_t ast_i,
   output pwr_ast_req_t ast_o
 );
 
@@ -107,7 +109,7 @@ module pwrmgr_slow_fsm import pwrmgr_pkg::*; (
     req_pwrup_d    = req_pwrup_q;
     ack_pwrdn_d    = ack_pwrdn_q;
 
-    unique case(state_q)
+    unique case (state_q)
 
       StReset: begin
         state_d = StMainPowerOn;
@@ -135,7 +137,7 @@ module pwrmgr_slow_fsm import pwrmgr_pkg::*; (
 
       StClocksOn: begin
         core_clk_en_d = 1'b1;
-        io_clk_en_d = 1'b1;
+        io_clk_en_d   = 1'b1;
 
         if (all_clks_valid) begin
           state_d = StReqPwrUp;
@@ -172,7 +174,7 @@ module pwrmgr_slow_fsm import pwrmgr_pkg::*; (
 
       StClocksOff: begin
         core_clk_en_d = core_clk_en_i;
-        io_clk_en_d = io_clk_en_i;
+        io_clk_en_d   = io_clk_en_i;
 
         if (all_clks_invalid) begin
           // if main power is turned off, assert clamp ahead
@@ -199,8 +201,8 @@ module pwrmgr_slow_fsm import pwrmgr_pkg::*; (
       end
 
 
-    endcase // unique case (state_q)
-  end // always_comb
+    endcase  // unique case (state_q)
+  end  // always_comb
 
 
   assign pwrup_cause_o = cause_q;

@@ -2,17 +2,18 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class cip_base_env #(type CFG_T               = cip_base_env_cfg,
-                     type VIRTUAL_SEQUENCER_T = cip_base_virtual_sequencer,
-                     type SCOREBOARD_T        = cip_base_scoreboard,
-                     type COV_T               = cip_base_env_cov)
-                     extends dv_base_env #(CFG_T, VIRTUAL_SEQUENCER_T, SCOREBOARD_T, COV_T);
+class cip_base_env #(
+  type CFG_T               = cip_base_env_cfg,
+  type VIRTUAL_SEQUENCER_T = cip_base_virtual_sequencer,
+  type SCOREBOARD_T        = cip_base_scoreboard,
+  type COV_T               = cip_base_env_cov
+) extends dv_base_env#(CFG_T, VIRTUAL_SEQUENCER_T, SCOREBOARD_T, COV_T);
 
-  `uvm_component_param_utils(cip_base_env #(CFG_T, VIRTUAL_SEQUENCER_T, SCOREBOARD_T, COV_T))
+  `uvm_component_param_utils(cip_base_env#(CFG_T, VIRTUAL_SEQUENCER_T, SCOREBOARD_T, COV_T))
 
-  tl_agent                    m_tl_agent;
-  tl_reg_adapter              m_tl_reg_adapter;
-  alert_esc_agent             m_alert_agent[string];
+  tl_agent        m_tl_agent;
+  tl_reg_adapter  m_tl_reg_adapter;
+  alert_esc_agent m_alert_agent[string];
 
   `uvm_component_new
 
@@ -44,7 +45,7 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
     m_tl_reg_adapter = tl_reg_adapter#()::type_id::create("m_tl_reg_adapter");
 
     // create alert agents and cfgs
-    foreach(cfg.list_of_alerts[i]) begin
+    foreach (cfg.list_of_alerts[i]) begin
       string alert_name = cfg.list_of_alerts[i];
       string agent_name = {"m_alert_agent_", alert_name};
       m_alert_agent[alert_name] = alert_esc_agent::type_id::create(agent_name, this);
@@ -76,7 +77,7 @@ class cip_base_env #(type CFG_T               = cip_base_env_cfg,
     if (cfg.is_active) begin
       virtual_sequencer.tl_sequencer_h = m_tl_agent.sequencer;
     end
-    foreach(cfg.list_of_alerts[i]) begin
+    foreach (cfg.list_of_alerts[i]) begin
       if (cfg.m_alert_agent_cfg[cfg.list_of_alerts[i]].is_active) begin
         virtual_sequencer.alert_esc_sequencer_h[cfg.list_of_alerts[i]] =
             m_alert_agent[cfg.list_of_alerts[i]].sequencer;

@@ -32,21 +32,21 @@ package bus_params_pkg;
   parameter int BUS_SZW = top_pkg::TL_SZW;
 `endif
 
-// Set the bus address info (source) width.
+  // Set the bus address info (source) width.
 `ifdef BUS_AIW
   parameter int BUS_AIW = `BUS_AIW;
 `else
   parameter int BUS_AIW = top_pkg::TL_AIW;
 `endif
 
-// Set the bus data info (source) width.
+  // Set the bus data info (source) width.
 `ifdef BUS_DIW
   parameter int BUS_DIW = `BUS_DIW;
 `else
   parameter int BUS_DIW = top_pkg::TL_DIW;
 `endif
 
-// Set the bus data user width.
+  // Set the bus data user width.
 `ifdef BUS_DUW
   parameter int BUS_DUW = `BUS_DUW;
 `else

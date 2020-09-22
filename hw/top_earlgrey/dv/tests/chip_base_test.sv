@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class chip_base_test extends cip_base_test #(
+class chip_base_test extends cip_base_test#(
     .ENV_T(chip_env),
     .CFG_T(chip_env_cfg)
-  );
+);
   `uvm_component_utils(chip_base_test)
   `uvm_component_new
 

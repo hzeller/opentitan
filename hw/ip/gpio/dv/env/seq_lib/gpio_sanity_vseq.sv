@@ -24,7 +24,7 @@ class gpio_sanity_vseq extends gpio_base_vseq;
     // no_pullup_pulldown is passed to have no pullup/pulldown
     set_gpio_pulls(.pu(cfg.pullup_en), .pd(cfg.pulldown_en));
     super.dut_init(reset_kind);
-  endtask: dut_init
+  endtask : dut_init
 
   task body();
 

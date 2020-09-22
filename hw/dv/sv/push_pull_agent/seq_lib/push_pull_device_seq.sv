@@ -6,13 +6,15 @@
 // This sequence will infinitely pol for any DUT requests detected by
 // the monitor, and trigger the response driver anytime a request is detected.
 
-class push_pull_device_seq #(parameter int DataWidth = 32) extends push_pull_base_seq #(DataWidth);
+class push_pull_device_seq #(
+  parameter int DataWidth = 32
+) extends push_pull_base_seq#(DataWidth);
 
   `uvm_object_param_utils(push_pull_device_seq#(DataWidth))
 
   `uvm_object_new
 
-  mailbox #(push_pull_item#(DataWidth)) req_mailbox;
+  mailbox #(push_pull_item #(DataWidth)) req_mailbox;
 
   virtual task body();
     req_mailbox = new();

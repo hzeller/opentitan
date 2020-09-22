@@ -5,9 +5,9 @@
 // AES LUT-based SBox
 
 module aes_sbox_lut (
-  input  aes_pkg::ciph_op_e op_i,
-  input  logic [7:0]        data_i,
-  output logic [7:0]        data_o
+  input  aes_pkg::ciph_op_e       op_i,
+  input  logic              [7:0] data_i,
+  output logic              [7:0] data_o
 );
 
   import aes_pkg::*;

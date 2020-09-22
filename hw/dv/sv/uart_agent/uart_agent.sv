@@ -3,12 +3,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 class uart_agent extends dv_base_agent#(
-    .CFG_T          (uart_agent_cfg),
-    .DRIVER_T       (uart_driver),
-    .SEQUENCER_T    (uart_sequencer),
-    .MONITOR_T      (uart_monitor),
-    .COV_T          (uart_agent_cov)
-  );
+    .CFG_T      (uart_agent_cfg),
+    .DRIVER_T   (uart_driver),
+    .SEQUENCER_T(uart_sequencer),
+    .MONITOR_T  (uart_monitor),
+    .COV_T      (uart_agent_cov)
+);
   `uvm_component_utils(uart_agent)
 
   uart_logger m_logger;

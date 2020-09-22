@@ -2,17 +2,19 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class dv_base_scoreboard #(type RAL_T = dv_base_reg_block,
-                           type CFG_T = dv_base_env_cfg,
-                           type COV_T = dv_base_env_cov) extends uvm_component;
-  `uvm_component_param_utils(dv_base_scoreboard #(RAL_T, CFG_T, COV_T))
+class dv_base_scoreboard #(
+  type RAL_T = dv_base_reg_block,
+  type CFG_T = dv_base_env_cfg,
+  type COV_T = dv_base_env_cov
+) extends uvm_component;
+  `uvm_component_param_utils(dv_base_scoreboard#(RAL_T, CFG_T, COV_T))
 
-  CFG_T    cfg;
-  RAL_T    ral;
-  COV_T    cov;
+  CFG_T cfg;
+  RAL_T ral;
+  COV_T cov;
 
-  bit obj_raised      = 1'b0;
-  bit under_pre_abort = 1'b0;
+  bit   obj_raised      = 1'b0;
+  bit   under_pre_abort = 1'b0;
 
   `uvm_component_new
 
@@ -37,8 +39,7 @@ class dv_base_scoreboard #(type RAL_T = dv_base_reg_block,
         reset();
         cfg.reset_deasserted();
         `uvm_info(`gfn, "out of reset", UVM_HIGH)
-      end
-      else begin
+      end else begin
         // wait for a change to rst_n
         @(cfg.clk_rst_vif.rst_n);
       end

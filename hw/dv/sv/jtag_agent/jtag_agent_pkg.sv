@@ -13,8 +13,8 @@ package jtag_agent_pkg;
   `include "dv_macros.svh"
 
   // parameters
-  parameter uint JTAG_IRW = 32; // max IR width
-  parameter uint JTAG_DRW = 64; // max DR width
+  parameter uint JTAG_IRW = 32;  // max IR width
+  parameter uint JTAG_DRW = 64;  // max DR width
 
   // local types
   // forward declare classes to allow typedefs below
@@ -22,8 +22,10 @@ package jtag_agent_pkg;
   typedef class jtag_agent_cfg;
 
   // reuse dv_base_seqeuencer as is with the right parameter set
-  typedef dv_base_sequencer #(.ITEM_T     (jtag_item),
-                              .CFG_T      (jtag_agent_cfg)) jtag_sequencer;
+  typedef dv_base_sequencer#(
+      .ITEM_T(jtag_item),
+      .CFG_T (jtag_agent_cfg)
+  ) jtag_sequencer;
 
   // functions
 
@@ -36,4 +38,4 @@ package jtag_agent_pkg;
   `include "jtag_agent.sv"
   `include "jtag_seq_list.sv"
 
-  endpackage: jtag_agent_pkg
+endpackage : jtag_agent_pkg

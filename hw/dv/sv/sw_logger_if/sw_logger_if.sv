@@ -4,49 +4,49 @@
 
 // shortcuts for use in switching # of args to insert in formatted string
 `define _USE_STR_ARG(n) (sw_log.str_arg.exists(``n``) ? sw_log.str_arg[``n``] : sw_log.arg[``n``])
-`define _1_ARGS         `_USE_STR_ARG(0)
-`define _2_ARGS         `_1_ARGS, `_USE_STR_ARG(1)
-`define _3_ARGS         `_2_ARGS, `_USE_STR_ARG(2)
-`define _4_ARGS         `_3_ARGS, `_USE_STR_ARG(3)
-`define _5_ARGS         `_4_ARGS, `_USE_STR_ARG(4)
-`define _6_ARGS         `_5_ARGS, `_USE_STR_ARG(5)
-`define _7_ARGS         `_6_ARGS, `_USE_STR_ARG(6)
-`define _8_ARGS         `_7_ARGS, `_USE_STR_ARG(7)
-`define _9_ARGS         `_8_ARGS, `_USE_STR_ARG(8)
-`define _10_ARGS        `_9_ARGS, `_USE_STR_ARG(9)
-`define _11_ARGS        `_10_ARGS, `_USE_STR_ARG(10)
-`define _12_ARGS        `_11_ARGS, `_USE_STR_ARG(11)
-`define _13_ARGS        `_12_ARGS, `_USE_STR_ARG(12)
-`define _14_ARGS        `_13_ARGS, `_USE_STR_ARG(13)
-`define _15_ARGS        `_14_ARGS, `_USE_STR_ARG(14)
-`define _16_ARGS        `_15_ARGS, `_USE_STR_ARG(15)
-`define _17_ARGS        `_16_ARGS, `_USE_STR_ARG(16)
-`define _18_ARGS        `_17_ARGS, `_USE_STR_ARG(17)
-`define _19_ARGS        `_18_ARGS, `_USE_STR_ARG(18)
-`define _20_ARGS        `_19_ARGS, `_USE_STR_ARG(19)
-`define _21_ARGS        `_20_ARGS, `_USE_STR_ARG(20)
-`define _22_ARGS        `_21_ARGS, `_USE_STR_ARG(21)
-`define _23_ARGS        `_22_ARGS, `_USE_STR_ARG(22)
-`define _24_ARGS        `_23_ARGS, `_USE_STR_ARG(23)
-`define _25_ARGS        `_24_ARGS, `_USE_STR_ARG(24)
-`define _26_ARGS        `_25_ARGS, `_USE_STR_ARG(25)
-`define _27_ARGS        `_26_ARGS, `_USE_STR_ARG(26)
-`define _28_ARGS        `_27_ARGS, `_USE_STR_ARG(27)
-`define _29_ARGS        `_28_ARGS, `_USE_STR_ARG(28)
-`define _30_ARGS        `_29_ARGS, `_USE_STR_ARG(29)
-`define _31_ARGS        `_30_ARGS, `_USE_STR_ARG(30)
-`define _32_ARGS        `_31_ARGS, `_USE_STR_ARG(31)
-`define _ADD_ARGS(n)    `_``n``_ARGS
+`define _1_ARGS `_USE_STR_ARG(0)
+`define _2_ARGS `_1_ARGS, `_USE_STR_ARG(1)
+`define _3_ARGS `_2_ARGS, `_USE_STR_ARG(2)
+`define _4_ARGS `_3_ARGS, `_USE_STR_ARG(3)
+`define _5_ARGS `_4_ARGS, `_USE_STR_ARG(4)
+`define _6_ARGS `_5_ARGS, `_USE_STR_ARG(5)
+`define _7_ARGS `_6_ARGS, `_USE_STR_ARG(6)
+`define _8_ARGS `_7_ARGS, `_USE_STR_ARG(7)
+`define _9_ARGS `_8_ARGS, `_USE_STR_ARG(8)
+`define _10_ARGS `_9_ARGS, `_USE_STR_ARG(9)
+`define _11_ARGS `_10_ARGS, `_USE_STR_ARG(10)
+`define _12_ARGS `_11_ARGS, `_USE_STR_ARG(11)
+`define _13_ARGS `_12_ARGS, `_USE_STR_ARG(12)
+`define _14_ARGS `_13_ARGS, `_USE_STR_ARG(13)
+`define _15_ARGS `_14_ARGS, `_USE_STR_ARG(14)
+`define _16_ARGS `_15_ARGS, `_USE_STR_ARG(15)
+`define _17_ARGS `_16_ARGS, `_USE_STR_ARG(16)
+`define _18_ARGS `_17_ARGS, `_USE_STR_ARG(17)
+`define _19_ARGS `_18_ARGS, `_USE_STR_ARG(18)
+`define _20_ARGS `_19_ARGS, `_USE_STR_ARG(19)
+`define _21_ARGS `_20_ARGS, `_USE_STR_ARG(20)
+`define _22_ARGS `_21_ARGS, `_USE_STR_ARG(21)
+`define _23_ARGS `_22_ARGS, `_USE_STR_ARG(22)
+`define _24_ARGS `_23_ARGS, `_USE_STR_ARG(23)
+`define _25_ARGS `_24_ARGS, `_USE_STR_ARG(24)
+`define _26_ARGS `_25_ARGS, `_USE_STR_ARG(25)
+`define _27_ARGS `_26_ARGS, `_USE_STR_ARG(26)
+`define _28_ARGS `_27_ARGS, `_USE_STR_ARG(27)
+`define _29_ARGS `_28_ARGS, `_USE_STR_ARG(28)
+`define _30_ARGS `_29_ARGS, `_USE_STR_ARG(29)
+`define _31_ARGS `_30_ARGS, `_USE_STR_ARG(30)
+`define _32_ARGS `_31_ARGS, `_USE_STR_ARG(31)
+`define _ADD_ARGS(n) `_``n``_ARGS
 
 interface sw_logger_if #(
   // width of the data bus
   parameter int unsigned DATA_WIDTH = 32
 ) (
-  input logic                   clk,        // clock
-  input logic                   rst_n,      // active low reset
-  input logic                   valid,      // qualification for addr_data
-  input logic [DATA_WIDTH-1:0]  addr_data,  // addr/data written to sw_log_addr
-  output logic [DATA_WIDTH-1:0] sw_log_addr // used by external logic to qualify valid
+  input  logic                  clk,  // clock
+  input  logic                  rst_n,  // active low reset
+  input  logic                  valid,  // qualification for addr_data
+  input  logic [DATA_WIDTH-1:0] addr_data,  // addr/data written to sw_log_addr
+  output logic [DATA_WIDTH-1:0] sw_log_addr  // used by external logic to qualify valid
 );
 
 `ifdef UVM
@@ -83,15 +83,15 @@ interface sw_logger_if #(
 
   // struct to hold the complete log data
   typedef struct {
-    string          name;       // Name of the SW image.
-    log_severity_e  severity;
+    string name;  // Name of the SW image.
+    log_severity_e severity;
     log_verbosity_e verbosity;
-    string          file;         // Name of the C file invoking the log.
-    int             line;         // Line no in the C file from where the log originated.
-    int             nargs;        // Number of args provided to the format string.
-    addr_data_t     arg[];        // actual arg values
-    string          str_arg[int]; // some args are strings - this AA holds it
-    string          format;       // formatted string
+    string file;  // Name of the C file invoking the log.
+    int line;  // Line no in the C file from where the log originated.
+    int nargs;  // Number of args provided to the format string.
+    addr_data_t arg[];  // actual arg values
+    string str_arg[int];  // some args are strings - this AA holds it
+    string format;  // formatted string
   } sw_log_t;
 
   // bit to enable writing the logs to a separate file (disabled by default)
@@ -112,7 +112,7 @@ interface sw_logger_if #(
   addr_data_t addr_data_q[$];
 
   // Indicate when the log was printed and what was the final string.
-  event  printed_log_event;
+  event printed_log_event;
   string printed_log;
 
   // Set the sw_name, The logger assumes that there are two files placed in the rundir -
@@ -137,7 +137,7 @@ interface sw_logger_if #(
     if (parse_sw_log_file()) begin
       if (write_sw_logs_to_file) begin
         sw_logs_output_file = $sformatf("%m.log");
-        sw_logs_output_fd = $fopen(sw_logs_output_file, "w");
+        sw_logs_output_fd   = $fopen(sw_logs_output_file, "w");
       end
       fork
         get_addr_data_from_bus();
@@ -164,11 +164,13 @@ interface sw_logger_if #(
       fd = $fopen(sw_log_db_files[sw], "r");
       if (!fd) continue;
 
-      while (!$feof(fd)) begin
-        string        field;
-        addr_data_t   addr;
-        sw_log_t      sw_log;
-        bit           status;
+      while (!$feof(
+          fd
+      )) begin
+        string      field;
+        addr_data_t addr;
+        sw_log_t    sw_log;
+        bit         status;
 
         sw_log.name = sw;
         status = get_sw_log_field(fd, "addr", field);
@@ -183,7 +185,7 @@ interface sw_logger_if #(
         sw_log.line = field.atoi();
         void'(get_sw_log_field(fd, "nargs", field));
         sw_log.nargs = field.atoi();
-        sw_log.arg = new[sw_log.nargs];
+        sw_log.arg   = new[sw_log.nargs];
         void'(get_sw_log_field(fd, "format", field));
         // Replace CRs in the middle of the string with NLs.
         sw_log.format = replace_cr_with_nl(field);
@@ -225,10 +227,12 @@ interface sw_logger_if #(
     fd = $fopen(sw_rodata_db_files[sw], "r");
     if (!fd) return 0;
 
-    while (!$feof(fd)) begin
-      string        field;
-      addr_data_t   addr;
-      bit           status;
+    while (!$feof(
+        fd
+    )) begin
+      string      field;
+      addr_data_t addr;
+      bit         status;
 
       status = get_sw_log_field(fd, "addr", field);
       // We proceed to retrieving other fields only if we get the addr.
@@ -258,12 +262,14 @@ interface sw_logger_if #(
   // The ref arg value is used to return the retrived field.
   // Function returns the successfulness of the operation.
   function automatic bit get_sw_log_field(int fd, string field, ref string value);
-    byte   lf    = 8'ha;
-    byte   cr    = 8'hd;
+    byte   lf = 8'ha;
+    byte   cr = 8'hd;
     string match = {field, ": *"};
 
     value = "";
-    while (!$feof(fd)) begin
+    while (!$feof(
+        fd
+    )) begin
       string line;
       void'($fgets(line, fd));
       // Chomp the trailing newlines.
@@ -275,8 +281,7 @@ interface sw_logger_if #(
       if (!uvm_re_match(match, line)) begin
         value = line.substr(match.len() - 1, line.len() - 1);
         return 1'b1;
-      end
-      else begin
+      end else begin
         return 1'b0;
       end
     end
@@ -294,8 +299,7 @@ interface sw_logger_if #(
       if (list.getc(i) == " " && i == start) begin
         start++;
         continue;
-      end
-      else if (list.getc(i) == " ") begin
+      end else if (list.getc(i) == " ") begin
         string index = list.substr(start, i - 1);
         indices.push_back(index.atoi());
         start = i + 1;
@@ -398,16 +402,16 @@ interface sw_logger_if #(
   function automatic void print_sw_log(sw_log_t sw_log);
     // construct formatted string based on args
     case (sw_log.nargs)
-       0: ;
-       1: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(1));
-       2: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(2));
-       3: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(3));
-       4: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(4));
-       5: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(5));
-       6: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(6));
-       7: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(7));
-       8: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(8));
-       9: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(9));
+      0: ;
+      1: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(1));
+      2: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(2));
+      3: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(3));
+      4: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(4));
+      5: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(5));
+      6: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(6));
+      7: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(7));
+      8: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(8));
+      9: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(9));
       10: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(10));
       11: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(11));
       12: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(12));
@@ -431,7 +435,7 @@ interface sw_logger_if #(
       30: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(30));
       31: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(31));
       32: sw_log.format = $sformatf(sw_log.format, `_ADD_ARGS(32));
-    default: log_fatal($sformatf("UNSUPPORTED: nargs = %0d (only 0:32 allowed)", sw_log.nargs));
+      default: log_fatal($sformatf("UNSUPPORTED: nargs = %0d (only 0:32 allowed)", sw_log.nargs));
     endcase
     print_log(.sw_log(sw_log), .is_sw_log(1'b1));
     printed_log = sw_log.format;
@@ -475,8 +479,7 @@ interface sw_logger_if #(
   function automatic void print_log(sw_log_t sw_log, bit is_sw_log = 1'b0);
     string log_header = sw_log.name;
     if (sw_log.file != "") begin
-      log_header = {log_header, "(", sw_log.file, ":",
-                    $sformatf("%0d", sw_log.line), ")"};
+      log_header = {log_header, "(", sw_log.file, ":", $sformatf("%0d", sw_log.line), ")"};
     end
 `ifdef UVM
     begin

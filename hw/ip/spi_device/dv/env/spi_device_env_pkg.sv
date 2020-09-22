@@ -38,12 +38,12 @@ package spi_device_env_pkg;
   // csr and mem total size for IP
   parameter uint SPI_DEVICE_ADDR_MAP_SIZE = 4096;
   // SPI SRAM is 2kB
-  parameter uint SRAM_OFFSET              = 'h800;
-  parameter uint SRAM_SIZE                = 2048;
-  parameter uint SRAM_MSB                 = $clog2(SRAM_SIZE) - 1;
-  parameter uint SRAM_PTR_PHASE_BIT       = SRAM_MSB + 1;
-  parameter uint SRAM_WORD_SIZE           = 4;
-  parameter uint ASYNC_FIFO_SIZE          = 8;
+  parameter uint SRAM_OFFSET = 'h800;
+  parameter uint SRAM_SIZE = 2048;
+  parameter uint SRAM_MSB = $clog2(SRAM_SIZE) - 1;
+  parameter uint SRAM_PTR_PHASE_BIT = SRAM_MSB + 1;
+  parameter uint SRAM_WORD_SIZE = 4;
+  parameter uint ASYNC_FIFO_SIZE = 8;
 
   string msg_id = "spi_device_env_pkg";
 
@@ -83,12 +83,10 @@ package spi_device_env_pkg;
   // use this function to calculate the new ptr value
   // if new rx_rptr exceeds programmed sram size in bytes, then wrap it and flip the phase bit
   // else, restore the 'saved' phase bit
-  function automatic uint get_sram_new_ptr(uint ptr,
-                                           uint increment,
-                                           uint sram_size_bytes);
-    bit [TL_DW-1:0] ptr_wo_phase_bit = ptr[SRAM_MSB:0];
-    bit             ptr_phase_bit    = ptr[SRAM_PTR_PHASE_BIT];
-    uint            new_ptr          = ptr_wo_phase_bit + increment;
+  function automatic uint get_sram_new_ptr(uint ptr, uint increment, uint sram_size_bytes);
+    bit  [TL_DW-1:0] ptr_wo_phase_bit = ptr[SRAM_MSB:0];
+    bit              ptr_phase_bit = ptr[SRAM_PTR_PHASE_BIT];
+    uint             new_ptr = ptr_wo_phase_bit + increment;
     if (new_ptr >= sram_size_bytes) begin
       new_ptr -= sram_size_bytes;
       new_ptr[SRAM_PTR_PHASE_BIT] = ~ptr_phase_bit;

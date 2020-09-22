@@ -10,7 +10,7 @@
  * This module is the top-level of the OTBN processing core.
  */
 module otbn_core_model
-  import otbn_pkg::*;
+import otbn_pkg::*;
 #(
   // Size of the instruction memory, in bytes
   parameter int ImemSizeByte = 4096,
@@ -22,16 +22,16 @@ module otbn_core_model
   // Scope of the data memory (for DPI)
   parameter string DmemScope = "",
 
-  localparam int ImemAddrWidth = prim_util_pkg::vbits(ImemSizeByte),
-  localparam int DmemAddrWidth = prim_util_pkg::vbits(DmemSizeByte)
-)(
-  input  logic  clk_i,
-  input  logic  rst_ni,
+  localparam int ImemAddrWidth = prim_util_pkg::vbits (ImemSizeByte),
+  localparam int DmemAddrWidth = prim_util_pkg::vbits (DmemSizeByte)
+) (
+  input logic clk_i,
+  input logic rst_ni,
 
-  input  logic  start_i, // start the operation
-  output logic  done_o,  // operation done
+  input  logic start_i,  // start the operation
+  output logic done_o,  // operation done
 
-  input  logic [ImemAddrWidth-1:0] start_addr_i // start byte address in IMEM
+  input logic [ImemAddrWidth-1:0] start_addr_i  // start byte address in IMEM
 );
 
   import "DPI-C" context function int run_model(string imem_scope,
@@ -52,18 +52,18 @@ module otbn_core_model
   always_ff @(posedge clk_i or negedge rst_ni) begin : model_run
     if (!rst_ni) begin
       done_o <= 1'b0;
-      count <= -1;
+      count  <= -1;
     end else begin
       if (start_i) begin
-        count <= run_model(ImemScope, ImemSizeWords, DmemScope, DmemSizeWords, start_addr_32);
+        count  <= run_model(ImemScope, ImemSizeWords, DmemScope, DmemSizeWords, start_addr_32);
         done_o <= 1'b0;
       end else begin
         if (count == 0) begin
           done_o <= 1'b1;
-          count <= -1;
+          count  <= -1;
         end else begin
           done_o <= 1'b0;
-          count <= count - 1;
+          count  <= count - 1;
         end
       end
     end

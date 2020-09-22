@@ -10,14 +10,14 @@
 `define PRIM_ASSERT_SV
 
 `ifdef UVM
-  // report assertion error with UVM if compiled
-  package assert_rpt_pkg;
-    import uvm_pkg::*;
-    `include "uvm_macros.svh"
-    function void assert_rpt(string msg);
-      `uvm_error("ASSERT FAILED", msg)
-    endfunction
-  endpackage
+// report assertion error with UVM if compiled
+package assert_rpt_pkg;
+  import uvm_pkg::*;
+  `include "uvm_macros.svh"
+  function void assert_rpt(string msg);
+    `uvm_error("ASSERT FAILED", msg)
+  endfunction
+endpackage
 `endif
 
 ///////////////////
@@ -68,15 +68,15 @@
 //  ASSUME_I:     Assume an immediate property
 
 `ifdef VERILATOR
- `include "prim_assert_dummy_macros.svh"
+`include "prim_assert_dummy_macros.svh"
 `elsif SYNTHESIS
- `include "prim_assert_dummy_macros.svh"
+`include "prim_assert_dummy_macros.svh"
 `elsif YOSYS
- `include "prim_assert_yosys_macros.svh"
- `define INC_ASSERT
+`include "prim_assert_yosys_macros.svh"
+`define INC_ASSERT
 `else
- `include "prim_assert_standard_macros.svh"
- `define INC_ASSERT
+`include "prim_assert_standard_macros.svh"
+`define INC_ASSERT
 `endif
 
 //////////////////////////////
@@ -126,4 +126,4 @@
    `COVER(__name, __prop, __clk, __rst)                                                     \
 `endif
 
-`endif // PRIM_ASSERT_SV
+`endif  // PRIM_ASSERT_SV

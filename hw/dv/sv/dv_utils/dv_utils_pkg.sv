@@ -12,19 +12,19 @@ package dv_utils_pkg;
   `include "uvm_macros.svh"
 
   // common parameters used across all benches
-  parameter int NUM_MAX_INTERRUPTS  = 32;
-  parameter int NUM_MAX_ALERTS      = 32;
+  parameter int NUM_MAX_INTERRUPTS = 32;
+  parameter int NUM_MAX_ALERTS = 32;
 
   // types & variables
   typedef bit [31:0] uint;
-  typedef bit [7:0]  uint8;
+  typedef bit [7:0] uint8;
   typedef bit [15:0] uint16;
   typedef bit [31:0] uint32;
   typedef bit [63:0] uint64;
 
   // typedef parameterized pins_if for ease of implementation for interrupts and alerts
   typedef virtual pins_if #(NUM_MAX_INTERRUPTS) intr_vif;
-  typedef virtual pins_if #(1)                  devmode_vif;
+  typedef virtual pins_if #(1) devmode_vif;
 
   // interface direction / mode - Host or Device
   typedef enum bit {
@@ -77,7 +77,7 @@ package dv_utils_pkg;
 
   // return the smaller value of 2 inputs
   function automatic int min2(int a, int b);
-      return (a < b) ? a : b;
+    return (a < b) ? a : b;
   endfunction
 
   // return the bigger value of 2 inputs
@@ -128,14 +128,14 @@ package dv_utils_pkg;
 
   // endian swap
   function automatic logic [31:0] endian_swap(logic [31:0] data);
-    return {<<8{data}};
+    return{<<8{data}};
   endfunction
 
   // create a sequence by name and return the handle of uvm_sequence
   function automatic uvm_sequence create_seq_by_name(string seq_name);
-    uvm_object      obj;
-    uvm_factory     factory;
-    uvm_sequence    seq;
+    uvm_object   obj;
+    uvm_factory  factory;
+    uvm_sequence seq;
 
     factory = uvm_factory::get();
     obj = factory.create_object_by_name(seq_name, "", seq_name);

@@ -6,9 +6,9 @@ class aes_stress_test extends aes_base_test;
   `uvm_component_utils(aes_stress_test)
   `uvm_component_new
 
-   virtual function void build_phase(uvm_phase phase);
-     super.build_phase(phase);
-     configure_env();
+  virtual function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    configure_env();
   endfunction
 
   virtual function void configure_env();
@@ -25,8 +25,8 @@ class aes_stress_test extends aes_base_test;
     cfg.ofb_weight               = 10;
     cfg.cfb_weight               = 10;
 
-    cfg.message_len_min          = 7;   // bytes
-    cfg.message_len_max          = 1023; // bytes
+    cfg.message_len_min          = 7;  // bytes
+    cfg.message_len_max          = 1023;  // bytes
 
     cfg.fixed_data_en            = 0;
     cfg.fixed_key_en             = 0;

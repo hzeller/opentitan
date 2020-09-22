@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module keymgr import keymgr_pkg::*; #(
+module keymgr
+import keymgr_pkg::*;
+#(
   parameter logic AlertAsyncOn = 1'b1
 ) (
   input clk_i,
@@ -24,7 +26,7 @@ module keymgr import keymgr_pkg::*; #(
 
   // data interface to/from crypto modules
   output kmac_data_req_t kmac_data_o,
-  input kmac_data_rsp_t kmac_data_i,
+  input  kmac_data_rsp_t kmac_data_i,
 
   // the following signals should eventually be wrapped into structs from other modules
   input lc_data_t lc_i,
@@ -34,14 +36,14 @@ module keymgr import keymgr_pkg::*; #(
   // interrupts and alerts
   output logic intr_op_done_o,
   output logic intr_err_o,
-  input  prim_alert_pkg::alert_rx_t [keymgr_reg_pkg::NumAlerts-1:0] alert_rx_i,
+  input prim_alert_pkg::alert_rx_t [keymgr_reg_pkg::NumAlerts-1:0] alert_rx_i,
   output prim_alert_pkg::alert_tx_t [keymgr_reg_pkg::NumAlerts-1:0] alert_tx_o
 );
 
   import keymgr_reg_pkg::*;
 
   `ASSERT_INIT(AdvDataWidth_A, AdvDataWidth <= KDFMaxWidth)
-  `ASSERT_INIT(IdDataWidth_A,  IdDataWidth  <= KDFMaxWidth)
+  `ASSERT_INIT(IdDataWidth_A, IdDataWidth <= KDFMaxWidth)
   `ASSERT_INIT(GenDataWidth_A, GenDataWidth <= KDFMaxWidth)
   `ASSERT_INIT(OutputKeyDiff_A, HardOutputKey != SoftOutputKey)
 
@@ -50,13 +52,13 @@ module keymgr import keymgr_pkg::*; #(
   keymgr_hw2reg_t hw2reg;
 
   keymgr_reg_top u_reg (
-    .clk_i,
-    .rst_ni,
-    .tl_i,
-    .tl_o,
-    .reg2hw,
-    .hw2reg,
-    .devmode_i  (1'b1) // connect to real devmode signal in the future
+      .clk_i,
+      .rst_ni,
+      .tl_i,
+      .tl_o,
+      .reg2hw,
+      .hw2reg,
+      .devmode_i(1'b1)  // connect to real devmode signal in the future
   );
 
 
@@ -77,23 +79,23 @@ module keymgr import keymgr_pkg::*; #(
   logic lfsr_en;
 
   prim_lfsr #(
-    .LfsrDw(64),
-    .StateOutDw(64)
+      .LfsrDw(64),
+      .StateOutDw(64)
   ) u_lfsr (
-    .clk_i,
-    .rst_ni,
-    .lfsr_en_i(lfsr_en),
-    .seed_en_i(1'b0),
-    .seed_i('0),
-    .entropy_i('0), // TBD, this should be hooked up to an entropy distribution pkg
-    .state_o(lfsr)
+      .clk_i,
+      .rst_ni,
+      .lfsr_en_i(lfsr_en),
+      .seed_en_i(1'b0),
+      .seed_i('0),
+      .entropy_i('0),  // TBD, this should be hooked up to an entropy distribution pkg
+      .state_o(lfsr)
   );
 
   /////////////////////////////////////
   //  Key Manager Control
   /////////////////////////////////////
 
-  keymgr_stage_e stage_sel;
+  keymgr_stage_e   stage_sel;
   keymgr_gen_out_e key_sel;
   logic adv_en, id_en, gen_en;
   logic load_key;
@@ -108,37 +110,37 @@ module keymgr import keymgr_pkg::*; #(
   logic [ErrLastPos-1:0] err_code;
 
   keymgr_ctrl u_ctrl (
-    .clk_i,
-    .rst_ni,
-    .keymgr_en_i(lc_i.keymgr_en),
-    .prng_en_o(lfsr_en),
-    .entropy_i(lfsr[63:32]),  // TBD, recommend directly interfacing with DRBG for keymgr_ctrl
-    .init_i(reg2hw.control.init.q),
-    .op_i(keymgr_ops_e'(reg2hw.control.operation.q)),
-    .op_start_i(reg2hw.control.start.q),
-    .op_done_o(op_done),
-    .status_o(hw2reg.op_status.d),
-    .error_o(err_code),
-    .data_valid_o(data_valid),
-    .working_state_o(hw2reg.working_state.d),
-    .root_key_i(otp_i.root_key),
-    .hw_sel_o(key_sel),
-    .stage_sel_o(stage_sel),
-    .load_key_o(load_key),
-    .adv_en_o(adv_en),
-    .id_en_o(id_en),
-    .gen_en_o(gen_en),
-    .key_o(kmac_key),
-    .kmac_done_i(kmac_done),
-    .kmac_input_invalid_i(kmac_input_invalid),
-    .kmac_fsm_err_i(kmac_fsm_err),
-    .kmac_cmd_err_i(kmac_cmd_err),
-    .kmac_data_i(kmac_data)
+      .clk_i,
+      .rst_ni,
+      .keymgr_en_i(lc_i.keymgr_en),
+      .prng_en_o(lfsr_en),
+      .entropy_i(lfsr[63:32]),  // TBD, recommend directly interfacing with DRBG for keymgr_ctrl
+      .init_i(reg2hw.control.init.q),
+      .op_i(keymgr_ops_e'(reg2hw.control.operation.q)),
+      .op_start_i(reg2hw.control.start.q),
+      .op_done_o(op_done),
+      .status_o(hw2reg.op_status.d),
+      .error_o(err_code),
+      .data_valid_o(data_valid),
+      .working_state_o(hw2reg.working_state.d),
+      .root_key_i(otp_i.root_key),
+      .hw_sel_o(key_sel),
+      .stage_sel_o(stage_sel),
+      .load_key_o(load_key),
+      .adv_en_o(adv_en),
+      .id_en_o(id_en),
+      .gen_en_o(gen_en),
+      .key_o(kmac_key),
+      .kmac_done_i(kmac_done),
+      .kmac_input_invalid_i(kmac_input_invalid),
+      .kmac_fsm_err_i(kmac_fsm_err),
+      .kmac_cmd_err_i(kmac_cmd_err),
+      .kmac_data_i(kmac_data)
   );
 
-  assign hw2reg.control.start.d  = '0;
+  assign hw2reg.control.start.d = '0;
   assign hw2reg.control.start.de = op_done;
-  assign hw2reg.control.init.d  = '0;
+  assign hw2reg.control.init.d = '0;
   assign hw2reg.control.init.de = op_done;
   assign hw2reg.op_status.de = op_done | reg2hw.control.start.q;
 
@@ -150,12 +152,12 @@ module keymgr import keymgr_pkg::*; #(
   // software q / qe have no impact on cfgen
   // however they exist due to a reggen script limitation, this should be addressed later
   keymgr_cfg_en u_cfgen (
-    .clk_i,
-    .rst_ni,
-    .keymgr_en_i(lc_i.keymgr_en),
-    .set_i(op_done),
-    .clr_i(reg2hw.control.start.q),
-    .out_o(hw2reg.cfgen.d)
+      .clk_i,
+      .rst_ni,
+      .keymgr_en_i(lc_i.keymgr_en),
+      .set_i(op_done),
+      .clr_i(reg2hw.control.start.q),
+      .out_o(hw2reg.cfgen.d)
   );
 
   /////////////////////////////////////
@@ -195,10 +197,10 @@ module keymgr import keymgr_pkg::*; #(
   // Advance to owner_intermediate_key
   logic [KeyWidth-1:0] owner_seed;
   assign owner_seed = flash_i.seeds[flash_ctrl_pkg::OwnerSeedIdx];
-  assign adv_matrix[OwnerInt] = AdvDataWidth'({reg2hw.software_binding,owner_seed});
+  assign adv_matrix[OwnerInt] = AdvDataWidth'({reg2hw.software_binding, owner_seed});
 
   // Advance to owner_key
-  assign adv_matrix[Owner]   = AdvDataWidth'(reg2hw.software_binding);
+  assign adv_matrix[Owner] = AdvDataWidth'(reg2hw.software_binding);
 
 
   // Generate Identity operation input construction
@@ -231,10 +233,10 @@ module keymgr import keymgr_pkg::*; #(
 
   // General module for checking inputs
   keymgr_input_checks u_checks (
-    .max_key_versions_i(max_key_versions),
-    .stage_sel_i(stage_sel),
-    .key_version_i(reg2hw.key_version),
-    .key_version_good_o(key_version_good)
+      .max_key_versions_i(max_key_versions),
+      .stage_sel_i(stage_sel),
+      .key_version_i(reg2hw.key_version),
+      .key_version_good_o(key_version_good)
   );
 
 
@@ -253,23 +255,23 @@ module keymgr import keymgr_pkg::*; #(
   assign invalid_data[OpGenHwOut] = key_version_err; // TBD, more to come
 
   keymgr_kmac_if u_kmac_if (
-    .clk_i,
-    .rst_ni,
-    .adv_data_i(adv_matrix[stage_sel]),
-    .id_data_i(id_matrix[stage_sel]),
-    .gen_data_i(gen_in),
-    .inputs_invalid_i(invalid_data),
-    .inputs_invalid_o(kmac_input_invalid),
-    .adv_en_i(adv_en),
-    .id_en_i(id_en),
-    .gen_en_i(gen_en),
-    .done_o(kmac_done),
-    .data_o(kmac_data),
-    .kmac_data_o,
-    .kmac_data_i,
-    .entropy_i(lfsr[31:0]),
-    .fsm_error_o(kmac_fsm_err),
-    .cmd_error_o(kmac_cmd_err)
+      .clk_i,
+      .rst_ni,
+      .adv_data_i(adv_matrix[stage_sel]),
+      .id_data_i(id_matrix[stage_sel]),
+      .gen_data_i(gen_in),
+      .inputs_invalid_i(invalid_data),
+      .inputs_invalid_o(kmac_input_invalid),
+      .adv_en_i(adv_en),
+      .id_en_i(id_en),
+      .gen_en_i(gen_en),
+      .done_o(kmac_done),
+      .data_o(kmac_data),
+      .kmac_data_o,
+      .kmac_data_i,
+      .entropy_i(lfsr[31:0]),
+      .fsm_error_o(kmac_fsm_err),
+      .cmd_error_o(kmac_cmd_err)
   );
 
 
@@ -280,41 +282,41 @@ module keymgr import keymgr_pkg::*; #(
   logic aes_sel, hmac_sel, kmac_sel;
 
   assign dest_sel = keymgr_key_dest_e'(reg2hw.control.dest_sel);
-  assign aes_sel  = dest_sel == Aes  & key_sel == HwKey;
+  assign aes_sel  = dest_sel == Aes & key_sel == HwKey;
   assign hmac_sel = dest_sel == Hmac & key_sel == HwKey;
   assign kmac_sel = dest_sel == Kmac & key_sel == HwKey;
 
   keymgr_sideload_key u_aes_key (
-    .clk_i,
-    .rst_ni,
-    .keymgr_en_i(lc_i.keymgr_en),
-    .set_i(data_valid & aes_sel),
-    .clr_i(lc_i.keymgr_en), // TBD, should add an option for software clear later
-    .entropy_i(lfsr[31:0]), //TBD, recommend directly interfacign with DRBG entropy for keys
-    .key_i(kmac_data),
-    .key_o(aes_key_o)
+      .clk_i,
+      .rst_ni,
+      .keymgr_en_i(lc_i.keymgr_en),
+      .set_i(data_valid & aes_sel),
+      .clr_i(lc_i.keymgr_en),  // TBD, should add an option for software clear later
+      .entropy_i(lfsr[31:0]),  //TBD, recommend directly interfacign with DRBG entropy for keys
+      .key_i(kmac_data),
+      .key_o(aes_key_o)
   );
 
   keymgr_sideload_key u_hmac_key (
-    .clk_i,
-    .rst_ni,
-    .keymgr_en_i(lc_i.keymgr_en),
-    .set_i(data_valid & hmac_sel),
-    .clr_i(lc_i.keymgr_en), // TBD, should add an option for software clear later
-    .entropy_i(lfsr[31:0]),
-    .key_i(kmac_data),
-    .key_o(hmac_key_o)
+      .clk_i,
+      .rst_ni,
+      .keymgr_en_i(lc_i.keymgr_en),
+      .set_i(data_valid & hmac_sel),
+      .clr_i(lc_i.keymgr_en),  // TBD, should add an option for software clear later
+      .entropy_i(lfsr[31:0]),
+      .key_i(kmac_data),
+      .key_o(hmac_key_o)
   );
 
   keymgr_sideload_key u_kmac_key (
-    .clk_i,
-    .rst_ni,
-    .keymgr_en_i(lc_i.keymgr_en),
-    .set_i(load_key | (data_valid & kmac_sel)),
-    .clr_i(~lc_i.keymgr_en), // TBD, should add an option for software clear later
-    .entropy_i(lfsr[31:0]),
-    .key_i(load_key ? kmac_key : kmac_data),
-    .key_o(kmac_key_o)
+      .clk_i,
+      .rst_ni,
+      .keymgr_en_i(lc_i.keymgr_en),
+      .set_i(load_key | (data_valid & kmac_sel)),
+      .clr_i(~lc_i.keymgr_en),  // TBD, should add an option for software clear later
+      .entropy_i(lfsr[31:0]),
+      .key_i(load_key ? kmac_key : kmac_data),
+      .key_o(kmac_key_o)
   );
 
   for (genvar i = 0; i < 8; i++) begin : gen_sw_assigns
@@ -329,17 +331,19 @@ module keymgr import keymgr_pkg::*; #(
   //  Alerts and Interrupts
   /////////////////////////////////////
 
-  prim_intr_hw #(.Width(1)) u_intr_op_done (
-    .clk_i,
-    .rst_ni,
-    .event_intr_i           (op_done),
-    .reg2hw_intr_enable_q_i (reg2hw.intr_enable.op_done.q),
-    .reg2hw_intr_test_q_i   (reg2hw.intr_test.op_done.q),
-    .reg2hw_intr_test_qe_i  (reg2hw.intr_test.op_done.qe),
-    .reg2hw_intr_state_q_i  (reg2hw.intr_state.op_done.q),
-    .hw2reg_intr_state_de_o (hw2reg.intr_state.op_done.de),
-    .hw2reg_intr_state_d_o  (hw2reg.intr_state.op_done.d),
-    .intr_o                 (intr_op_done_o)
+  prim_intr_hw #(
+      .Width(1)
+  ) u_intr_op_done (
+      .clk_i,
+      .rst_ni,
+      .event_intr_i          (op_done),
+      .reg2hw_intr_enable_q_i(reg2hw.intr_enable.op_done.q),
+      .reg2hw_intr_test_q_i  (reg2hw.intr_test.op_done.q),
+      .reg2hw_intr_test_qe_i (reg2hw.intr_test.op_done.qe),
+      .reg2hw_intr_state_q_i (reg2hw.intr_state.op_done.q),
+      .hw2reg_intr_state_de_o(hw2reg.intr_state.op_done.de),
+      .hw2reg_intr_state_d_o (hw2reg.intr_state.op_done.d),
+      .intr_o                (intr_op_done_o)
   );
 
   logic [ErrLastPos-1:0] err_code_q;
@@ -361,28 +365,30 @@ module keymgr import keymgr_pkg::*; #(
   end
 
   // interrupts are only generated on changes to avoid interrupt storms
-  prim_intr_hw #(.Width(1)) u_err_code (
-    .clk_i,
-    .rst_ni,
-    .event_intr_i           (err_code != err_code_q),
-    .reg2hw_intr_enable_q_i (reg2hw.intr_enable.err.q),
-    .reg2hw_intr_test_q_i   (reg2hw.intr_test.err.q),
-    .reg2hw_intr_test_qe_i  (reg2hw.intr_test.err.qe),
-    .reg2hw_intr_state_q_i  (reg2hw.intr_state.err.q),
-    .hw2reg_intr_state_de_o (hw2reg.intr_state.err.de),
-    .hw2reg_intr_state_d_o  (hw2reg.intr_state.err.d),
-    .intr_o                 (intr_err_o)
+  prim_intr_hw #(
+      .Width(1)
+  ) u_err_code (
+      .clk_i,
+      .rst_ni,
+      .event_intr_i          (err_code != err_code_q),
+      .reg2hw_intr_enable_q_i(reg2hw.intr_enable.err.q),
+      .reg2hw_intr_test_q_i  (reg2hw.intr_test.err.q),
+      .reg2hw_intr_test_qe_i (reg2hw.intr_test.err.qe),
+      .reg2hw_intr_state_q_i (reg2hw.intr_state.err.q),
+      .hw2reg_intr_state_de_o(hw2reg.intr_state.err.de),
+      .hw2reg_intr_state_d_o (hw2reg.intr_state.err.d),
+      .intr_o                (intr_err_o)
   );
 
   // alerts are generated whenever there is a persisting error status
   prim_alert_sender #(
-    .AsyncOn(AlertAsyncOn)
+      .AsyncOn(AlertAsyncOn)
   ) u_err_alert (
-    .clk_i,
-    .rst_ni,
-    .alert_i(|reg2hw.err_code),
-    .alert_rx_i(alert_rx_i),
-    .alert_tx_o(alert_tx_o)
+      .clk_i,
+      .rst_ni,
+      .alert_i(|reg2hw.err_code),
+      .alert_rx_i(alert_rx_i),
+      .alert_tx_o(alert_tx_o)
   );
 
   /////////////////////////////////////
@@ -392,4 +398,4 @@ module keymgr import keymgr_pkg::*; #(
   // Only 1 entity should be trying to use the secret kmac key input
   `ASSERT(KmacKeyLoadExclusive_a, $onehot0({load_key, data_valid & kmac_sel}))
 
-endmodule // keymgr
+endmodule  // keymgr

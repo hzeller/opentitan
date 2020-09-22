@@ -6,15 +6,11 @@
 class uart_intr_vseq extends uart_base_vseq;
   `uvm_object_utils(uart_intr_vseq)
 
-  constraint num_trans_c {
-    num_trans inside {[1:5]};
-  }
+  constraint num_trans_c {num_trans inside {[1 : 5]};}
 
   // make interrupt easy to predict - lower the freq so that there is enough time to read status
   // and check
-  constraint baud_rate_extra_c {
-    baud_rate <= BaudRate230400;
-  }
+  constraint baud_rate_extra_c {baud_rate <= BaudRate230400;}
 
   `uvm_object_new
 
@@ -27,8 +23,7 @@ class uart_intr_vseq extends uart_base_vseq;
       uart_init();
 
       repeat (NumUartIntr) begin
-        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(uart_intr,
-                                           uart_intr != NumUartIntr;)
+        `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(uart_intr, uart_intr != NumUartIntr;)
         `uvm_info(`gfn, $sformatf("\nTesting %0s", uart_intr.name), UVM_LOW)
         drive_and_check_one_intr(uart_intr);
 
@@ -44,7 +39,7 @@ class uart_intr_vseq extends uart_base_vseq;
   endtask : body
 
   task drive_and_check_one_intr(uart_intr_e uart_intr);
-    int tx_fifo_max_size;
+    int  tx_fifo_max_size;
     uint bit_num_per_trans;
 
     // 1 start + 8 data + 1 parity (if enabled) + 1 stop
@@ -134,7 +129,7 @@ class uart_intr_vseq extends uart_base_vseq;
 
         fork
           begin
-             drive_rx_all_0s();
+            drive_rx_all_0s();
           end
           begin
             // < 10 cycles 0s, expect no interrupt
@@ -143,7 +138,7 @@ class uart_intr_vseq extends uart_base_vseq;
             nonblocking_check_all_intr(.exp(0), .do_clear(0));
             // 10th cycle
             wait_for_baud_clock_cycles(1);
-            exp_intr_state[RxFrameErr]  = ~en_parity & en_rx;
+            exp_intr_state[RxFrameErr] = ~en_parity & en_rx;
             nonblocking_check_all_intr(.exp(exp_intr_state), .do_clear(0));
             // 11th cycle
             wait_for_baud_clock_cycles(1);
@@ -159,7 +154,7 @@ class uart_intr_vseq extends uart_base_vseq;
         cfg.disable_scb_rx_frame_check  = 1;
 
         // from 11 to RXBLVL * char - 1
-        if (break_bytes > 2) begin // avoid negetive value
+        if (break_bytes > 2) begin  // avoid negetive value
           wait_for_baud_clock_cycles(bit_num_per_trans * (break_bytes - 1) - 11);
           nonblocking_check_all_intr(.exp(exp_intr_state), .do_clear(1));
         end
@@ -181,9 +176,9 @@ class uart_intr_vseq extends uart_base_vseq;
 
       RxTimeout: begin
         bit [TL_DW-1:0] rdata;
-        uint num_bytes   = $urandom_range(1, UART_FIFO_DEPTH);
+        uint num_bytes = $urandom_range(1, UART_FIFO_DEPTH);
         uint timeout_val = ral.timeout_ctrl.val.get_mirrored_value();
-        bit  en_timeout  = ral.timeout_ctrl.en.get_mirrored_value();
+        bit en_timeout = ral.timeout_ctrl.en.get_mirrored_value();
         drive_rx_bytes(num_bytes);
         // wait for timeout_val-1 cycles, timeout shouldn't occur
         // wait for one more cycle, timeout occurs
@@ -200,7 +195,7 @@ class uart_intr_vseq extends uart_base_vseq;
 
         if (!en_rx) return;
         // reset timeout timer by issuing a rdata read
-        csr_rd(.ptr(ral.rdata),  .value(rdata));
+        csr_rd(.ptr(ral.rdata), .value(rdata));
 
         // wait for timeout_val-2 cycles (it's about to timeout) and then
         // read or drive one uart RX item to reset timeout cnt. More fifo read, less fifo write
@@ -209,16 +204,16 @@ class uart_intr_vseq extends uart_base_vseq;
           bit [TL_DW-1:0] status;
           bit rxfull;
           randcase
-            3: begin // read RX fifo
+            3: begin  // read RX fifo
               csr_rd(.ptr(ral.status), .value(status));
               if (get_field_val(ral.status.rxempty, status)) begin
                 break;
               end
               // use -2 to have higher tolerance to avoid timeout
               wait_for_baud_clock_cycles(timeout_val - 2);
-              csr_rd(.ptr(ral.rdata),  .value(rdata));
+              csr_rd(.ptr(ral.rdata), .value(rdata));
             end
-            1: begin // drive one RX item (fifo write)
+            1: begin  // drive one RX item (fifo write)
               // use -2 to have higher tolerance to avoid timeout
               int cycles = timeout_val - bit_num_per_trans - 2;
               wait_for_baud_clock_cycles(cycles > 0 ? cycles : 0);
@@ -273,7 +268,7 @@ class uart_intr_vseq extends uart_base_vseq;
 
   task nonblocking_check_all_intr(bit [NumUartIntr-1:0] exp, bit do_clear = 0);
     fork
-        check_all_intr(exp, do_clear);
+      check_all_intr(exp, do_clear);
     join_none
   endtask : nonblocking_check_all_intr
 

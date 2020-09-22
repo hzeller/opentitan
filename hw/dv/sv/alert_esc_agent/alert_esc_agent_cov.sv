@@ -6,12 +6,8 @@ covergroup alert_handshake_complete_cg with function sample(alert_esc_trans_type
                                                             alert_handshake_e      status);
   option.per_instance = 1;
 
-  cp_handshake_complete: coverpoint status {
-    bins complete = {AlertAckComplete};
-  }
-  cp_trans_type: coverpoint trans {
-    bins alert_triggered = {AlertEscSigTrans};
-  }
+  cp_handshake_complete: coverpoint status {bins complete = {AlertAckComplete};}
+  cp_trans_type: coverpoint trans {bins alert_triggered = {AlertEscSigTrans};}
 
   alert_handshake_complete: cross cp_handshake_complete, cp_trans_type;
 endgroup : alert_handshake_complete_cg
@@ -20,28 +16,24 @@ covergroup esc_handshake_complete_cg with function sample(alert_esc_trans_type_e
                                                           esc_handshake_e        status);
   option.per_instance = 1;
 
-  cp_handshake_complete: coverpoint status {
-    bins complete = {EscRespComplete};
-  }
-  cp_trans_type: coverpoint trans {
-    bins esc_triggered = {AlertEscSigTrans};
-  }
+  cp_handshake_complete: coverpoint status {bins complete = {EscRespComplete};}
+  cp_trans_type: coverpoint trans {bins esc_triggered = {AlertEscSigTrans};}
 
   esc_handshake_complete: cross cp_handshake_complete, cp_trans_type;
 endgroup : esc_handshake_complete_cg
 
-covergroup alert_esc_trans_cg with function sample(alert_esc_trans_type_e trans);
+covergroup alert_esc_trans_cg with function sample (alert_esc_trans_type_e trans);
   option.per_instance = 1;
 
   cp_handshake_complete: coverpoint trans {
     bins alert_esc_trans = {AlertEscSigTrans};
-    bins ping_trans      = {AlertEscPingTrans};
+    bins ping_trans = {AlertEscPingTrans};
   }
 endgroup : alert_esc_trans_cg
 
 // If a module contains alert or escalation ports, these covergroups can check if all
 // alerts/escalations/pings have been completed.
-class alert_esc_agent_cov extends dv_base_agent_cov #(alert_esc_agent_cfg);
+class alert_esc_agent_cov extends dv_base_agent_cov#(alert_esc_agent_cfg);
 
   alert_handshake_complete_cg m_alert_handshake_complete_cg;
   esc_handshake_complete_cg   m_esc_handshake_complete_cg;

@@ -23,22 +23,22 @@ package usbdev_env_pkg;
 
   // types
   typedef enum {
-    IntrPktReceived = 0,
-    IntrPktSent = 1,
-    IntrDisconnected = 2,
-    IntrHostLost = 3,
-    IntrLinkReset = 4,
-    IntrLinkSuspend = 5,
-    IntrLinkResume = 6,
-    IntrAvEmpty = 7,
-    IntrRxFull = 8,
-    IntrAvOverflow = 9,
-    IntrLinkInErr = 10,
-    IntrRxCrcErr = 11,
-    IntrRxPidErr = 12,
-    IntrRxBitstuffErr = 13,
-    IntrFrame = 14,
-    IntrConnected = 15,
+    IntrPktReceived     = 0,
+    IntrPktSent         = 1,
+    IntrDisconnected    = 2,
+    IntrHostLost        = 3,
+    IntrLinkReset       = 4,
+    IntrLinkSuspend     = 5,
+    IntrLinkResume      = 6,
+    IntrAvEmpty         = 7,
+    IntrRxFull          = 8,
+    IntrAvOverflow      = 9,
+    IntrLinkInErr       = 10,
+    IntrRxCrcErr        = 11,
+    IntrRxPidErr        = 12,
+    IntrRxBitstuffErr   = 13,
+    IntrFrame           = 14,
+    IntrConnected       = 15,
     NumUsbdevInterrupts
   } usbdev_intr_e;
 

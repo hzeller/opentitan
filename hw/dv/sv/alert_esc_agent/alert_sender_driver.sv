@@ -69,7 +69,7 @@ class alert_sender_driver extends alert_esc_base_driver;
           $sformatf("finished sending sender item, alert_send=%0b, ping_rsp=%0b, int_err=%0b",
           req.s_alert_send, req.s_alert_ping_rsp, req.int_err), UVM_HIGH)
       seq_item_port.put_response(rsp);
-    end // end forever
+    end  // end forever
   endtask : send_alert
 
   virtual task rsp_ping();
@@ -122,7 +122,7 @@ class alert_sender_driver extends alert_esc_base_driver;
       set_alert_pins(alert_delay);
       reset_alert_pins(ack_delay);
 
-    // alert signals integrity fail
+      // alert signals integrity fail
     end else begin
       if (req.alert_int_err_type & HasAlertBeforeIntFailOnly) set_alert_pins(alert_delay);
       random_drive_int_fail(req.int_err_cyc);
@@ -134,7 +134,7 @@ class alert_sender_driver extends alert_esc_base_driver;
     end
 
     // there must have at least two sender clock delays before next alert_handshake
-    repeat(2) wait_sender_clk();
+    repeat (2) wait_sender_clk();
   endtask : drive_alert_pins
 
   // this task set alert_p=1 and alert_n=0 after certain delay

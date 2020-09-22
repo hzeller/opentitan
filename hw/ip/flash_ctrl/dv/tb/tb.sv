@@ -26,36 +26,45 @@ module tb;
   wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
 
   // interfaces
-  clk_rst_if clk_rst_if(.clk(clk), .rst_n(rst_n));
-  pins_if #(NUM_MAX_INTERRUPTS) intr_if(interrupts);
-  pins_if #(1) devmode_if(devmode);
-  tl_if tl_if(.clk(clk), .rst_n(rst_n));
-  tl_if eflash_tl_if(.clk(clk), .rst_n(rst_n));
+  clk_rst_if clk_rst_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  pins_if #(NUM_MAX_INTERRUPTS) intr_if (interrupts);
+  pins_if #(1) devmode_if (devmode);
+  tl_if tl_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  tl_if eflash_tl_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
 
   // dut
   flash_ctrl_wrapper dut (
-    .clk_i              (clk      ),
-    .rst_ni             (rst_n    ),
+      .clk_i (clk),
+      .rst_ni(rst_n),
 
-    .flash_ctrl_tl_i    (tl_if.h2d),
-    .flash_ctrl_tl_o    (tl_if.d2h),
+      .flash_ctrl_tl_i(tl_if.h2d),
+      .flash_ctrl_tl_o(tl_if.d2h),
 
-    .eflash_tl_i        (eflash_tl_if.h2d),
-    .eflash_tl_o        (eflash_tl_if.d2h),
+      .eflash_tl_i(eflash_tl_if.h2d),
+      .eflash_tl_o(eflash_tl_if.d2h),
 
-    // TODO: create and hook this up to an interface.
-    .otp_i              (flash_ctrl_pkg::OTP_FLASH_DEFAULT),
-    .lc_i               (flash_ctrl_pkg::LC_FLASH_REQ_DEFAULT),
-    .pwrmgr_o           (pwrmgr_pkg::PWR_FLASH_RSP_DEFAULT),
-    .pwrmgr_i           (pwrmgr_pkg::PWR_FLASH_REQ_DEFAULT),
-    .edn_i              (flash_ctrl_pkg::EDN_ENTROPY_DEFAULT),
+      // TODO: create and hook this up to an interface.
+      .otp_i   (flash_ctrl_pkg::OTP_FLASH_DEFAULT),
+      .lc_i    (flash_ctrl_pkg::LC_FLASH_REQ_DEFAULT),
+      .pwrmgr_o(pwrmgr_pkg::PWR_FLASH_RSP_DEFAULT),
+      .pwrmgr_i(pwrmgr_pkg::PWR_FLASH_REQ_DEFAULT),
+      .edn_i   (flash_ctrl_pkg::EDN_ENTROPY_DEFAULT),
 
-    .intr_prog_empty_o  (intr_prog_empty),
-    .intr_prog_lvl_o    (intr_prog_lvl  ),
-    .intr_rd_full_o     (intr_rd_full   ),
-    .intr_rd_lvl_o      (intr_rd_lvl    ),
-    .intr_op_done_o     (intr_op_done   ),
-    .intr_op_error_o    (intr_op_error  )
+      .intr_prog_empty_o(intr_prog_empty),
+      .intr_prog_lvl_o  (intr_prog_lvl),
+      .intr_rd_full_o   (intr_rd_full),
+      .intr_rd_lvl_o    (intr_rd_lvl),
+      .intr_op_done_o   (intr_op_done),
+      .intr_op_error_o  (intr_op_error)
   );
 
   // bind mem_bkdr_if
@@ -67,8 +76,8 @@ module tb;
 
   generate
     for (genvar i = 0; i < flash_ctrl_pkg::NumBanks; i++) begin : mem_bkdr_if_i
-      bind `FLASH_DATA_MEM_HIER(i) mem_bkdr_if mem_bkdr_if();
-      bind `FLASH_INFO_MEM_HIER(i) mem_bkdr_if mem_bkdr_if();
+      bind `FLASH_DATA_MEM_HIER(i) mem_bkdr_if mem_bkdr_if ();
+      bind `FLASH_INFO_MEM_HIER(i) mem_bkdr_if mem_bkdr_if ();
       initial begin
         flash_part_e part;
         part = flash_ctrl_pkg::FlashPartData;

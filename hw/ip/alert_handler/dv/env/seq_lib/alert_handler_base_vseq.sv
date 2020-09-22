@@ -20,12 +20,12 @@
   `DV_CHECK_RANDOMIZE_WITH_FATAL(ral.class``i``_ctrl, lock.value == lock_bit;) \
   csr_wr(.csr(ral.class``i``_ctrl), .value(ral.class``i``_ctrl.get()));
 
-class alert_handler_base_vseq extends cip_base_vseq #(
-    .CFG_T               (alert_handler_env_cfg),
-    .RAL_T               (alert_handler_reg_block),
-    .COV_T               (alert_handler_env_cov),
-    .VIRTUAL_SEQUENCER_T (alert_handler_virtual_sequencer)
-  );
+class alert_handler_base_vseq extends cip_base_vseq#(
+    .CFG_T              (alert_handler_env_cfg),
+    .RAL_T              (alert_handler_reg_block),
+    .COV_T              (alert_handler_env_cov),
+    .VIRTUAL_SEQUENCER_T(alert_handler_virtual_sequencer)
+);
   `uvm_object_utils(alert_handler_base_vseq)
 
   // various knobs to enable certain routines
@@ -75,7 +75,7 @@ class alert_handler_base_vseq extends cip_base_vseq #(
   // write regen register if do_lock_config is set. If not set, 50% of chance to write value 0
   // to regen register.
   virtual task lock_config(bit do_lock_config);
-    if (do_lock_config || $urandom_range(0,1)) csr_wr(.csr(ral.regen), .value(do_lock_config));
+    if (do_lock_config || $urandom_range(0, 1)) csr_wr(.csr(ral.regen), .value(do_lock_config));
   endtask
 
   virtual task drive_alert(bit[NUM_ALERTS-1:0] alert_trigger, bit[NUM_ALERTS-1:0] alert_int_err);
@@ -167,7 +167,7 @@ class alert_handler_base_vseq extends cip_base_vseq #(
     foreach (cfg.alert_host_cfg[i]) cfg.alert_host_cfg[i].vif.wait_ack_complete();
   endtask
 
-  virtual function bit check_esc_done(bit[TL_DW-1:0] vals[$]);
+  virtual function bit check_esc_done(bit [TL_DW-1:0] vals[$]);
     foreach (vals[i]) begin
       esc_state_e val = esc_state_e'(vals[i]);
       if (val inside {EscStatePhase0, EscStatePhase1, EscStatePhase2, EscStatePhase3}) return 0;
@@ -182,7 +182,9 @@ class alert_handler_base_vseq extends cip_base_vseq #(
       csr_rd(.ptr(ral.classb_state), .value(csr_vals[1]));
       csr_rd(.ptr(ral.classc_state), .value(csr_vals[2]));
       csr_rd(.ptr(ral.classd_state), .value(csr_vals[3]));
-    end while (!check_esc_done(csr_vals));
+    end while (!check_esc_done(
+        csr_vals
+    ));
     // check if there is any esc ping
     foreach (cfg.esc_device_cfg[i]) cfg.esc_device_cfg[i].vif.wait_esc_complete();
   endtask
@@ -212,7 +214,7 @@ class alert_handler_base_vseq extends cip_base_vseq #(
             end
           join_none
         end
-        wait (ping_i > 0);
+        wait(ping_i > 0);
         disable fork;
         ping_index = ping_i;
       end
@@ -226,21 +228,21 @@ class alert_handler_base_vseq extends cip_base_vseq #(
     `RAND_AND_WR_CLASS_PHASES_CYCLE(d);
   endtask
 
-  virtual task wr_intr_timeout_cycle(bit[TL_DW-1:0] intr_timeout_cyc[NUM_ALERT_HANDLER_CLASSES]);
+  virtual task wr_intr_timeout_cycle(bit [TL_DW-1:0] intr_timeout_cyc[NUM_ALERT_HANDLER_CLASSES]);
     csr_wr(.csr(ral.classa_timeout_cyc), .value(intr_timeout_cyc[0]));
     csr_wr(.csr(ral.classb_timeout_cyc), .value(intr_timeout_cyc[1]));
     csr_wr(.csr(ral.classc_timeout_cyc), .value(intr_timeout_cyc[2]));
     csr_wr(.csr(ral.classd_timeout_cyc), .value(intr_timeout_cyc[3]));
   endtask
 
-  virtual task wr_class_accum_threshold(bit[TL_DW-1:0] accum_thresh[NUM_ALERT_HANDLER_CLASSES]);
+  virtual task wr_class_accum_threshold(bit [TL_DW-1:0] accum_thresh[NUM_ALERT_HANDLER_CLASSES]);
     csr_wr(.csr(ral.classa_accum_thresh), .value(accum_thresh[0]));
     csr_wr(.csr(ral.classb_accum_thresh), .value(accum_thresh[1]));
     csr_wr(.csr(ral.classc_accum_thresh), .value(accum_thresh[2]));
     csr_wr(.csr(ral.classd_accum_thresh), .value(accum_thresh[3]));
   endtask
 
-  virtual task wr_ping_timeout_cycle(bit[TL_DW-1:0] timeout_val);
+  virtual task wr_ping_timeout_cycle(bit [TL_DW-1:0] timeout_val);
     csr_wr(.csr(ral.ping_timeout_cyc), .value(timeout_val));
     if (!config_locked) begin
       if (timeout_val == 0) timeout_val = 1;
@@ -256,8 +258,7 @@ class alert_handler_base_vseq extends cip_base_vseq #(
       fork
         forever begin
           bit esc_int_err = esc_int_errs[index] ? $urandom_range(0, 1) : 0;
-          esc_receiver_esc_rsp_seq esc_seq =
-              esc_receiver_esc_rsp_seq::type_id::create("esc_seq");
+          esc_receiver_esc_rsp_seq esc_seq = esc_receiver_esc_rsp_seq::type_id::create("esc_seq");
           `DV_CHECK_RANDOMIZE_WITH_FATAL(esc_seq, int_err == esc_int_err; standalone_int_err == 0;)
           esc_seq.start(p_sequencer.esc_device_seqr_h[index]);
         end

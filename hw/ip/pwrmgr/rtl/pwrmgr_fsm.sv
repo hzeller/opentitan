@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module pwrmgr_fsm import pwrmgr_pkg::*; (
+module pwrmgr_fsm
+import pwrmgr_pkg::*;
+(
   input clk_i,
   input rst_ni,
 
@@ -22,8 +24,8 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
   input reset_req_i,
 
   // consumed in pwrmgr
-  output logic wkup_o,        // generate wake interrupt
-  output logic wkup_record_o, // enable wakeup recording
+  output logic wkup_o,  // generate wake interrupt
+  output logic wkup_record_o,  // enable wakeup recording
   output logic fall_through_o,
   output logic abort_o,
   output logic clr_hint_o,
@@ -31,7 +33,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
 
   // rstmgr
   output pwr_rst_req_t pwr_rst_o,
-  input pwr_rst_rsp_t pwr_rst_i,
+  input  pwr_rst_rsp_t pwr_rst_i,
 
   // clkmgr
   output logic ips_clk_en_o,
@@ -104,8 +106,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
   assign pd_n_rsts_asserted = pwr_rst_i.rst_lc_src_n[PowerDomains-1:1] == '0 &
                               pwr_rst_i.rst_sys_src_n[PowerDomains-1:1] == '0;
 
-  assign all_rsts_asserted = pwr_rst_i.rst_lc_src_n == '0 &
-                             pwr_rst_i.rst_sys_src_n == '0;
+  assign all_rsts_asserted = pwr_rst_i.rst_lc_src_n == '0 & pwr_rst_i.rst_sys_src_n == '0;
 
   // when in low power path, resets are controlled by domain power down
   // when in reset path, all resets must be asserted
@@ -155,7 +156,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
     reset_cause_d = reset_cause_q;
     flash_init_d = 1'b0;
 
-    unique case(state_q)
+    unique case (state_q)
 
       StLowPower: begin
         if (req_pwrup_i || reset_ongoing_q) begin
@@ -174,7 +175,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
       StReleaseLcRst: begin
         rst_lc_req_d = '0;  // release rst_lc_n for all power domains
 
-        if (&pwr_rst_i.rst_lc_src_n) begin // once all resets are released
+        if (&pwr_rst_i.rst_lc_src_n) begin  // once all resets are released
           state_d = StOtpInit;
         end
       end
@@ -271,7 +272,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
         // this includes the clock manager, which implies pwr/rst managers must
         // be fed directly from the source
         for (int i = OffDomainSelStart; i < PowerDomains; i++) begin
-          rst_lc_req_d[i] = ~main_pd_ni;
+          rst_lc_req_d[i]  = ~main_pd_ni;
           rst_sys_req_d[i] = ~main_pd_ni;
         end
 
@@ -299,7 +300,7 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
 
       StResetPrep: begin
         reset_cause_d = HwReq;
-        rst_lc_req_d = {PowerDomains{1'b1}};
+        rst_lc_req_d  = {PowerDomains{1'b1}};
         rst_sys_req_d = {PowerDomains{1'b1}};
 
         if (reset_valid) begin
@@ -309,13 +310,13 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
 
       // Terminal state, kill everything
       default: begin
-        rst_lc_req_d = {PowerDomains{1'b1}};
+        rst_lc_req_d  = {PowerDomains{1'b1}};
         rst_sys_req_d = {PowerDomains{1'b1}};
-        ip_clk_en_d = 1'b0;
+        ip_clk_en_d   = 1'b0;
       end
 
-    endcase // unique case (state_q)
-  end // always_comb
+    endcase  // unique case (state_q)
+  end  // always_comb
 
   assign ack_pwrup_o = ack_pwrup_q;
   assign req_pwrdn_o = req_pwrdn_q;
@@ -329,13 +330,13 @@ module pwrmgr_fsm import pwrmgr_pkg::*; (
   assign ips_clk_en_o = ip_clk_en_q;
 
   prim_flop #(
-    .Width(1),
-    .ResetValue(1'b1)
+      .Width(1),
+      .ResetValue(1'b1)
   ) u_reg_idle (
-    .clk_i,
-    .rst_ni,
-    .d_i(flash_init_d),
-    .q_o(flash_init_o)
+      .clk_i,
+      .rst_ni,
+      .d_i(flash_init_d),
+      .q_o(flash_init_o)
   );
 
 

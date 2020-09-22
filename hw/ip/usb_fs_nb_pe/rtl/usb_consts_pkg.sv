@@ -8,10 +8,10 @@ package usb_consts_pkg;
 
   // Bottom two bits of the PID are type
   typedef enum logic [1:0] {
-    UsbPidTypeSpecial    = 2'b00,
-    UsbPidTypeToken      = 2'b01,
-    UsbPidTypeHandshake  = 2'b10,
-    UsbPidTypeData       = 2'b11
+    UsbPidTypeSpecial   = 2'b00,
+    UsbPidTypeToken     = 2'b01,
+    UsbPidTypeHandshake = 2'b10,
+    UsbPidTypeData      = 2'b11
   } usb_pid_type_e;
 
   // Direct from USB 2.0 Spec Table 8-1
@@ -24,8 +24,8 @@ package usb_consts_pkg;
     // DATA
     UsbPidData0 = 4'b0011,
     UsbPidData1 = 4'b1011,
-    UsbPidData2 = 4'b0111, // Only valid for High Speed
-    UsbPidMData = 4'b1111, // Only valid for High Speed
+    UsbPidData2 = 4'b0111,  // Only valid for High Speed
+    UsbPidMData = 4'b1111,  // Only valid for High Speed
     // HANDSHAKE
     UsbPidAck   = 4'b0010,
     UsbPidNak   = 4'b1010,

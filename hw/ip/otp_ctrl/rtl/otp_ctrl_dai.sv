@@ -8,55 +8,55 @@
 `include "prim_assert.sv"
 
 module otp_ctrl_dai
-  import otp_ctrl_pkg::*;
-  import otp_ctrl_reg_pkg::*;
+import otp_ctrl_pkg::*;
+import otp_ctrl_reg_pkg::*;
 (
-  input                                  clk_i,
-  input                                  rst_ni,
+  input clk_i,
+  input rst_ni,
   // Init reqest from power manager
-  input                                  init_req_i,
-  output logic                           init_done_o,
+  input init_req_i,
+  output logic init_done_o,
   // Init request going to partitions
-  output logic                           part_init_req_o,
-  input  [NumPart-1:0]                   part_init_done_i,
+  output logic part_init_req_o,
+  input [NumPart-1:0] part_init_done_i,
   // Escalation input. This moves the FSM into a terminal state and locks down
   // the DAI.
-  input lc_tx_t                          escalate_en_i,
+  input lc_tx_t escalate_en_i,
   // Output error state of DAI, to be consumed by OTP error/alert logic.
   // Note that most errors are not recoverable and move the DAI FSM into
   // a terminal error state.
-  output otp_err_e                       error_o,
+  output otp_err_e error_o,
   // Access/lock status from partitions
-  input  part_access_t [NumPart-1:0]     part_access_i,
+  input part_access_t [NumPart-1:0] part_access_i,
   // CSR interface
-  input        [OtpByteAddrWidth-1:0]    dai_addr_i,
-  input dai_cmd_e                        dai_cmd_i,
-  input logic                            dai_req_i,
-  input        [NumDaiWords-1:0][31:0]   dai_wdata_i,
-  output logic                           dai_idle_o,     // wired to the status CSRs
-  output logic                           dai_cmd_done_o, // this is used to raise an IRQ
-  output logic [NumDaiWords-1:0][31:0]   dai_rdata_o,
+  input [OtpByteAddrWidth-1:0] dai_addr_i,
+  input dai_cmd_e dai_cmd_i,
+  input logic dai_req_i,
+  input [NumDaiWords-1:0][31:0] dai_wdata_i,
+  output logic dai_idle_o,  // wired to the status CSRs
+  output logic dai_cmd_done_o,  // this is used to raise an IRQ
+  output logic [NumDaiWords-1:0][31:0] dai_rdata_o,
   // OTP interface
-  output logic                           otp_req_o,
-  output prim_otp_cmd_e                  otp_cmd_o,
-  output logic [OtpSizeWidth-1:0]        otp_size_o,
-  output logic [OtpIfWidth-1:0]          otp_wdata_o,
-  output logic [OtpAddrWidth-1:0]        otp_addr_o,
-  input                                  otp_gnt_i,
-  input                                  otp_rvalid_i,
-  input  [ScrmblBlockWidth-1:0]          otp_rdata_i,
-  input  otp_err_e                       otp_err_i,
+  output logic otp_req_o,
+  output prim_otp_cmd_e otp_cmd_o,
+  output logic [OtpSizeWidth-1:0] otp_size_o,
+  output logic [OtpIfWidth-1:0] otp_wdata_o,
+  output logic [OtpAddrWidth-1:0] otp_addr_o,
+  input otp_gnt_i,
+  input otp_rvalid_i,
+  input [ScrmblBlockWidth-1:0] otp_rdata_i,
+  input otp_err_e otp_err_i,
   // Scrambling mutex request
-  output logic                           scrmbl_mtx_req_o,
-  input                                  scrmbl_mtx_gnt_i,
+  output logic scrmbl_mtx_req_o,
+  input scrmbl_mtx_gnt_i,
   // Scrambling datapath interface
-  output otp_scrmbl_cmd_e                scrmbl_cmd_o,
-  output logic [ConstSelWidth-1:0]       scrmbl_sel_o,
-  output logic [ScrmblBlockWidth-1:0]    scrmbl_data_o,
-  output logic                           scrmbl_valid_o,
-  input  logic                           scrmbl_ready_i,
-  input  logic                           scrmbl_valid_i,
-  input  logic [ScrmblBlockWidth-1:0]    scrmbl_data_i
+  output otp_scrmbl_cmd_e scrmbl_cmd_o,
+  output logic [ConstSelWidth-1:0] scrmbl_sel_o,
+  output logic [ScrmblBlockWidth-1:0] scrmbl_data_o,
+  output logic scrmbl_valid_o,
+  input logic scrmbl_ready_i,
+  input logic scrmbl_valid_i,
+  input logic [ScrmblBlockWidth-1:0] scrmbl_data_i
 );
 
   ////////////////////////
@@ -65,7 +65,7 @@ module otp_ctrl_dai
 
   import prim_util_pkg::vbits;
 
-  localparam int CntWidth = OtpByteAddrWidth - $clog2(ScrmblBlockWidth/8);
+  localparam int CntWidth = OtpByteAddrWidth - $clog2(ScrmblBlockWidth / 8);
 
   // Integration checks for parameters.
   `ASSERT_INIT(CheckNativeOtpWidth0_A, ScrmblBlockWidth % OtpWidth == 0)
@@ -119,15 +119,15 @@ module otp_ctrl_dai
   } state_e;
 
   typedef enum logic [1:0] {
-    OtpData = 2'b00,
-    DaiData = 2'b01,
+    OtpData    = 2'b00,
+    DaiData    = 2'b01,
     ScrmblData = 2'b10
   } data_sel_e;
 
 
   typedef enum logic {
     PartOffset = 1'b0,
-    DaiOffset = 1'b1
+    DaiOffset  = 1'b1
   } addr_sel_e;
 
   state_e state_d, state_q;
@@ -167,12 +167,12 @@ module otp_ctrl_dai
     scrmbl_mtx_req_o = 1'b0;
 
     // Scrambling datapath
-    scrmbl_cmd_o   = LoadShadow;
-    scrmbl_sel_o   = '0;
+    scrmbl_cmd_o = LoadShadow;
+    scrmbl_sel_o = '0;
     scrmbl_valid_o = 1'b0;
 
     // Counter
-    cnt_en  = 1'b0;
+    cnt_en = 1'b0;
     cnt_clr = 1'b0;
     base_sel_d = base_sel_q;
 
@@ -230,14 +230,14 @@ module otp_ctrl_dai
       // Idle state where we wait for incoming commands.
       // Invalid commands trigger a CmdInvErr, which is recoverable.
       IdleSt: begin
-        dai_idle_o  = 1'b1;
+        dai_idle_o = 1'b1;
         if (dai_req_i) begin
           // This clears previous (recoverable) errors.
-          error_d = NoErr;
+          error_d  = NoErr;
           // Clear the temporary data register.
           data_clr = 1'b1;
           unique case (dai_cmd_i)
-            DaiRead:  begin
+            DaiRead: begin
               state_d = ReadSt;
               base_sel_d = DaiOffset;
             end
@@ -262,8 +262,8 @@ module otp_ctrl_dai
               // Invalid commands get caught here. This is a recoverable error.
               error_d = CmdInvErr;
             end
-          endcase // dai_cmd_i
-        end // dai_req_i
+          endcase  // dai_cmd_i
+        end  // dai_req_i
       end
       ///////////////////////////////////////////////////////////////////
       // Each time we request a block of data from OTP, we re-check
@@ -279,7 +279,7 @@ module otp_ctrl_dai
           end
         end else begin
           state_d = IdleSt;
-          error_d = AccessErr; // Signal this error, but do not go into terminal error state.
+          error_d = AccessErr;  // Signal this error, but do not go into terminal error state.
           dai_cmd_done_o = 1'b1;
         end
       end
@@ -360,7 +360,7 @@ module otp_ctrl_dai
           end
         end else begin
           state_d = IdleSt;
-          error_d = AccessErr; // Signal this error, but do not go into terminal error state.
+          error_d = AccessErr;  // Signal this error, but do not go into terminal error state.
           dai_cmd_done_o = 1'b1;
         end
       end
@@ -435,7 +435,7 @@ module otp_ctrl_dai
           end
         end else begin
           state_d = IdleSt;
-          error_d = AccessErr; // Signal this error, but do not go into terminal error state.
+          error_d = AccessErr;  // Signal this error, but do not go into terminal error state.
           dai_cmd_done_o = 1'b1;
         end
       end
@@ -468,7 +468,7 @@ module otp_ctrl_dai
       // is odd.
       DigSt: begin
         scrmbl_mtx_req_o = 1'b1;
-        scrmbl_valid_o = 1'b1;
+        scrmbl_valid_o   = 1'b1;
         // No need to digest the digest value itself
         if (otp_addr_o == digest_addr_lut[part_idx]) begin
           // Trigger digest round in case this is the second block in a row.
@@ -477,7 +477,7 @@ module otp_ctrl_dai
             if (scrmbl_ready_i) begin
               state_d = DigFinSt;
             end
-          // Otherwise, just load low word and go to padding state.
+            // Otherwise, just load low word and go to padding state.
           end else if (scrmbl_ready_i) begin
             state_d = DigPadSt;
           end
@@ -543,7 +543,7 @@ module otp_ctrl_dai
         state_d = ErrorSt;
       end
       ///////////////////////////////////////////////////////////////////
-    endcase // state_q
+    endcase  // state_q
 
     if (state_q != ErrorSt) begin
       // Unconditionally jump into the termninal error state in case of
@@ -578,18 +578,18 @@ module otp_ctrl_dai
   `ASSERT(PartSelMustBeOnehot_A, $onehot0(part_sel_oh))
 
   prim_arbiter_fixed #(
-    .N(NumPart),
-    .EnDataPort(0)
+      .N(NumPart),
+      .EnDataPort(0)
   ) i_prim_arbiter_fixed (
-    .clk_i,
-    .rst_ni,
-    .req_i   ( part_sel_oh    ),
-    .data_i  ( '{default: '0} ),
-    .gnt_o   (                ), // unused
-    .idx_o   ( part_idx       ),
-    .valid_o (                ), // unused
-    .data_o  (                ), // unused
-    .ready_i ( 1'b0           )
+      .clk_i,
+      .rst_ni,
+      .req_i  (part_sel_oh),
+      .data_i ('{default: '0}),
+      .gnt_o  (),  // unused
+      .idx_o  (part_idx),
+      .valid_o(),  // unused
+      .data_o (),  // unused
+      .ready_i(1'b0)
   );
 
   /////////////////////////////////////
@@ -610,13 +610,12 @@ module otp_ctrl_dai
 
   // Address counter - this is only used for computing a digest, hence the increment is
   // fixed to 8 byte.
-  assign cnt_d = (cnt_clr) ? '0           :
-                 (cnt_en)  ? cnt_q + 1'b1 : cnt_q;
+  assign cnt_d = (cnt_clr) ? '0 : (cnt_en) ? cnt_q + 1'b1 : cnt_q;
 
   // Note that OTP works on halfword (16bit) addresses, hence need to
   // shift the addresses appropriately.
   logic [OtpByteAddrWidth-1:0] addr_calc;
-  assign addr_calc = {cnt_q, {$clog2(ScrmblBlockWidth/8){1'b0}}} + addr_base;
+  assign addr_calc  = {cnt_q, {$clog2(ScrmblBlockWidth / 8) {1'b0}}} + addr_base;
   assign otp_addr_o = addr_calc >> OtpAddrShift;
 
   ///////////////
@@ -625,16 +624,16 @@ module otp_ctrl_dai
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
-      state_q        <= ResetSt;
-      error_q        <= NoErr;
-      cnt_q         <= '0;
-      data_q         <= '0;
-      base_sel_q     <= DaiOffset;
+      state_q    <= ResetSt;
+      error_q    <= NoErr;
+      cnt_q      <= '0;
+      data_q     <= '0;
+      base_sel_q <= DaiOffset;
     end else begin
-      state_q        <= state_d;
-      error_q        <= error_d;
-      cnt_q          <= cnt_d;
-      base_sel_q     <= base_sel_d;
+      state_q    <= state_d;
+      error_q    <= error_d;
+      cnt_q      <= cnt_d;
+      base_sel_q <= base_sel_d;
 
       // Working register
       if (data_clr) begin
@@ -656,21 +655,21 @@ module otp_ctrl_dai
   ////////////////
 
   // Known assertions
-  `ASSERT_KNOWN(InitDoneKnown_A,     init_done_o)
-  `ASSERT_KNOWN(PartInitReqKnown_A,  part_init_req_o)
-  `ASSERT_KNOWN(ErrorKnown_A,        error_o)
-  `ASSERT_KNOWN(DaiIdleKnown_A,      dai_idle_o)
-  `ASSERT_KNOWN(DaiRdataKnown_A,     dai_rdata_o)
-  `ASSERT_KNOWN(OtpReqKnown_A,       otp_req_o)
-  `ASSERT_KNOWN(OtpCmdKnown_A,       otp_cmd_o)
-  `ASSERT_KNOWN(OtpSizeKnown_A,      otp_size_o)
-  `ASSERT_KNOWN(OtpWdataKnown_A,     otp_wdata_o)
-  `ASSERT_KNOWN(OtpAddrKnown_A,      otp_addr_o)
+  `ASSERT_KNOWN(InitDoneKnown_A, init_done_o)
+  `ASSERT_KNOWN(PartInitReqKnown_A, part_init_req_o)
+  `ASSERT_KNOWN(ErrorKnown_A, error_o)
+  `ASSERT_KNOWN(DaiIdleKnown_A, dai_idle_o)
+  `ASSERT_KNOWN(DaiRdataKnown_A, dai_rdata_o)
+  `ASSERT_KNOWN(OtpReqKnown_A, otp_req_o)
+  `ASSERT_KNOWN(OtpCmdKnown_A, otp_cmd_o)
+  `ASSERT_KNOWN(OtpSizeKnown_A, otp_size_o)
+  `ASSERT_KNOWN(OtpWdataKnown_A, otp_wdata_o)
+  `ASSERT_KNOWN(OtpAddrKnown_A, otp_addr_o)
   `ASSERT_KNOWN(ScrmblMtxReqKnown_A, scrmbl_mtx_req_o)
-  `ASSERT_KNOWN(ScrmblCmdKnown_A,    scrmbl_cmd_o)
-  `ASSERT_KNOWN(ScrmblSelKnown_A,    scrmbl_sel_o)
-  `ASSERT_KNOWN(ScrmblDataKnown_A,   scrmbl_data_o)
-  `ASSERT_KNOWN(ScrmblValidKnown_A,  scrmbl_valid_o)
+  `ASSERT_KNOWN(ScrmblCmdKnown_A, scrmbl_cmd_o)
+  `ASSERT_KNOWN(ScrmblSelKnown_A, scrmbl_sel_o)
+  `ASSERT_KNOWN(ScrmblDataKnown_A, scrmbl_data_o)
+  `ASSERT_KNOWN(ScrmblValidKnown_A, scrmbl_valid_o)
 
   // OTP error response
   `ASSERT(OtpErrorState_A,

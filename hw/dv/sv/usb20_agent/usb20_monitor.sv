@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class usb20_monitor extends dv_base_monitor #(
-  .ITEM_T (usb20_item),
-  .CFG_T  (usb20_agent_cfg),
-  .COV_T  (usb20_agent_cov)
+class usb20_monitor extends dv_base_monitor#(
+    .ITEM_T(usb20_item),
+    .CFG_T (usb20_agent_cfg),
+    .COV_T (usb20_agent_cov)
 );
   `uvm_component_utils(usb20_monitor)
 

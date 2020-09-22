@@ -15,21 +15,13 @@ class rv_timer_cfg_cov_obj extends uvm_object;
                                                       bit [11:0] prescale,
                                                       uint64 mtime,
                                                       uint64 mtime_cmp);
-    cp_step: coverpoint step {
-      bins step_all_val[] = {[1:$]};
-    }
-    cp_prescale: coverpoint prescale {
-      option.auto_bin_max = 256;
-    }
-    cp_mtime: coverpoint mtime {
-      option.auto_bin_max = 50;
-    }
-    cp_mtime_cmp: coverpoint mtime_cmp {
-      option.auto_bin_max = 50;
-    }
+    cp_step: coverpoint step {bins step_all_val[] = {[1 : $]};}
+    cp_prescale: coverpoint prescale {option.auto_bin_max = 256;}
+    cp_mtime: coverpoint mtime {option.auto_bin_max = 50;}
+    cp_mtime_cmp: coverpoint mtime_cmp {option.auto_bin_max = 50;}
   endgroup : timer_cfg_cg
 
-  function new(string name="rv_timer_cfg_cov");
+  function new(string name = "rv_timer_cfg_cov");
     super.new(name);
     timer_cfg_cg = new(name);
   endfunction : new
@@ -47,13 +39,15 @@ class rv_timer_ctrl_reg_cov_obj extends uvm_object;
     }
   endgroup : timer_active_cg
 
-  function new(string name="rv_timer_ctrl_reg_cov");
+  function new(string name = "rv_timer_ctrl_reg_cov");
     super.new(name);
     timer_active_cg = new(name);
   endfunction : new
 endclass : rv_timer_ctrl_reg_cov_obj
 
-class rv_timer_env_cov extends cip_base_env_cov #(.CFG_T(rv_timer_env_cfg));
+class rv_timer_env_cov extends cip_base_env_cov#(
+    .CFG_T(rv_timer_env_cfg)
+);
   `uvm_component_utils(rv_timer_env_cov)
 
   rv_timer_cfg_cov_obj      cfg_values_cov_obj[NUM_HARTS*NUM_TIMERS];

@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class alert_handler_env extends cip_base_env #(
+class alert_handler_env extends cip_base_env#(
     .CFG_T              (alert_handler_env_cfg),
     .COV_T              (alert_handler_env_cov),
     .VIRTUAL_SEQUENCER_T(alert_handler_virtual_sequencer),
     .SCOREBOARD_T       (alert_handler_scoreboard)
-  );
+);
   `uvm_component_utils(alert_handler_env)
 
   `uvm_component_new

@@ -14,7 +14,7 @@ class i2c_error_intr_vseq extends i2c_sanity_vseq;
   bit do_reset = 1'b0;
 
   // increase num_trans to cover error interrupts
-  constraint num_trans_c { num_trans inside {[50 : 100]}; }
+  constraint num_trans_c {num_trans inside {[50 : 100]};}
 
   virtual task body();
     // allow agent/target creating interference and unstable signals so

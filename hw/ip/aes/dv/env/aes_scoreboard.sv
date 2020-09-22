@@ -5,35 +5,35 @@
 import aes_model_dpi_pkg::*;
 import aes_pkg::*;
 
-class aes_scoreboard extends cip_base_scoreboard #(
-  .CFG_T(aes_env_cfg),
-  .RAL_T(aes_reg_block),
-  .COV_T(aes_env_cov)
-  );
+class aes_scoreboard extends cip_base_scoreboard#(
+    .CFG_T(aes_env_cfg),
+    .RAL_T(aes_reg_block),
+    .COV_T(aes_env_cov)
+);
 
   `uvm_component_utils(aes_scoreboard)
 
   `uvm_component_new
 
   // local variables
-  aes_seq_item input_item;                    // item containing data and config
-  aes_seq_item output_item;                   // item containing resulting output
-  aes_seq_item complete_item;                 // merge of input and output items
+  aes_seq_item                input_item;  // item containing data and config
+  aes_seq_item                output_item;  // item containing resulting output
+  aes_seq_item                complete_item;  // merge of input and output items
 
-  bit          aes_from_rst   = 1;            // 1: nothing has happened since rst was released
-  bit          ok_to_fwd      = 0;            // 0: item is not ready to forward
-  bit          finish_message = 0;            // set when test is trying to end
-                                              // - to indicate the last message is finished
-  int          message_cnt    = 0;            // used to check that all messages were received
+  bit                         aes_from_rst   = 1;  // 1: nothing has happened since rst was released
+  bit                         ok_to_fwd      = 0;  // 0: item is not ready to forward
+  bit                         finish_message = 0;  // set when test is trying to end
+  // - to indicate the last message is finished
+  int                         message_cnt    = 0;  // used to check that all messages were received
 
   // local queues to hold incoming packets pending comparison //
 
   // Items containing both input and output data, ready to be added to a message
-  mailbox      #(aes_seq_item)      item_fifo;
+  mailbox #(aes_seq_item)     item_fifo;
   // completed message item ready for scoring
-  mailbox      #(aes_message_item)  msg_fifo;
-   // once an operation is started the item is put here to wait for the resuting output
-  aes_seq_item                      rcv_item_q[$];
+  mailbox #(aes_message_item) msg_fifo;
+  // once an operation is started the item is put here to wait for the resuting output
+  aes_seq_item                rcv_item_q[$];
 
 
   function void build_phase(uvm_phase phase);
@@ -53,7 +53,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
   task run_phase(uvm_phase phase);
     super.run_phase(phase);
     `uvm_info(`gfn, $sformatf("%s", cfg.convert2string()), UVM_MEDIUM)
-    if(cfg.en_scb) begin
+    if (cfg.en_scb) begin
       fork
         compare();
         rebuild_message();
@@ -68,8 +68,8 @@ class aes_scoreboard extends cip_base_scoreboard #(
     aes_seq_item   input_clone;
     aes_seq_item   complete_clone;
     bit            do_read_check = 1'b0;
-    bit            write         = item.is_write();
-    uvm_reg_addr_t csr_addr      = get_normalized_addr(item.a_addr);
+    bit            write = item.is_write();
+    uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
     if (csr_addr inside {cfg.csr_addrs}) begin
@@ -88,114 +88,126 @@ class aes_scoreboard extends cip_base_scoreboard #(
       csr_name = csr.get_name();
       case (1)
         // add individual case item for each csr
-        (!uvm_re_match("ctrl_shadowed", csr_name)): begin
+        (!uvm_re_match(
+            "ctrl_shadowed", csr_name
+        )): begin
           input_item.manual_op = item.a_data[10];
           input_item.key_len   = item.a_data[9:7];
           `downcast(input_item.operation, item.a_data[0]);
           input_item.valid = 1'b1;
           case (item.a_data[6:1])
-            6'b00_0001:  input_item.mode = AES_ECB;
-            6'b00_0010:  input_item.mode = AES_CBC;
-            6'b00_0100:  input_item.mode = AES_CFB;
-            6'b00_1000:  input_item.mode = AES_OFB;
-            6'b01_0000:  input_item.mode = AES_CTR;
-            6'b10_0000:  input_item.mode = AES_NONE;
-            default:     input_item.mode = AES_ECB;
-          endcase // case item.a_data[4:1]
+            6'b00_0001: input_item.mode = AES_ECB;
+            6'b00_0010: input_item.mode = AES_CBC;
+            6'b00_0100: input_item.mode = AES_CFB;
+            6'b00_1000: input_item.mode = AES_OFB;
+            6'b01_0000: input_item.mode = AES_CTR;
+            6'b10_0000: input_item.mode = AES_NONE;
+            default:    input_item.mode = AES_ECB;
+          endcase  // case item.a_data[4:1]
         end
 
-        (!uvm_re_match("key_share0*", csr_name)): begin
+        (!uvm_re_match(
+            "key_share0*", csr_name
+        )): begin
           for (int i = 0; i < 8; i++) begin
             string keyname = $sformatf("key_share0_%0d", i);
             if (keyname == csr_name) begin
-               input_item.key[0][i]     = item.a_data;
-               input_item.key_vld[0][i] = 1'b1;
+              input_item.key[0][i]     = item.a_data;
+              input_item.key_vld[0][i] = 1'b1;
             end
           end
         end
 
-        (!uvm_re_match("key_share1*", csr_name)): begin
+        (!uvm_re_match(
+            "key_share1*", csr_name
+        )): begin
           for (int i = 0; i < 8; i++) begin
             string keyname = $sformatf("key_share1_%0d", i);
             if (keyname == csr_name) begin
-               input_item.key[1][i]     = item.a_data;
-               input_item.key_vld[1][i] = 1'b1;
+              input_item.key[1][i]     = item.a_data;
+              input_item.key_vld[1][i] = 1'b1;
             end
           end
         end
 
-        (!uvm_re_match("data_in_*", csr_name)): begin
+        (!uvm_re_match(
+            "data_in_*", csr_name
+        )): begin
           for (int i = 0; i < 4; i++) begin
             string keyname = $sformatf("data_in_%0d", i);
             if (keyname == csr_name) begin
-              input_item.data_in[i]      = item.a_data;
-              input_item.data_in_vld[i]  = 1'b1;
+              input_item.data_in[i]     = item.a_data;
+              input_item.data_in_vld[i] = 1'b1;
             end
           end
         end
 
-       (!uvm_re_match("iv_*", csr_name)): begin
+        (!uvm_re_match(
+            "iv_*", csr_name
+        )): begin
           for (int i = 0; i < 4; i++) begin
             string keyname = $sformatf("iv_%0d", i);
             if (keyname == csr_name) begin
-              input_item.iv[i]      = item.a_data;
-              input_item.iv_vld[i]  = 1'b1;
+              input_item.iv[i]     = item.a_data;
+              input_item.iv_vld[i] = 1'b1;
             end
           end
-       end
+        end
 
-      (!uvm_re_match("trigger", csr_name)): begin
-        //start triggered
-        if (item.a_data[0]) begin
-           ok_to_fwd    = 1;
-           aes_from_rst = 0;
-        end
-        // clear key
-        if (item.a_data[1]) begin
-          if(cfg.clear_reg_w_rand) begin
-            input_item.key = '{default: {8{$urandom()}}};
-          end else begin
-            input_item.key = '{default: '0};
+        (!uvm_re_match(
+            "trigger", csr_name
+        )): begin
+          //start triggered
+          if (item.a_data[0]) begin
+            ok_to_fwd    = 1;
+            aes_from_rst = 0;
+          end
+          // clear key
+          if (item.a_data[1]) begin
+            if (cfg.clear_reg_w_rand) begin
+              input_item.key = '{default: {8{$urandom()}}};
+            end else begin
+              input_item.key = '{default: '0};
+            end
+          end
+          // clear IV
+          if (item.a_data[2]) begin
+            if (cfg.clear_reg_w_rand) begin
+              input_item.iv = {4{$urandom()}};
+            end else begin
+              input_item.iv = '0;
+            end
+          end
+          // clear data_in
+          if (item.a_data[3]) begin
+            if (cfg.clear_reg_w_rand) begin
+              input_item.data_in = {4{$urandom()}};
+            end else begin
+              input_item.data_in = '0;
+            end
+          end
+          // clear data out
+          if (item.a_data[4]) begin
+            if (cfg.clear_reg_w_rand) begin
+              input_item.data_out = {4{$urandom()}};
+            end else begin
+              input_item.data_out = '0;
+            end
+          end
+          // reseed
+          if (item.a_data[5]) begin
+            // nothing to do for DV
           end
         end
-        // clear IV
-        if (item.a_data[2]) begin
-          if(cfg.clear_reg_w_rand) begin
-            input_item.iv = {4{$urandom()}};
-          end else begin
-            input_item.iv = '0;
-          end
-        end
-        // clear data_in
-        if (item.a_data[3]) begin
-          if(cfg.clear_reg_w_rand) begin
-            input_item.data_in = {4{$urandom()}};
-          end else begin
-            input_item.data_in = '0;
-          end
-        end
-        // clear data out
-        if (item.a_data[4]) begin
-          if(cfg.clear_reg_w_rand) begin
-            input_item.data_out = {4{$urandom()}};
-          end else begin
-            input_item.data_out = '0;
-          end
-        end
-        // reseed
-         if (item.a_data[5]) begin
-           // nothing to do for DV
-        end
-       end
 
-      // "status": begin
-      //   //TBD
-      // end
+        // "status": begin
+        //   //TBD
+        // end
 
-       default: begin
+        default: begin
          // DO nothing- trying to write to a read only register
        end
-     endcase
+      endcase
 
 
       ///////////////////////////////////////
@@ -203,13 +215,13 @@ class aes_scoreboard extends cip_base_scoreboard #(
       ///////////////////////////////////////
 
       // check that the item is valid - all registers clean base on mode //
-      if(input_item.valid && !input_item.manual_op) begin
+      if (input_item.valid && !input_item.manual_op) begin
         case (input_item.mode)
           AES_ECB: begin
             `uvm_info(`gfn, $sformatf("\n\t ----| ECB mode"), UVM_MEDIUM)
-            if(aes_from_rst) begin
+            if (aes_from_rst) begin
               // verify that all 4 data_in and all 8 key have been updated
-              if(input_item.data_in_valid() && input_item.key_clean(0)) begin
+              if (input_item.data_in_valid() && input_item.key_clean(0)) begin
                 //clone and add to ref and rec data fifo
                 ok_to_fwd    = 1;
                 aes_from_rst = 0;
@@ -219,7 +231,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
               `uvm_info(`gfn, $sformatf("\n\t ----|data_inv_vld?  %b, key clean ? %b",
                         input_item.data_in_valid(), input_item.key_clean(1) ), UVM_MEDIUM)
 
-              if(input_item.data_in_valid() && input_item.key_clean(1)) begin
+              if (input_item.data_in_valid() && input_item.key_clean(1)) begin
                 //clone and add to ref and rec data fifo
                 ok_to_fwd = 1;
               end
@@ -228,7 +240,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
 
           AES_CBC: begin
             `uvm_info(`gfn, $sformatf("\n\t ----| CBC mode"), UVM_MEDIUM)
-            if(aes_from_rst) begin
+            if (aes_from_rst) begin
               // verify that all 4 data_in and all 8 key and all 4 IV have been updated
               if(input_item.data_in_valid() && input_item.key_clean(0) && input_item.iv_clean(0)) begin
                 //clone and add to ref and rec data fifo
@@ -248,7 +260,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
           end
 
           AES_CFB: begin
-            if(aes_from_rst) begin
+            if (aes_from_rst) begin
               // verify that all 4 data_in and all 8 key and all 4 IV have been updated
               if(input_item.data_in_valid() && input_item.key_clean(0) && input_item.iv_clean(0)) begin
                 //clone and add to ref and rec data fifo
@@ -268,7 +280,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
           end
 
           AES_OFB: begin
-            if(aes_from_rst) begin
+            if (aes_from_rst) begin
               // verify that all 4 data_in and all 8 key and all 4 IV have been updated
               if(input_item.data_in_valid() && input_item.key_clean(0) && input_item.iv_clean(0)) begin
                 //clone and add to ref and rec data fifo
@@ -289,7 +301,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
 
           AES_CTR: begin
             `uvm_info(`gfn, $sformatf("\n\t ----| CTR mode"), UVM_MEDIUM)
-            if(aes_from_rst) begin
+            if (aes_from_rst) begin
               // verify that all 4 data_in and all 8 key and all 4 IV have been updated
               if(input_item.data_in_valid() && input_item.key_clean(0) && input_item.iv_clean(0)) begin
                 //clone and add to ref and rec data fifo
@@ -308,11 +320,11 @@ class aes_scoreboard extends cip_base_scoreboard #(
           default: begin
             `uvm_fatal(`gfn, $sformatf("\n\t ----| I AM IN DEFAULT CASE I SHOULD NOT BE HERE"))
           end
-        endcase // case (input_item.mode)
-      end // if (input_item.valid)
+        endcase  // case (input_item.mode)
+      end  // if (input_item.valid)
 
       // forward item to receive side
-      if(ok_to_fwd ) begin
+      if (ok_to_fwd) begin
         ok_to_fwd = 0;
         `downcast(input_clone, input_item.clone());
         `uvm_info(`gfn, $sformatf("\n\t AES INPUT ITEM RECEIVED - \n %s", input_clone.convert2string()), UVM_MEDIUM)
@@ -353,34 +365,37 @@ class aes_scoreboard extends cip_base_scoreboard #(
           output_item.data_out[3]     = item.d_data;
           output_item.data_out_vld[3] = 1;
         end
-      endcase // case (csr.get_name())
+      endcase  // case (csr.get_name())
 
       if (output_item.data_out_valid()) begin
-        if( rcv_item_q.size() == 0) begin
+        if (rcv_item_q.size() == 0) begin
           `uvm_fatal(`gfn, $sformatf("\n\t ----| TRIED TO READ EMPTY RECEIVE QUEUE |----"))
         end
 
-        complete_item              = rcv_item_q.pop_back();
-        complete_item.data_out     = output_item.data_out;
+        complete_item          = rcv_item_q.pop_back();
+        complete_item.data_out = output_item.data_out;
 
         `downcast(complete_clone, complete_item.clone());
         item_fifo.put(complete_clone);
 
-        output_item                = new();
-        complete_item              = new();
+        output_item   = new();
+        complete_item = new();
         `uvm_info(`gfn,
           $sformatf("\n\t ----|added data to item_fifo (output received) fifo entries %d",
                    item_fifo.num()), UVM_MEDIUM)
       end
     end
-  endtask // process_tl_access
+  endtask  // process_tl_access
 
 
   // takes items from the item queue and builds full aes_messages with both input data and output data.
   task rebuild_message();
-    typedef enum { MSG_START,MSG_RUN } aes_message_stat_t;
+    typedef enum {
+      MSG_START,
+      MSG_RUN
+    } aes_message_stat_t;
 
-    aes_message_item   message, msg_clone;
+    aes_message_item message, msg_clone;
     aes_seq_item       full_item;
     aes_message_stat_t msg_state;
 
@@ -389,12 +404,12 @@ class aes_scoreboard extends cip_base_scoreboard #(
     fork
       begin
         forever begin
-          case(msg_state)
+          case (msg_state)
             MSG_START: begin
               full_item = new();
               item_fifo.get(full_item);
               `uvm_info(`gfn, $sformatf("\n\t ----| got item from item fifo"), UVM_FULL)
-              if(!full_item.message_start()) begin
+              if (!full_item.message_start()) begin
                 `uvm_fatal(`gfn,
                  $sformatf("\n\t ----| FIRST ITEM DID NOT HAVE MESSAGE START/CONFIG SETTINGS"))
               end
@@ -406,7 +421,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
               full_item = new();
               item_fifo.get(full_item);
               `uvm_info(`gfn, $sformatf("\n\t ----| got item from item fifo"), UVM_FULL)
-              if(full_item.message_start() ) begin
+              if (full_item.message_start()) begin
                 `uvm_info(`gfn, $sformatf("\n\t ----| adding message item to mg_fifo"), UVM_FULL)
                 `downcast(msg_clone, message.clone());
                 msg_fifo.put(msg_clone);
@@ -416,7 +431,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
                 message.add_data_item(full_item);
               end
             end
-          endcase // case (msg_state)
+          endcase  // case (msg_state)
         end
       end
 
@@ -429,11 +444,11 @@ class aes_scoreboard extends cip_base_scoreboard #(
         msg_fifo.put(msg_clone);
       end
     join_any
-  endtask // rebuild_message
+  endtask  // rebuild_message
 
 
   virtual task compare();
-    string txt="";
+    string txt = "";
     bit [3:0][31:0] tmp_input;
     bit [3:0][31:0] tmp_output;
 
@@ -452,8 +467,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
                               msg.aes_keylen, msg.aes_key[0] ^ msg.aes_key[1],
                               msg.input_msg, msg.predicted_msg);
 
-      `uvm_info(`gfn, $sformatf("\n\t ----| printing MESSAGE %s", msg.convert2string() )
-                , UVM_MEDIUM)
+      `uvm_info(`gfn, $sformatf("\n\t ----| printing MESSAGE %s", msg.convert2string()), UVM_MEDIUM)
       txt = "";
       foreach(msg.input_msg[i]) begin
         txt = { txt, $sformatf("\n\t  %h \t %h \t %h",
@@ -461,14 +475,14 @@ class aes_scoreboard extends cip_base_scoreboard #(
       end
 
 
-      for( int n =0 ; n < msg.input_msg.size(); n++) begin
-        if( msg.output_msg[n] != msg.predicted_msg[n]) begin
+      for (int n = 0; n < msg.input_msg.size(); n++) begin
+        if (msg.output_msg[n] != msg.predicted_msg[n]) begin
           txt = "\t TEST FAILED MESSAGES DID NOT MATCH";
 
-          txt = {txt,  $sformatf("\n\t ----| ACTUAL OUTPUT DID NOT MATCH PREDICTED OUTPUT |----")};
+          txt = {txt, $sformatf("\n\t ----| ACTUAL OUTPUT DID NOT MATCH PREDICTED OUTPUT |----")};
           txt = {txt, $sformatf("\n\t ----| FAILED AT BLOCK #%d \t ACTUAL: %h \t PREDICTED: %h, ",
                                 n, msg.output_msg[n], msg.predicted_msg[n] )};
-          `uvm_fatal(`gfn, $sformatf(" # %d  \n\t %s \n",message_cnt, txt))
+          `uvm_fatal(`gfn, $sformatf(" # %d  \n\t %s \n", message_cnt, txt))
         end
       end
       `uvm_info(`gfn, $sformatf("\n\t ----|   MESSAGE #%0d MATCHED    |-----",message_cnt), UVM_MEDIUM)
@@ -487,19 +501,20 @@ class aes_scoreboard extends cip_base_scoreboard #(
     // AEs needs this objection - because PHASE READY TO END
     // is the only way to know that the very last message is now complete
     phase.raise_objection(this, "need time to finish last item");
-    fork begin
-      wait_fifo_empty();
-      phase.drop_objection(this);
-    end
+    fork
+      begin
+        wait_fifo_empty();
+        phase.drop_objection(this);
+      end
     join_none
   endfunction
 
 
   virtual task wait_fifo_empty();
     `uvm_info(`gfn, $sformatf("item fifo entries %d", item_fifo.num()), UVM_MEDIUM)
-    wait (rcv_item_q.size() == 0 );
-    wait (item_fifo.num()   == 0 );
-    wait (msg_fifo.num()    == 0 );
+    wait(rcv_item_q.size() == 0);
+    wait(item_fifo.num() == 0);
+    wait(msg_fifo.num() == 0);
   endtask
 
 
@@ -510,7 +525,7 @@ class aes_scoreboard extends cip_base_scoreboard #(
 
 
   function void check_phase(uvm_phase phase);
-    string txt =  "";
+    string txt = "";
     uvm_report_server rpt_srvr;
 
     if (cfg.en_scb) begin
@@ -518,15 +533,15 @@ class aes_scoreboard extends cip_base_scoreboard #(
       `DV_EOT_PRINT_MAILBOX_CONTENTS(aes_message_item, msg_fifo)
       `DV_EOT_PRINT_MAILBOX_CONTENTS(aes_seq_item, item_fifo)
       `DV_EOT_PRINT_Q_CONTENTS(aes_seq_item, rcv_item_q)
-      if(message_cnt != cfg.num_messages) begin
+      if (message_cnt != cfg.num_messages) begin
         rpt_srvr = uvm_report_server::get_server();
         if(rpt_srvr.get_severity_count(UVM_FATAL)+rpt_srvr.get_severity_count(UVM_ERROR) == 0) begin
           txt = "\n\t ----| NO FAILURES BUT DIDN*T SEE ALL EXPECTED MESSAGES";
         end else begin
           txt = "\n\t ----| TEST FAILED";
-          end
-        txt = { txt, $sformatf(" \n\t ----| expected %d, seen: %d", cfg.num_messages, message_cnt ) };
-        `uvm_fatal(`gfn, $sformatf("%s", txt) )
+        end
+        txt = {txt, $sformatf(" \n\t ----| expected %d, seen: %d", cfg.num_messages, message_cnt)};
+        `uvm_fatal(`gfn, $sformatf("%s", txt))
       end
     end
 
@@ -535,24 +550,24 @@ class aes_scoreboard extends cip_base_scoreboard #(
 
   function void report_phase(uvm_phase phase);
     uvm_report_server rpt_srvr;
-    string txt="";
+    string txt = "";
 
     super.report_phase(phase);
     txt = $sformatf("\n\t ----|        TEST FINISHED        |----");
     txt = {   txt, $sformatf("\n\t SAW %d Good messages ", message_cnt)};
     txt = {   txt, $sformatf("\n\t Expected %d messages ", cfg.num_messages)};
     rpt_srvr = uvm_report_server::get_server();
-    if(rpt_srvr.get_severity_count(UVM_FATAL)+rpt_srvr.get_severity_count(UVM_ERROR)>0) begin
+    if (rpt_srvr.get_severity_count(UVM_FATAL) + rpt_srvr.get_severity_count(UVM_ERROR) > 0) begin
       `uvm_info(`gfn, $sformatf("%s", cfg.convert2string()), UVM_LOW)
-      txt = { txt,"\n\t---------------------------------------"};
-      txt = { txt,"\n\t----            TEST FAILED        ----"};
-      txt = { txt,"\n\t---------------------------------------"};
+      txt = {txt, "\n\t---------------------------------------"};
+      txt = {txt, "\n\t----            TEST FAILED        ----"};
+      txt = {txt, "\n\t---------------------------------------"};
     end else begin
       txt = {txt, "\n\t---------------------------------------"};
-      txt = { txt,"\n\t----            TEST PASSED        ----"};
-      txt = { txt,"\n\t---------------------------------------"};
+      txt = {txt, "\n\t----            TEST PASSED        ----"};
+      txt = {txt, "\n\t---------------------------------------"};
     end
     `uvm_info(`gfn, $sformatf("%s", txt), UVM_MEDIUM)
 
-  endfunction // report_phase
+  endfunction  // report_phase
 endclass

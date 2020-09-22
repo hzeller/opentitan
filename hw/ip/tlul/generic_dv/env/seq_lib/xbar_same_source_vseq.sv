@@ -24,7 +24,7 @@ class xbar_same_source_vseq extends xbar_random_vseq;
 
     // change host to only access the picked device
     foreach (host_seq[i]) begin
-      host_seq[i].override_a_source_val = 1;
+      host_seq[i].override_a_source_val   = 1;
       host_seq[i].overridden_a_source_val = source;
     end
   endfunction

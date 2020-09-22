@@ -2,20 +2,22 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class scoreboard_queue#(type SEQ_ITEM = uvm_object) extends uvm_object;
+class scoreboard_queue #(
+  type SEQ_ITEM = uvm_object
+) extends uvm_object;
 
-  SEQ_ITEM           expected_items[$];
-  SEQ_ITEM           actual_items[$];
-  bit [63:0]         expected_items_timestamp[$];
-  bit [63:0]         actual_items_timestamp[$];
-  checking_policy_e  policy;
-  semaphore          token;
+  SEQ_ITEM          expected_items[$];
+  SEQ_ITEM          actual_items[$];
+  bit [63:0]        expected_items_timestamp[$];
+  bit [63:0]        actual_items_timestamp[$];
+  checking_policy_e policy;
+  semaphore         token;
   // Maximum pending items in the queue, 0 means unlimited.
-  int unsigned       max_pending_items;
-  uvm_comparer       out_of_order_comparator;
+  int unsigned      max_pending_items;
+  uvm_comparer      out_of_order_comparator;
   // Statistic counter
-  int unsigned       num_of_check_pass;
-  int unsigned       num_of_check_fail;
+  int unsigned      num_of_check_pass;
+  int unsigned      num_of_check_fail;
 
   `uvm_object_param_utils(scoreboard_queue#(SEQ_ITEM))
 
@@ -64,7 +66,7 @@ class scoreboard_queue#(type SEQ_ITEM = uvm_object) extends uvm_object;
         expected_items.size(),  actual_items.size()))
       return 1'b0;
     end
-    case(policy)
+    case (policy)
       // In order check : compare the first item in the expected and actual item queue
       kInOrderCheck: begin
         bit check_pass;
@@ -72,14 +74,14 @@ class scoreboard_queue#(type SEQ_ITEM = uvm_object) extends uvm_object;
           `uvm_info(get_full_name(), $sformatf(
                     "IN ORDER CHECK PASS:\n Expected item:\n%0s Actual item:\n%0s",
                     expected_items[0].sprint(), actual_items[0].sprint()), UVM_HIGH)
-           num_of_check_pass++;
-           check_pass = 1'b1;
+          num_of_check_pass++;
+          check_pass = 1'b1;
         end else begin
           `uvm_error(get_full_name(), $sformatf(
                      "IN ORDER CHECK FAIL:\n Expected item:\n%0s Actual item:\n%0s",
                      expected_items[0].sprint(), actual_items[0].sprint()))
-           num_of_check_fail++;
-           check_pass = 1'b0;
+          num_of_check_fail++;
+          check_pass = 1'b0;
         end
         void'(actual_items.pop_front());
         void'(actual_items_timestamp.pop_front());
@@ -90,7 +92,7 @@ class scoreboard_queue#(type SEQ_ITEM = uvm_object) extends uvm_object;
       // Out of order check: search through the expected item queue to find an item that matches
       // the first actual item
       kOutOfOrderCheck: begin
-        foreach(expected_items[i]) begin
+        foreach (expected_items[i]) begin
           if (actual_items[0].compare(expected_items[i], out_of_order_comparator)) begin
             `uvm_info(get_full_name(),
                 $sformatf("OUT OF ORDER CHECK PASS:\n Expected item[%0d]:\n%0s Actual item:\n%0s",
@@ -136,9 +138,9 @@ class scoreboard_queue#(type SEQ_ITEM = uvm_object) extends uvm_object;
 
   // check all the queues are empty at the end of simulation
   virtual function void final_queue_size_check(string queue_name);
-    `DV_CHECK_EQ(expected_items.size(),           0, {queue_name, "::expected_items"})
-    `DV_CHECK_EQ(actual_items.size(),             0, {queue_name, "::actual_items"})
+    `DV_CHECK_EQ(expected_items.size(), 0, {queue_name, "::expected_items"})
+    `DV_CHECK_EQ(actual_items.size(), 0, {queue_name, "::actual_items"})
     `DV_CHECK_EQ(expected_items_timestamp.size(), 0, {queue_name, "::expected_items_timestamp"})
-    `DV_CHECK_EQ(actual_items_timestamp.size(),   0, {queue_name, "::actual_items_timestamp"})
+    `DV_CHECK_EQ(actual_items_timestamp.size(), 0, {queue_name, "::actual_items_timestamp"})
   endfunction
 endclass

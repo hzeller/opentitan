@@ -22,11 +22,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 module aes_sbox_canright_masked (
-  input  aes_pkg::ciph_op_e op_i,
-  input  logic [7:0]        data_i,     // masked, the actual input data is data_i ^ in_mask_i
-  input  logic [7:0]        in_mask_i,  // input mask, independent from actual input data
-  input  logic [7:0]        out_mask_i, // output mask, independent from input mask
-  output logic [7:0]        data_o      // masked, the actual output data is data_o ^ out_mask_i
+  input aes_pkg::ciph_op_e op_i,
+  input logic [7:0] data_i,  // masked, the actual input data is data_i ^ in_mask_i
+  input logic [7:0] in_mask_i,  // input mask, independent from actual input data
+  input logic [7:0] out_mask_i,  // output mask, independent from input mask
+  output logic [7:0] data_o  // masked, the actual output data is data_o ^ out_mask_i
 );
 
   import aes_pkg::*;
@@ -45,10 +45,10 @@ module aes_sbox_canright_masked (
     logic [3:0] b_inv;
     logic [1:0] b1, b0, q1, q0, c, c_inv, c2_inv, r_sq, m11, m10, b1_inv, b0_inv;
     logic [1:0] mul_b0_q1, mul_b1_q0, mul_q0_q1;
-    b1  = b[3:2];
-    b0  = b[1:0];
-    q1  = q[3:2];
-    q0  = q[1:0];
+    b1 = b[3:2];
+    b0 = b[1:0];
+    q1 = q[3:2];
+    q0 = q[1:0];
     m11 = m1[3:2];
     m10 = m1[1:0];
 
@@ -67,21 +67,19 @@ module aes_sbox_canright_masked (
 
     // Formulas 14 and 15
     c_inv = aes_square_gf2p2(c);
-    r_sq  = aes_square_gf2p2(r);
+    r_sq = aes_square_gf2p2(r);
 
     // Re-masking c_inv
     // Formulas 21 and 23
     // IMPORTANT: First combine the masks (ops in parens) then apply to c_inv:
-    c_inv  = c_inv ^ (q1 ^ r_sq);
+    c_inv = c_inv ^ (q1 ^ r_sq);
     c2_inv = c_inv ^ (q0 ^ q1);
     //
 
     // Formulas 22 and 24
     // IMPORTANT: The following ops must be executed in order (left to right):
-    b1_inv = m11 ^ aes_mul_gf2p2(b0, c_inv)
-                 ^ mul_b0_q1 ^ aes_mul_gf2p2(q0, c_inv)  ^ mul_q0_q1;
-    b0_inv = m10 ^ aes_mul_gf2p2(b1, c2_inv)
-                 ^ mul_b1_q0 ^ aes_mul_gf2p2(q1, c2_inv) ^ mul_q0_q1;
+    b1_inv = m11 ^ aes_mul_gf2p2(b0, c_inv) ^ mul_b0_q1 ^ aes_mul_gf2p2(q0, c_inv) ^ mul_q0_q1;
+    b0_inv = m10 ^ aes_mul_gf2p2(b1, c2_inv) ^ mul_b1_q0 ^ aes_mul_gf2p2(q1, c2_inv) ^ mul_q0_q1;
     //
 
     // Note: b_inv is masked by m1, b was masked by q.
@@ -137,10 +135,8 @@ module aes_sbox_canright_masked (
 
     // Formulas 25 and 27
     // IMPORTANT: The following ops must be executed in order (left to right):
-    a1_inv = s1 ^ aes_mul_gf2p4(a0, b_inv)
-                ^ mul_a0_m1 ^ aes_mul_gf2p4(m0, b_inv)  ^ mul_m0_m1;
-    a0_inv = s0 ^ aes_mul_gf2p4(a1, b2_inv)
-                ^ mul_a1_m0 ^ aes_mul_gf2p4(m1, b2_inv) ^ mul_m0_m1;
+    a1_inv = s1 ^ aes_mul_gf2p4(a0, b_inv) ^ mul_a0_m1 ^ aes_mul_gf2p4(m0, b_inv) ^ mul_m0_m1;
+    a0_inv = s0 ^ aes_mul_gf2p4(a1, b2_inv) ^ mul_a1_m0 ^ aes_mul_gf2p4(m1, b2_inv) ^ mul_m0_m1;
     //
 
     // Note: a_inv is now masked by s = n, a was masked by m.
@@ -158,13 +154,11 @@ module aes_sbox_canright_masked (
   logic [7:0] out_mask_basis_x;
 
   // Convert data to normal basis X.
-  assign data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) :
-                                             aes_mvm(data_i ^ 8'h63, S2X);
+  assign data_basis_x = (op_i == CIPH_FWD) ? aes_mvm(data_i, A2X) : aes_mvm(data_i ^ 8'h63, S2X);
 
   // Convert masks to normal basis X.
   // The addition of constant 8'h63 following the affine transformation is skipped.
-  assign in_mask_basis_x  = (op_i == CIPH_FWD) ? aes_mvm(in_mask_i, A2X) :
-                                                 aes_mvm(in_mask_i, S2X);
+  assign in_mask_basis_x = (op_i == CIPH_FWD) ? aes_mvm(in_mask_i, A2X) : aes_mvm(in_mask_i, S2X);
 
   // The output mask is converted in the opposite direction.
   assign out_mask_basis_x = (op_i == CIPH_INV) ? aes_mvm(out_mask_i, A2X) :

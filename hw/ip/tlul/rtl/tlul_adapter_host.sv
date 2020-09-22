@@ -29,17 +29,17 @@ module tlul_adapter_host #(
 
   input                              req_i,
   output logic                       gnt_o,
-  input  logic [top_pkg::TL_AW-1:0]  addr_i,
+  input  logic [ top_pkg::TL_AW-1:0] addr_i,
   input  logic                       we_i,
-  input  logic [top_pkg::TL_DW-1:0]  wdata_i,
+  input  logic [ top_pkg::TL_DW-1:0] wdata_i,
   input  logic [top_pkg::TL_DBW-1:0] be_i,
 
-  output logic                       valid_o,
-  output logic [top_pkg::TL_DW-1:0]  rdata_o,
-  output logic                       err_o,
+  output logic                      valid_o,
+  output logic [top_pkg::TL_DW-1:0] rdata_o,
+  output logic                      err_o,
 
-  output tlul_pkg::tl_h2d_t          tl_o,
-  input  tlul_pkg::tl_d2h_t          tl_i
+  output tlul_pkg::tl_h2d_t tl_o,
+  input  tlul_pkg::tl_d2h_t tl_i
 );
   localparam int WordSize = $clog2(top_pkg::TL_DBW);
 
@@ -49,7 +49,7 @@ module tlul_adapter_host #(
   if (MAX_REQS == 1) begin : g_single_req
     assign tl_source = '0;
   end else begin : g_multiple_reqs
-    localparam int ReqNumW  = $clog2(MAX_REQS);
+    localparam int ReqNumW = $clog2(MAX_REQS);
 
     logic [ReqNumW-1:0] source_d;
     logic [ReqNumW-1:0] source_q;
@@ -68,7 +68,7 @@ module tlul_adapter_host #(
       if (req_i && gnt_o) begin
         if (source_q == MAX_REQS - 1) begin
           source_d = '0;
-        end else  begin
+        end else begin
           source_d = source_q + 1;
         end
       end
@@ -97,11 +97,11 @@ module tlul_adapter_host #(
     d_ready:   1'b1
   };
 
-  assign gnt_o   = tl_i.a_ready;
+  assign gnt_o = tl_i.a_ready;
 
   assign valid_o = tl_i.d_valid;
   assign rdata_o = tl_i.d_data;
-  assign err_o   = tl_i.d_error;
+  assign err_o = tl_i.d_error;
 
 `ifdef INC_ASSERT
   localparam int OutstandingReqCntW =

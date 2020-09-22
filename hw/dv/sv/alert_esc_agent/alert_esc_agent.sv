@@ -6,12 +6,12 @@
 // Alert agent
 // ---------------------------------------------
 class alert_esc_agent extends dv_base_agent#(
-    .CFG_T           (alert_esc_agent_cfg),
-    .DRIVER_T        (alert_esc_base_driver),
-    .SEQUENCER_T     (alert_esc_sequencer),
-    .MONITOR_T       (alert_esc_base_monitor),
-    .COV_T           (alert_esc_agent_cov)
-  );
+    .CFG_T      (alert_esc_agent_cfg),
+    .DRIVER_T   (alert_esc_base_driver),
+    .SEQUENCER_T(alert_esc_sequencer),
+    .MONITOR_T  (alert_esc_base_monitor),
+    .COV_T      (alert_esc_agent_cov)
+);
 
   `uvm_component_utils(alert_esc_agent)
 

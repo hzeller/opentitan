@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class usbdev_env extends cip_base_env #(
-  .CFG_T              (usbdev_env_cfg),
-  .COV_T              (usbdev_env_cov),
-  .VIRTUAL_SEQUENCER_T(usbdev_virtual_sequencer),
-  .SCOREBOARD_T       (usbdev_scoreboard)
+class usbdev_env extends cip_base_env#(
+    .CFG_T              (usbdev_env_cfg),
+    .COV_T              (usbdev_env_cov),
+    .VIRTUAL_SEQUENCER_T(usbdev_virtual_sequencer),
+    .SCOREBOARD_T       (usbdev_scoreboard)
 );
   `uvm_component_utils(usbdev_env)
 

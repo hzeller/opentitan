@@ -7,55 +7,55 @@
 // Only when EnMasking is enabled, rand_i and sel_i are used
 `include "prim_assert.sv"
 module keccak_2share #(
-  parameter int Width = 1600, // b= {25, 50, 100, 200, 400, 800, 1600}
+  parameter int Width = 1600,  // b= {25, 50, 100, 200, 400, 800, 1600}
 
   // Derived
-  localparam int W        = Width/25,
-  localparam int L        = $clog2(W),
-  localparam int MaxRound = 12 + 2*L,           // Keccak-f only
-  localparam int RndW     = $clog2(MaxRound+1), // Representing up to MaxRound
+  localparam int W        = Width / 25,
+  localparam int L        = $clog2 (W),
+  localparam int MaxRound = 12 + 2 * L,  // Keccak-f only
+  localparam int RndW     = $clog2 (MaxRound + 1),  // Representing up to MaxRound
 
   // Control parameters
-  parameter  int EnMasking = 0,                // Enable secure hardening
+  parameter  int EnMasking = 0,  // Enable secure hardening
   localparam int Share     = EnMasking ? 2 : 1
 ) (
   input clk_i,
   input rst_ni,
 
-  input        [RndW-1:0]  rnd_i,   // Current Round
-  input                    rand_valid_i,
-  input        [Width-1:0] rand_i,  // Random values. Used when 2Share enabled
-  input                    sel_i,   // Select input/output mux. Used when EnMasking := 1
-  input        [Width-1:0] s_i      [Share],
-  output logic [Width-1:0] s_o      [Share]
+  input [RndW-1:0] rnd_i,  // Current Round
+  input rand_valid_i,
+  input [Width-1:0] rand_i,  // Random values. Used when 2Share enabled
+  input sel_i,  // Select input/output mux. Used when EnMasking := 1
+  input [Width-1:0] s_i[Share],
+  output logic [Width-1:0] s_o[Share]
 );
   ///////////
   // Types //
   ///////////
   //             x    y    z
-  typedef logic [4:0][4:0][W-1:0] box_t;   // (x,y,z) state
-  typedef logic           [W-1:0] lane_t;  // (z)
-  typedef logic [4:0]     [W-1:0] plane_t; // (x,z)
-  typedef logic [4:0][4:0]        slice_t; // (x,y)
-  typedef logic      [4:0][W-1:0] sheet_t; // (y,z) identical to plane_t
-  typedef logic [4:0]             row_t;   // (x)
-  typedef logic      [4:0]        col_t;   // (y) identical to row_t
+  typedef logic [4:0][4:0][W-1:0] box_t;  // (x,y,z) state
+  typedef logic [W-1:0] lane_t;  // (z)
+  typedef logic [4:0][W-1:0] plane_t;  // (x,z)
+  typedef logic [4:0][4:0] slice_t;  // (x,y)
+  typedef logic [4:0][W-1:0] sheet_t;  // (y,z) identical to plane_t
+  typedef logic [4:0] row_t;  // (x)
+  typedef logic [4:0] col_t;  // (y) identical to row_t
 
   //////////////
   // Keccak_f //
   //////////////
-  box_t state_in   [Share];
-  box_t state_out  [Share];
-  box_t theta_data [Share];
-  box_t rho_data   [Share];
-  box_t pi_data    [Share];
-  box_t chi_data   [Share];
-  box_t iota_data  [Share];
+  box_t state_in  [Share];
+  box_t state_out [Share];
+  box_t theta_data[Share];
+  box_t rho_data  [Share];
+  box_t pi_data   [Share];
+  box_t chi_data  [Share];
+  box_t iota_data [Share];
 
-  box_t phase1_in  [Share];
-  box_t phase1_out [Share];
-  box_t phase2_in  [Share];
-  box_t phase2_out [Share];
+  box_t phase1_in [Share];
+  box_t phase1_out[Share];
+  box_t phase2_in [Share];
+  box_t phase2_out[Share];
 
 
   ///////////////////////
@@ -72,19 +72,19 @@ module keccak_2share #(
   // The second phases in masked version needs two cycles to complete.
   // For two cycles, the input value `s_i` shall stay same. The output value is
   // correct only at the second cycle.
-  for (genvar i = 0 ; i < Share ; i++) begin : g_state_inout
+  for (genvar i = 0; i < Share; i++) begin : g_state_inout
     assign state_in[i] = bitarray_to_box(s_i[i]);
     assign s_o[i]      = box_to_bitarray(state_out[i]);
   end : g_state_inout
 
   if (EnMasking == 1) begin : g_2share_data
-    assign phase1_in = (sel_i == 1'b 0) ? state_in : '{default:'0};
-    assign phase2_in = (sel_i == 1'b 1) ? state_in : '{default:'0};
+    assign phase1_in = (sel_i == 1'b0) ? state_in : '{default: '0};
+    assign phase2_in = (sel_i == 1'b1) ? state_in : '{default: '0};
 
     always_comb begin
       unique case (sel_i)
-        1'b 0:  state_out = phase1_out;
-        1'b 1:  state_out = phase2_out;
+        1'b0: state_out = phase1_out;
+        1'b1: state_out = phase2_out;
         default: state_out = '{default: '0};
       endcase
     end
@@ -99,7 +99,7 @@ module keccak_2share #(
   assign phase2_out = iota_data;
 
 
-  for (genvar i = 0 ; i < Share ; i++) begin : g_datapath
+  for (genvar i = 0; i < Share; i++) begin : g_datapath
 
     // Phase 1:
     assign theta_data[i] = theta(phase1_in[i]);
@@ -116,23 +116,23 @@ module keccak_2share #(
 
   // Iota adds Round Constants(RC), so only one share should be XORed
   if (EnMasking == 1) begin : g_2share_iota
-    assign iota_data[0]  = iota(chi_data[0], rnd_i);
-    assign iota_data[1]  = chi_data[1];
+    assign iota_data[0] = iota(chi_data[0], rnd_i);
+    assign iota_data[1] = chi_data[1];
   end else begin : g_single_iota
-    assign iota_data[0]  = iota(chi_data[0], rnd_i);
+    assign iota_data[0] = iota(chi_data[0], rnd_i);
   end
 
   if (EnMasking == 1) begin : g_2share_chi
     // Domain-Oriented Masking
     // reference: https://eprint.iacr.org/2017/395.pdf
 
-    for (genvar x = 0 ; x < 5 ; x++) begin : g_chi_w
+    for (genvar x = 0; x < 5; x++) begin : g_chi_w
       localparam int X1 = (x + 1) % 5;
       localparam int X2 = (x + 2) % 5;
 
-      sheet_t sheet0[Share]; // Inverted input X1
-      sheet_t sheet1[Share]; // X2
-      sheet_t sheet2[Share]; // DOM output
+      sheet_t sheet0[Share];  // Inverted input X1
+      sheet_t sheet1[Share];  // X2
+      sheet_t sheet2[Share];  // DOM output
 
       assign sheet0[0] = ~phase2_in[0][X1];
       assign sheet0[1] = phase2_in[1][X1];
@@ -144,11 +144,11 @@ module keccak_2share #(
 
       // Convert sheet_t to 1D array
       // TODO: Make this smarter :)
-      assign a0 = {sheet0[0][0],sheet0[0][1],sheet0[0][2],sheet0[0][3],sheet0[0][4]};
-      assign a1 = {sheet0[1][0],sheet0[1][1],sheet0[1][2],sheet0[1][3],sheet0[1][4]};
+      assign a0 = {sheet0[0][0], sheet0[0][1], sheet0[0][2], sheet0[0][3], sheet0[0][4]};
+      assign a1 = {sheet0[1][0], sheet0[1][1], sheet0[1][2], sheet0[1][3], sheet0[1][4]};
 
-      assign b0 = {sheet1[0][0],sheet1[0][1],sheet1[0][2],sheet1[0][3],sheet1[0][4]};
-      assign b1 = {sheet1[1][0],sheet1[1][1],sheet1[1][2],sheet1[1][3],sheet1[1][4]};
+      assign b0 = {sheet1[0][0], sheet1[0][1], sheet1[0][2], sheet1[0][3], sheet1[0][4]};
+      assign b1 = {sheet1[1][0], sheet1[1][1], sheet1[1][2], sheet1[1][3], sheet1[1][4]};
 
       // This keccak_f implementation doesn't use the states as entropy sources.
       // It rather receives the entropy from random number generator.
@@ -161,35 +161,35 @@ module keccak_2share #(
       assign c1 = rand_i[x*$bits(sheet_t)+:$bits(sheet_t)];
 
       prim_dom_and_2share #(
-        .DW ($bits(sheet_t)), // sheet
-        .EnNegedge(0)         // takes two cycle to complete DOM
+          .DW       ($bits(sheet_t)),  // sheet
+          .EnNegedge(0)  // takes two cycle to complete DOM
       ) u_dom (
-        .clk_i,
-        .rst_ni,
+          .clk_i,
+          .rst_ni,
 
-        .a0_i      (a0),
-        .a1_i      (a1),
-        .b0_i      (b0),
-        .b1_i      (b1),
-        .c_valid_i (rand_valid_i),
-        .c0_i      (c0),
-        .c1_i      (c1),
-        .q0_o      (q0),
-        .q1_o      (q1)
+          .a0_i     (a0),
+          .a1_i     (a1),
+          .b0_i     (b0),
+          .b1_i     (b1),
+          .c_valid_i(rand_valid_i),
+          .c0_i     (c0),
+          .c1_i     (c1),
+          .q0_o     (q0),
+          .q1_o     (q1)
       );
 
       // Convert q0, q1 to sheet_t
       // TODO: Make this smarter
-      assign sheet2[0][4] = q0[W*0+:W];
-      assign sheet2[0][3] = q0[W*1+:W];
-      assign sheet2[0][2] = q0[W*2+:W];
-      assign sheet2[0][1] = q0[W*3+:W];
-      assign sheet2[0][0] = q0[W*4+:W];
-      assign sheet2[1][4] = q1[W*0+:W];
-      assign sheet2[1][3] = q1[W*1+:W];
-      assign sheet2[1][2] = q1[W*2+:W];
-      assign sheet2[1][1] = q1[W*3+:W];
-      assign sheet2[1][0] = q1[W*4+:W];
+      assign sheet2[0][4]   = q0[W*0+:W];
+      assign sheet2[0][3]   = q0[W*1+:W];
+      assign sheet2[0][2]   = q0[W*2+:W];
+      assign sheet2[0][1]   = q0[W*3+:W];
+      assign sheet2[0][0]   = q0[W*4+:W];
+      assign sheet2[1][4]   = q1[W*0+:W];
+      assign sheet2[1][3]   = q1[W*1+:W];
+      assign sheet2[1][2]   = q1[W*2+:W];
+      assign sheet2[1][1]   = q1[W*3+:W];
+      assign sheet2[1][0]   = q1[W*4+:W];
 
       // Final XOR to generate the output
       assign chi_data[0][x] = sheet2[0] ^ phase2_in[0][x];
@@ -213,20 +213,19 @@ module keccak_2share #(
     '{  28,  55, 153,  21, 120},// 3
     '{  91, 276, 231, 136,  78} // 4
   };
-  for (genvar i = 0 ; i < Share ; i++) begin : g_rho
+  for (genvar i = 0; i < Share; i++) begin : g_rho
     box_t rho_in, rho_out;
     assign rho_in = theta_data[i];
     assign rho_data[i] = rho_out;
 
-    for (genvar x = 0 ; x < 5 ; x++) begin : gen_rho_x
-      for (genvar y = 0 ; y < 5 ; y++) begin : gen_rho_y
-        localparam int Offset = RhoOffset[x][y]%W;
-        localparam int ShiftAmt = W- Offset;
+    for (genvar x = 0; x < 5; x++) begin : gen_rho_x
+      for (genvar y = 0; y < 5; y++) begin : gen_rho_y
+        localparam int Offset = RhoOffset[x][y] % W;
+        localparam int ShiftAmt = W - Offset;
         if (Offset == 0) begin : gen_offset0
           assign rho_out[x][y][W-1:0] = rho_in[x][y][W-1:0];
         end else begin : gen_others
-          assign rho_out[x][y][W-1:0] = {rho_in[x][y][0+:ShiftAmt],
-                                         rho_in[x][y][ShiftAmt+:Offset]};
+          assign rho_out[x][y][W-1:0] = {rho_in[x][y][0+:ShiftAmt], rho_in[x][y][ShiftAmt+:Offset]};
         end
       end
     end
@@ -239,7 +238,7 @@ module keccak_2share #(
   `ASSERT_INIT(ValidWidth_A, Width inside {25, 50, 100, 200, 400, 800, 1600})
   `ASSERT_INIT(ValidW_A, W inside {1, 2, 4, 8, 16, 32, 64})
   `ASSERT_INIT(ValidL_A, L inside {0, 1, 2, 3, 4, 5, 6})
-  `ASSERT_INIT(ValidRound_A, MaxRound <= 24) // Keccak-f only
+  `ASSERT_INIT(ValidRound_A, MaxRound <= 24)  // Keccak-f only
 
   // sel_i shall stay for two cycle after change to 1.
   if (EnMasking == 1) begin
@@ -289,17 +288,17 @@ module keccak_2share #(
   function automatic box_t theta(box_t state);
     plane_t c;
     plane_t d;
-    box_t result;
+    box_t   result;
     for (int x = 0 ; x < 5 ; x++) begin
       c[x] = state[x][0] ^ state[x][1] ^ state[x][2] ^ state[x][3] ^ state[x][4];
     end
-    for (int x = 0 ; x < 5 ; x++) begin
+    for (int x = 0; x < 5; x++) begin
       int index_x1, index_x2;
-      index_x1 = (x == 0) ? 4 : x-1; // (x-1)%5
-      index_x2 = (x == 4) ? 0 : x+1; // (x+1)%5
-      for (int z = 0 ; z < W ; z++) begin
+      index_x1 = (x == 0) ? 4 : x - 1;  // (x-1)%5
+      index_x2 = (x == 4) ? 0 : x + 1;  // (x+1)%5
+      for (int z = 0; z < W; z++) begin
         int index_z;
-        index_z = (z == 0) ? W-1 : z-1; // (z+1)%W
+        index_z = (z == 0) ? W - 1 : z - 1;  // (z+1)%W
         d[x][z] = c[index_x1][z] ^ c[index_x2][index_z];
       end
     end
@@ -374,10 +373,10 @@ module keccak_2share #(
   // chi[x,y,z] = state[x,y,z] ^ ((state[x+1,y,z] ^ 1) & state[x+2,y,z])
   function automatic box_t chi(box_t state);
     box_t result;
-    for (int x = 0 ; x < 5 ; x++) begin
+    for (int x = 0; x < 5; x++) begin
       int index_x1, index_x2;
-      index_x1 = (x == 4) ? 0 : x+1;
-      index_x2 = (x >= 3) ? x-3 : x+2;
+      index_x1  = (x == 4) ? 0 : x + 1;
+      index_x2  = (x >= 3) ? x - 3 : x + 2;
       result[x] = state[x] ^ ((~state[index_x1]) & state[index_x2]);
     end
     return result;

@@ -12,7 +12,9 @@
 //
 // This module arbitrates and muxes the controls between the two interfaces.
 
-module flash_ctrl_arb import flash_ctrl_pkg::*; (
+module flash_ctrl_arb
+import flash_ctrl_pkg::*;
+(
   input clk_i,
   input rst_ni,
 
@@ -58,7 +60,7 @@ module flash_ctrl_arb import flash_ctrl_pkg::*; (
 
   // muxed interface to prog_fifo
   output logic prog_fifo_wvalid_o,
-  input logic prog_fifo_wready_i,
+  input  logic prog_fifo_wready_i,
 
   // flash phy initialization ongoing
   input logic flash_phy_busy_i,
@@ -149,9 +151,9 @@ module flash_ctrl_arb import flash_ctrl_pkg::*; (
         end
       end
 
-      default:;
-    endcase // unique case (state_q)
-  end // always_comb
+      default: ;
+    endcase  // unique case (state_q)
+  end  // always_comb
 
   logic ctrl_ack, ctrl_err;
 
@@ -197,8 +199,8 @@ module flash_ctrl_arb import flash_ctrl_pkg::*; (
         rd_fifo_rready_o = sw_rready_i;
       end
 
-      default:;
-    endcase // unique case (func_sel)
+      default: ;
+    endcase  // unique case (func_sel)
   end
 
   // pick appropriate feedback
@@ -217,9 +219,9 @@ module flash_ctrl_arb import flash_ctrl_pkg::*; (
     end
   end
 
-  assign sel_o = func_sel;
+  assign sel_o   = func_sel;
 
   // At the moment there is no software control indicating phase.
   assign phase_o = func_sel == SwSel ? PhaseInvalid : hw_phase_i;
 
-endmodule // flash_ctrl_rd_arb
+endmodule  // flash_ctrl_rd_arb

@@ -4,25 +4,21 @@
 
 // Covergroup: pending_req_on_rst_cg
 // define bins for having pending request while on reset
-covergroup pending_req_on_rst_cg(string name) with function sample(bit req_pending);
+covergroup pending_req_on_rst_cg(string name) with function sample (bit req_pending);
   option.per_instance = 1;
-  option.name         = name;
-  cp_req_pending: coverpoint req_pending {
-    bins values[] = {0, 1};
-  }
+  option.name = name;
+  cp_req_pending: coverpoint req_pending {bins values[] = {0, 1};}
 endgroup
 
 // coverage for sampling all the values of outstanding req, up to its max
 covergroup max_outstanding_cg(string name, int max_outstanding) with function
     sample(int num_outstanding);
   option.per_instance = 1;
-  option.name         = name;
-  cp_num_of_outstanding: coverpoint num_outstanding {
-    bins values[]  = {[1:max_outstanding]};
-  }
+  option.name = name;
+  cp_num_of_outstanding: coverpoint num_outstanding {bins values[] = {[1 : max_outstanding]};}
 endgroup : max_outstanding_cg
 
-class tl_agent_cov extends dv_base_agent_cov #(tl_agent_cfg);
+class tl_agent_cov extends dv_base_agent_cov#(tl_agent_cfg);
   pending_req_on_rst_cg m_pending_req_on_rst_cg;
   max_outstanding_cg    m_max_outstanding_cg;
 

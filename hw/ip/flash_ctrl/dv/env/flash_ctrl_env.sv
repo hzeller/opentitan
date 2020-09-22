@@ -2,16 +2,16 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class flash_ctrl_env extends cip_base_env #(
+class flash_ctrl_env extends cip_base_env#(
     .CFG_T              (flash_ctrl_env_cfg),
     .COV_T              (flash_ctrl_env_cov),
     .VIRTUAL_SEQUENCER_T(flash_ctrl_virtual_sequencer),
     .SCOREBOARD_T       (flash_ctrl_scoreboard)
-  );
+);
   `uvm_component_utils(flash_ctrl_env)
 
-  tl_agent        m_eflash_tl_agent;
-  tl_reg_adapter  m_eflash_tl_reg_adapter;
+  tl_agent       m_eflash_tl_agent;
+  tl_reg_adapter m_eflash_tl_reg_adapter;
 
   `uvm_component_new
 
@@ -45,8 +45,7 @@ class flash_ctrl_env extends cip_base_env #(
     // create components
     m_eflash_tl_agent = tl_agent::type_id::create("m_eflash_tl_agent", this);
     m_eflash_tl_reg_adapter = tl_reg_adapter#()::type_id::create("m_eflash_tl_reg_adapter");
-    uvm_config_db#(tl_agent_cfg)::set(
-        this, "m_eflash_tl_agent*", "cfg", cfg.m_eflash_tl_agent_cfg);
+    uvm_config_db#(tl_agent_cfg)::set(this, "m_eflash_tl_agent*", "cfg", cfg.m_eflash_tl_agent_cfg);
   endfunction
 
   function void connect_phase(uvm_phase phase);

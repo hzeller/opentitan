@@ -2,37 +2,37 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class i2c_scoreboard extends cip_base_scoreboard #(
+class i2c_scoreboard extends cip_base_scoreboard#(
     .CFG_T(i2c_env_cfg),
     .RAL_T(i2c_reg_block),
     .COV_T(i2c_env_cov)
-  );
+);
   `uvm_component_utils(i2c_scoreboard)
 
-  virtual i2c_if  i2c_vif;
+  virtual i2c_if                    i2c_vif;
 
-  local i2c_item  exp_rd_item;
-  local i2c_item  exp_wr_item;
-  local i2c_item  rd_pending_item;
-  local uint      rd_wait;
-  local bit       host_init = 1'b0;
-  local uint      rdata_cnt = 0;
-  local uint      tran_id = 0;
-  local uint      num_exp_tran = 0;
+  local i2c_item                    exp_rd_item;
+  local i2c_item                    exp_wr_item;
+  local i2c_item                    rd_pending_item;
+  local uint                        rd_wait;
+  local bit                         host_init        = 1'b0;
+  local uint                        rdata_cnt        = 0;
+  local uint                        tran_id          = 0;
+  local uint                        num_exp_tran     = 0;
 
   // queues hold expected read and write transactions
-  local i2c_item  exp_wr_q[$];
-  local i2c_item  exp_rd_q[$];
+  local i2c_item                    exp_wr_q[$];
+  local i2c_item                    exp_rd_q[$];
 
   // queues hold partial read transactions (address phase)
-  local i2c_item  rd_pending_q[$];
+  local i2c_item                    rd_pending_q[$];
 
   // TLM fifos hold the transactions sent by monitor
   uvm_tlm_analysis_fifo #(i2c_item) rd_item_fifo;
   uvm_tlm_analysis_fifo #(i2c_item) wr_item_fifo;
 
   // interrupt bit vector
-  local bit [NumI2cIntr-1:0] intr_exp;
+  local bit [NumI2cIntr-1:0]        intr_exp;
 
   `uvm_component_new
 
@@ -40,7 +40,7 @@ class i2c_scoreboard extends cip_base_scoreboard #(
     super.build_phase(phase);
     rd_item_fifo = new("rd_item_fifo", this);
     wr_item_fifo = new("wr_item_fifo", this);
-    rd_pending_item = new("rd_pending_item" );
+    rd_pending_item = new("rd_pending_item");
     exp_rd_item = new("exp_rd_item");
     exp_wr_item = new("exp_wr_item");
   endfunction : build_phase
@@ -54,12 +54,12 @@ class i2c_scoreboard extends cip_base_scoreboard #(
   endtask : run_phase
 
   virtual task process_tl_access(tl_seq_item item, tl_channels_e channel = DataChannel);
-    uvm_reg   csr;
-    i2c_item  sb_exp_wr_item;
-    i2c_item  sb_exp_rd_item;
-    bit       fmt_overflow;
-    bit       do_read_check = 1'b0;    // TODO: Enable this bit later
-    bit       write = item.is_write();
+    uvm_reg        csr;
+    i2c_item       sb_exp_wr_item;
+    i2c_item       sb_exp_rd_item;
+    bit            fmt_overflow;
+    bit            do_read_check = 1'b0;  // TODO: Enable this bit later
+    bit            write = item.is_write();
 
     uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
     // if access was to a valid csr, get the csr handle
@@ -125,7 +125,7 @@ class i2c_scoreboard extends cip_base_scoreboard #(
                 exp_wr_item.start   = start;
                 exp_wr_item.stop    = stop;
               end
-            end else begin // transaction begins with started/rstarted
+            end else begin  // transaction begins with started/rstarted
               // write transaction
               if (exp_wr_item.start && exp_wr_item.bus_op == BusOpWrite) begin
                 // irq is asserted with 2 latency cycles (#3422)
@@ -154,9 +154,9 @@ class i2c_scoreboard extends cip_base_scoreboard #(
 
                   // get the number of byte to read
                   if (exp_rd_item.rcont && (rcont || stop)) begin
-                    exp_rd_item.num_data += num_rd_bytes; // accumulate for chained reads
+                    exp_rd_item.num_data += num_rd_bytes;  // accumulate for chained reads
                   end else begin
-                    exp_rd_item.num_data  = num_rd_bytes;
+                    exp_rd_item.num_data = num_rd_bytes;
                   end
                   exp_rd_item.stop   = stop;
                   exp_rd_item.rcont  = rcont;
@@ -202,7 +202,7 @@ class i2c_scoreboard extends cip_base_scoreboard #(
           if (cfg.en_cov) begin
             i2c_intr_e intr;
             foreach (intr_exp[i]) begin
-              intr = i2c_intr_e'(i); // cast to enum to get interrupt name
+              intr = i2c_intr_e'(i);  // cast to enum to get interrupt name
               cov.intr_test_cg.sample(intr, item.a_data[i], intr_en[i], intr_exp[i]);
             end
           end
@@ -216,7 +216,7 @@ class i2c_scoreboard extends cip_base_scoreboard #(
         `uvm_info(`gfn, $sformatf("\nscoreboard, push to queue, exp_wr_item\n\%s",
             sb_exp_wr_item.sprint()), UVM_DEBUG)
       end
-    end // end of write address phase
+    end  // end of write address phase
 
     // On reads, if do_read_check, is set, then check mirrored_value against item.d_data
     if (!write && channel == DataChannel) begin
@@ -231,8 +231,8 @@ class i2c_scoreboard extends cip_base_scoreboard #(
           if (host_init) begin
             if (rdata_cnt == 0) begin
               // for on-the-fly reset, immediately finish task to avoid blocking
-              wait(rd_pending_q.size() > 0 || cfg.under_reset);              
-              if (cfg.under_reset) return; 
+              wait(rd_pending_q.size() > 0 || cfg.under_reset);
+              if (cfg.under_reset) return;
               rd_pending_item = rd_pending_q.pop_front();
             end
             rd_pending_item.data_q.push_back(ral.rdata.get_mirrored_value());
@@ -252,12 +252,12 @@ class i2c_scoreboard extends cip_base_scoreboard #(
           end
         end
       endcase
-    end // end of read data phase
+    end  // end of read data phase
   endtask : process_tl_access
 
   task compare_trans(bus_op_e dir = BusOpWrite);
-    i2c_item   exp_trn;
-    i2c_item   dut_trn;
+    i2c_item exp_trn;
+    i2c_item dut_trn;
     forever begin
       if (dir == BusOpWrite) begin
         wr_item_fifo.get(dut_trn);
@@ -276,10 +276,10 @@ class i2c_scoreboard extends cip_base_scoreboard #(
       end
 
       if (!dut_trn.compare(exp_trn)) begin
-          if (!check_overflow_data_fmt_fifo(exp_trn, dut_trn)) begin  // see description below
-            `uvm_error(`gfn, $sformatf("\ndirection %s item mismatch!\n--> EXP:\n%0s\--> DUT:\n%0s",
+        if (!check_overflow_data_fmt_fifo(exp_trn, dut_trn)) begin  // see description below
+          `uvm_error(`gfn, $sformatf("\ndirection %s item mismatch!\n--> EXP:\n%0s\--> DUT:\n%0s",
                 (dir == BusOpWrite) ? "WRITE" : "READ", exp_trn.sprint(), dut_trn.sprint()))
-          end
+        end
       end else begin
         `uvm_info(`gfn, $sformatf("\ndirection %s item match!\n--> EXP:\n%0s\--> DUT:\n%0s",
             (dir == BusOpWrite) ? "WRITE" : "READ", exp_trn.sprint(), dut_trn.sprint()), UVM_DEBUG)
@@ -291,8 +291,7 @@ class i2c_scoreboard extends cip_base_scoreboard #(
   // in write transactions sent over busses
   function bit check_overflow_data_fmt_fifo(i2c_item exp_trn, i2c_item dut_trn);
     if (exp_trn.fmt_ovf_data_q.size() > 0) begin
-      bit [7:0] unique_q[$] = dut_trn.data_q.find with
-                              ( item inside {exp_trn.fmt_ovf_data_q} );
+      bit [7:0] unique_q[$] = dut_trn.data_q.find with (item inside {exp_trn.fmt_ovf_data_q});
       return (unique_q.size() == 0);
     end
   endfunction : check_overflow_data_fmt_fifo

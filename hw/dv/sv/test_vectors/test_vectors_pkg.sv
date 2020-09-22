@@ -11,14 +11,14 @@ package test_vectors_pkg;
   `include "uvm_macros.svh"
 
   // declare string and vectors
-  string header           = "test vector pkg";
-  string sha_file_list[]  = {"SHA256ShortMsg.rsp", "SHA256LongMsg.rsp"};
+  string header = "test vector pkg";
+  string sha_file_list[] = {"SHA256ShortMsg.rsp", "SHA256LongMsg.rsp"};
   string hmac_file_list[] = {"HMAC_RFC4868.rsp"};
   string test_vectors_dir;
 
   typedef struct {
-    int        msg_length_byte;
-    bit [7:0]  msg[];
+    int msg_length_byte;
+    bit [7:0] msg[];
     bit [31:0] keys[8];
     bit [31:0] exp_digest[8];
   } test_vectors_t;
@@ -58,16 +58,18 @@ package test_vectors_pkg;
   // support test vectors files with a nist vector format
   function automatic void parse_sha_hmac(bit hmac_en, int index,
                                          ref test_vectors_t parsed_vectors[]);
-    int        fd;
-    bit [7:0]  bytes[];
-    string     name, str_data, test_vectors_path;
+    int       fd;
+    bit [7:0] bytes[];
+    string name, str_data, test_vectors_path;
 
     if (hmac_en) get_test_vectors_path(hmac_file_list[index], test_vectors_path);
     else get_test_vectors_path(sha_file_list[index], test_vectors_path);
 
     open_file(test_vectors_path, fd);
 
-    while (!$feof(fd)) begin
+    while (!$feof(
+        fd
+    )) begin
       // read each line split by "="
       // Example "Len = 1304": name = "Len", str_data = "1304"
       void'($fscanf(fd, "%s = %s", name, str_data));

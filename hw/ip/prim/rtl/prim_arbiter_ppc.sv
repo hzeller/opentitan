@@ -37,19 +37,19 @@ module prim_arbiter_ppc #(
   parameter bit EnReqStabA = 1,
 
   // Derived parameters
-  localparam int IdxW = $clog2(N)
+  localparam int IdxW = $clog2 (N)
 ) (
   input clk_i,
   input rst_ni,
 
-  input        [ N-1:0]    req_i,
-  input        [DW-1:0]    data_i [N],
-  output logic [ N-1:0]    gnt_o,
-  output logic [IdxW-1:0]  idx_o,
+  input        [   N-1:0] req_i,
+  input        [  DW-1:0] data_i[N],
+  output logic [   N-1:0] gnt_o,
+  output logic [IdxW-1:0] idx_o,
 
-  output logic             valid_o,
-  output logic [DW-1:0]    data_o,
-  input                    ready_i
+  output logic          valid_o,
+  output logic [DW-1:0] data_o,
+  input                 ready_i
 );
 
   `ASSERT_INIT(CheckNGreaterZero_A, N > 0)
@@ -102,23 +102,23 @@ module prim_arbiter_ppc #(
       end
     end
 
-    if (EnDataPort == 1) begin: gen_datapath
+    if (EnDataPort == 1) begin : gen_datapath
       always_comb begin
         data_o = '0;
-        for (int i = 0 ; i < N ; i++) begin
+        for (int i = 0; i < N; i++) begin
           if (winner[i]) begin
             data_o = data_i[i];
           end
         end
       end
-    end else begin: gen_nodatapath
+    end else begin : gen_nodatapath
       assign data_o = '1;
       // TODO: waive data_i from NOT_READ error
     end
 
     always_comb begin
       idx_o = '0;
-      for (int i = 0 ; i < N ; i++) begin
+      for (int i = 0; i < N; i++) begin
         if (winner[i]) begin
           idx_o = i[IdxW-1:0];
         end
@@ -158,20 +158,20 @@ module prim_arbiter_ppc #(
   // check index / grant correspond
   `ASSERT(IndexIsCorrect_A, ready_i && valid_o |-> gnt_o[idx_o] && req_i[idx_o])
 
-if (EnDataPort) begin: gen_data_port_assertion
-  // data flow
-  `ASSERT(DataFlow_A, ready_i && valid_o |-> data_o == data_i[idx_o])
-end
+  if (EnDataPort) begin : gen_data_port_assertion
+    // data flow
+    `ASSERT(DataFlow_A, ready_i && valid_o |-> data_o == data_i[idx_o])
+  end
 
-if (EnReqStabA) begin : gen_lock_assertion
-  // requests must stay asserted until they have been granted
-  `ASSUME(ReqStaysHighUntilGranted0_M, (|req_i) && !ready_i |=>
+  if (EnReqStabA) begin : gen_lock_assertion
+    // requests must stay asserted until they have been granted
+    `ASSUME(ReqStaysHighUntilGranted0_M, (|req_i) && !ready_i |=>
       (req_i & $past(req_i)) == $past(req_i))
-  // check that the arbitration decision is held if the sink is not ready
-  `ASSERT(LockArbDecision_A, |req_i && !ready_i |=> idx_o == $past(idx_o))
-end
+    // check that the arbitration decision is held if the sink is not ready
+    `ASSERT(LockArbDecision_A, |req_i && !ready_i |=> idx_o == $past(idx_o))
+  end
 
-// FPV-only assertions with symbolic variables
+  // FPV-only assertions with symbolic variables
 `ifdef FPV_ON
   // symbolic variables
   int unsigned k;
@@ -216,8 +216,7 @@ end
 
   if (EnReqStabA) begin : gen_lock_assertion_fpv
     // requests must stay asserted until they have been granted
-    `ASSUME(ReqStaysHighUntilGranted1_M, req_i[k] & !gnt_o[k] |=>
-        req_i[k], clk_i, !rst_ni)
+    `ASSUME(ReqStaysHighUntilGranted1_M, req_i[k] & !gnt_o[k] |=> req_i[k], clk_i, !rst_ni)
   end
 `endif
 

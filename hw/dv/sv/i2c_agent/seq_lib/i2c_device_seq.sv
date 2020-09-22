@@ -15,12 +15,12 @@ class i2c_device_seq extends i2c_base_seq;
   virtual task body();
     fork
       forever begin
-        i2c_item  req;
+        i2c_item req;
         p_sequencer.mon_item_fifo.get(req);
         req_q.push_back(req);
       end
       forever begin
-        i2c_item  rsp;
+        i2c_item rsp;
         wait(req_q.size > 0);
         rsp = req_q.pop_front();
         start_item(rsp);

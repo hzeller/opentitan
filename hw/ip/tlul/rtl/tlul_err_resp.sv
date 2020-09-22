@@ -14,10 +14,10 @@ module tlul_err_resp (
 );
   import tlul_pkg::*;
 
-  tl_a_op_e                          err_opcode;
-  logic [$bits(tl_h_i.a_source)-1:0] err_source;
-  logic [$bits(tl_h_i.a_size)-1:0]   err_size;
-  logic                              err_req_pending, err_rsp_pending;
+  tl_a_op_e                              err_opcode;
+  logic     [$bits(tl_h_i.a_source)-1:0] err_source;
+  logic     [  $bits(tl_h_i.a_size)-1:0] err_size;
+  logic err_req_pending, err_rsp_pending;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
@@ -37,7 +37,7 @@ module tlul_err_resp (
 
   assign tl_h_o.a_ready  = ~err_rsp_pending & ~(err_req_pending & ~tl_h_i.d_ready);
   assign tl_h_o.d_valid  = err_req_pending | err_rsp_pending;
-  assign tl_h_o.d_data   = '1; // Return all F
+  assign tl_h_o.d_data   = '1;  // Return all F
   assign tl_h_o.d_source = err_source;
   assign tl_h_o.d_sink   = '0;
   assign tl_h_o.d_param  = '0;

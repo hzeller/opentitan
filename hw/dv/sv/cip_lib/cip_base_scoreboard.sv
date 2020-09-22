@@ -2,20 +2,21 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
-                            type CFG_T = cip_base_env_cfg,
-                            type COV_T = cip_base_env_cov)
-                            extends dv_base_scoreboard #(RAL_T, CFG_T, COV_T);
-  `uvm_component_param_utils(cip_base_scoreboard #(RAL_T, CFG_T, COV_T))
+class cip_base_scoreboard #(
+  type RAL_T = dv_base_reg_block,
+  type CFG_T = cip_base_env_cfg,
+  type COV_T = cip_base_env_cov
+) extends dv_base_scoreboard#(RAL_T, CFG_T, COV_T);
+  `uvm_component_param_utils(cip_base_scoreboard#(RAL_T, CFG_T, COV_T))
 
   // TLM fifos to pick up the packets
-  uvm_tlm_analysis_fifo #(tl_seq_item)  tl_a_chan_fifo;
-  uvm_tlm_analysis_fifo #(tl_seq_item)  tl_d_chan_fifo;
+  uvm_tlm_analysis_fifo #(tl_seq_item) tl_a_chan_fifo;
+  uvm_tlm_analysis_fifo #(tl_seq_item) tl_d_chan_fifo;
 
   // Alert_fifo to notify scb if DUT sends an alert
   uvm_tlm_analysis_fifo #(alert_esc_seq_item) alert_fifos[string];
 
-  mem_model#() exp_mem;
+  mem_model #() exp_mem;
 
   `uvm_component_new
 
@@ -23,7 +24,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     super.build_phase(phase);
     tl_a_chan_fifo = new("tl_a_chan_fifo", this);
     tl_d_chan_fifo = new("tl_d_chan_fifo", this);
-    foreach(cfg.list_of_alerts[i]) begin
+    foreach (cfg.list_of_alerts[i]) begin
       string alert_name = cfg.list_of_alerts[i];
       alert_fifos[alert_name] = new($sformatf("alert_fifo[%s]", alert_name), this);
     end
@@ -83,7 +84,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
           if (item.alert_esc_type == AlertEscSigTrans && !item.timeout &&
               item.alert_handshake_sta inside {AlertReceived, AlertAckComplete}) begin
             process_alert(alert_name, item);
-          // IP level alert protocol does not drive any sig_int_err or ping response
+            // IP level alert protocol does not drive any sig_int_err or ping response
           end else if (item.alert_esc_type == AlertEscIntFail) begin
             `uvm_error(`gfn, $sformatf("alert %s has unexpected signal int error", alert_name))
           end else if (item.timeout) begin
@@ -108,7 +109,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
 
   virtual task process_mem_write(tl_seq_item item);
     uvm_reg_addr_t addr = get_normalized_addr(item.a_addr);
-    if (!cfg.under_reset)  exp_mem.write(addr, item.a_data, item.a_mask);
+    if (!cfg.under_reset) exp_mem.write(addr, item.a_data, item.a_mask);
   endtask
 
   virtual task process_mem_read(tl_seq_item item);
@@ -212,8 +213,7 @@ class cip_base_scoreboard #(type RAL_T = dv_base_reg_block,
     if (item.is_write()) begin
       dv_base_reg    csr;
       uvm_reg_addr_t addr = get_normalized_addr(item.a_addr);
-      `DV_CHECK_FATAL($cast(csr,
-                            ral.default_map.get_reg_by_offset(addr)))
+      `DV_CHECK_FATAL($cast(csr, ral.default_map.get_reg_by_offset(addr)))
       if (csr.get_msb_pos >= 24 && item.a_mask[3:0] != 'b1111 ||
           csr.get_msb_pos >= 16 && item.a_mask[2:0] != 'b111  ||
           csr.get_msb_pos >= 8  && item.a_mask[1:0] != 'b11   ||

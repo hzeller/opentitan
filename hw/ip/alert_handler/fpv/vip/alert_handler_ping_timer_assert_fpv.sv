@@ -7,18 +7,20 @@
 
 `include "prim_assert.sv"
 
-module alert_handler_ping_timer_assert_fpv import alert_pkg::*; (
+module alert_handler_ping_timer_assert_fpv
+import alert_pkg::*;
+(
   input                   clk_i,
   input                   rst_ni,
   input                   entropy_i,
   input                   en_i,
-  input [NAlerts-1:0]     alert_en_i,
+  input [    NAlerts-1:0] alert_en_i,
   input [PING_CNT_DW-1:0] ping_timeout_cyc_i,
   input [PING_CNT_DW-1:0] wait_cyc_mask_i,
-  input [NAlerts-1:0]     alert_ping_en_o,
-  input [N_ESC_SEV-1:0]   esc_ping_en_o,
-  input [NAlerts-1:0]     alert_ping_ok_i,
-  input [N_ESC_SEV-1:0]   esc_ping_ok_i,
+  input [    NAlerts-1:0] alert_ping_en_o,
+  input [  N_ESC_SEV-1:0] esc_ping_en_o,
+  input [    NAlerts-1:0] alert_ping_ok_i,
+  input [  N_ESC_SEV-1:0] esc_ping_ok_i,
   input                   alert_ping_fail_o,
   input                   esc_ping_fail_o
 );
@@ -35,7 +37,7 @@ module alert_handler_ping_timer_assert_fpv import alert_pkg::*; (
 
   // symbolic variable. we want to assess all valid indices
   int unsigned ping_en_sel;
-  `ASSUME_FPV(PingEnSelRange_M, ping_en_sel >= 0 && ping_en_sel < (N_ESC_SEV+NAlerts))
+  `ASSUME_FPV(PingEnSelRange_M, ping_en_sel >= 0 && ping_en_sel < (N_ESC_SEV + NAlerts))
   `ASSUME_FPV(PingEnSelStable_M, ##1 $stable(ping_en_sel))
   // assume that the alert enable configuration is locked once en_i is high
   // this is ensured by the CSR regfile on the outside
@@ -78,7 +80,7 @@ module alert_handler_ping_timer_assert_fpv import alert_pkg::*; (
 
   // no pings when not enabled
   `ASSERT(NoPingsWhenDisabledBkwd0_A, alert_ping_en_o |-> en_i)
-  `ASSERT(NoPingsWhenDisabledBkwd1_A, esc_ping_en_o   |-> en_i)
+  `ASSERT(NoPingsWhenDisabledBkwd1_A, esc_ping_en_o |-> en_i)
 
   // spurious pings (i.e. pings that where not requested)
   // on alert channels

@@ -6,9 +6,9 @@ module uartdpi #(
   parameter BAUD = 'x,
   parameter FREQ = 'x,
   parameter string NAME = "uart0"
-)(
-  input  logic clk_i,
-  input  logic rst_ni,
+) (
+  input logic clk_i,
+  input logic rst_ni,
 
   output logic tx_o,
   input  logic rx_i
@@ -18,23 +18,18 @@ module uartdpi #(
 
   localparam int CYCLES_PER_SYMBOL = FREQ / BAUD;
 
-  import "DPI-C" function
-    chandle uartdpi_create(input string name, input string log_file_path);
+  import "DPI-C" function chandle uartdpi_create(input string name, input string log_file_path);
 
-  import "DPI-C" function
-    void uartdpi_close(input chandle ctx);
+  import "DPI-C" function void uartdpi_close(input chandle ctx);
 
-  import "DPI-C" function
-    byte uartdpi_read(input chandle ctx);
+  import "DPI-C" function byte uartdpi_read(input chandle ctx);
 
-  import "DPI-C" function
-    int uartdpi_can_read(input chandle ctx);
+  import "DPI-C" function int uartdpi_can_read(input chandle ctx);
 
-  import "DPI-C" function
-    void uartdpi_write(input chandle ctx, int data);
+  import "DPI-C" function void uartdpi_write(input chandle ctx, int data);
 
   chandle ctx;
-  string log_file_path = DEFAULT_LOG_FILE;
+  string  log_file_path = DEFAULT_LOG_FILE;
 
   initial begin
     $value$plusargs({"UARTDPI_LOG_", NAME, "=%s"}, log_file_path);
@@ -48,8 +43,8 @@ module uartdpi #(
 
   // TX
   reg txactive;
-  int  txcount;
-  int  txcyccount;
+  int txcount;
+  int txcyccount;
   reg [9:0] txsymbol;
 
   always_ff @(negedge clk_i or negedge rst_ni) begin
@@ -100,7 +95,7 @@ module uartdpi #(
         end
       end else begin
         if (rxcount == 0) begin
-          if (rxcyccount == CYCLES_PER_SYMBOL/2) begin
+          if (rxcyccount == CYCLES_PER_SYMBOL / 2) begin
             if (rx_i) begin
               rxactive <= 0;
             end else begin

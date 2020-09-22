@@ -15,7 +15,7 @@
 module formal_tb #(
   // DUT parameters
   parameter int unsigned BusWidth       = 32,
-  parameter int unsigned CacheSizeBytes = 4*1024,
+  parameter int unsigned CacheSizeBytes = 4 * 1024,
   parameter bit          ICacheECC      = 1'b0,
   parameter int unsigned LineSize       = 64,
   parameter int unsigned NumWays        = 2,
@@ -23,67 +23,67 @@ module formal_tb #(
   parameter bit          BranchCache    = 1'b0,
 
   // Internal parameters / localparams
-  parameter int unsigned ADDR_W         = 32,
-  parameter int unsigned NUM_FB         = 4,
-  parameter int unsigned LINE_W         = 3,
-  parameter int unsigned BUS_BYTES      = BusWidth/8,
-  parameter int unsigned BUS_W          = $clog2(BUS_BYTES),
-  parameter int unsigned LINE_BEATS     = 2,
-  parameter int unsigned LINE_BEATS_W   = 1
+  parameter int unsigned ADDR_W       = 32,
+  parameter int unsigned NUM_FB       = 4,
+  parameter int unsigned LINE_W       = 3,
+  parameter int unsigned BUS_BYTES    = BusWidth / 8,
+  parameter int unsigned BUS_W        = $clog2 (BUS_BYTES),
+  parameter int unsigned LINE_BEATS   = 2,
+  parameter int unsigned LINE_BEATS_W = 1
 ) (
-   // Top-level ports
-   input logic                                clk_i,
-   input logic                                rst_ni,
-   input logic                                req_i,
-   input logic                                branch_i,
-   input logic                                branch_spec_i,
-   input logic [31:0]                         addr_i,
-   input logic                                ready_i,
-   input logic                                valid_o,
-   input logic [31:0]                         rdata_o,
-   input logic [31:0]                         addr_o,
-   input logic                                err_o,
-   input logic                                err_plus2_o,
-   input logic                                instr_req_o,
-   input logic                                instr_gnt_i,
-   input logic [31:0]                         instr_addr_o,
-   input logic [BusWidth-1:0]                 instr_rdata_i,
-   input logic                                instr_err_i,
-   input logic                                instr_pmp_err_i,
-   input logic                                instr_rvalid_i,
-   input logic                                icache_enable_i,
-   input logic                                icache_inval_i,
-   input logic                                busy_o,
+  // Top-level ports
+  input logic                clk_i,
+  input logic                rst_ni,
+  input logic                req_i,
+  input logic                branch_i,
+  input logic                branch_spec_i,
+  input logic [        31:0] addr_i,
+  input logic                ready_i,
+  input logic                valid_o,
+  input logic [        31:0] rdata_o,
+  input logic [        31:0] addr_o,
+  input logic                err_o,
+  input logic                err_plus2_o,
+  input logic                instr_req_o,
+  input logic                instr_gnt_i,
+  input logic [        31:0] instr_addr_o,
+  input logic [BusWidth-1:0] instr_rdata_i,
+  input logic                instr_err_i,
+  input logic                instr_pmp_err_i,
+  input logic                instr_rvalid_i,
+  input logic                icache_enable_i,
+  input logic                icache_inval_i,
+  input logic                busy_o,
 
-   // Internal signals
-   input logic [ADDR_W-1:0]                   prefetch_addr_q,
-   input logic [NUM_FB-1:0][NUM_FB-1:0]       fill_older_q,
-   input logic [NUM_FB-1:0]                   fill_busy_q,
-   input logic [NUM_FB-1:0]                   fill_stale_q,
-   input logic [NUM_FB-1:0]                   fill_hit_q,
-   input logic [NUM_FB-1:0][LINE_BEATS_W:0]   fill_ext_cnt_q,
-   input logic [NUM_FB-1:0]                   fill_ext_hold_q,
-   input logic [NUM_FB-1:0]                   fill_ext_done,
-   input logic [NUM_FB-1:0][LINE_BEATS_W:0]   fill_rvd_cnt_q,
-   input logic [NUM_FB-1:0]                   fill_rvd_done,
-   input logic [NUM_FB-1:0][LINE_BEATS_W:0]   fill_out_cnt_q,
-   input logic [NUM_FB-1:0]                   fill_out_done,
-   input logic [NUM_FB-1:0]                   fill_ext_req,
-   input logic [NUM_FB-1:0]                   fill_rvd_exp,
-   input logic [NUM_FB-1:0]                   fill_data_sel,
-   input logic [NUM_FB-1:0]                   fill_data_reg,
-   input logic [NUM_FB-1:0][LINE_BEATS_W-1:0] fill_ext_off,
-   input logic [NUM_FB-1:0][LINE_BEATS_W:0]   fill_rvd_beat,
-   input logic [NUM_FB-1:0]                   fill_out_arb,
-   input logic [NUM_FB-1:0]                   fill_rvd_arb,
-   input logic [NUM_FB-1:0][LINE_BEATS-1:0]   fill_err_q,
-   input logic                                skid_valid_q,
+  // Internal signals
+  input logic [ADDR_W-1:0]                   prefetch_addr_q,
+  input logic [NUM_FB-1:0][      NUM_FB-1:0] fill_older_q,
+  input logic [NUM_FB-1:0]                   fill_busy_q,
+  input logic [NUM_FB-1:0]                   fill_stale_q,
+  input logic [NUM_FB-1:0]                   fill_hit_q,
+  input logic [NUM_FB-1:0][  LINE_BEATS_W:0] fill_ext_cnt_q,
+  input logic [NUM_FB-1:0]                   fill_ext_hold_q,
+  input logic [NUM_FB-1:0]                   fill_ext_done,
+  input logic [NUM_FB-1:0][  LINE_BEATS_W:0] fill_rvd_cnt_q,
+  input logic [NUM_FB-1:0]                   fill_rvd_done,
+  input logic [NUM_FB-1:0][  LINE_BEATS_W:0] fill_out_cnt_q,
+  input logic [NUM_FB-1:0]                   fill_out_done,
+  input logic [NUM_FB-1:0]                   fill_ext_req,
+  input logic [NUM_FB-1:0]                   fill_rvd_exp,
+  input logic [NUM_FB-1:0]                   fill_data_sel,
+  input logic [NUM_FB-1:0]                   fill_data_reg,
+  input logic [NUM_FB-1:0][LINE_BEATS_W-1:0] fill_ext_off,
+  input logic [NUM_FB-1:0][  LINE_BEATS_W:0] fill_rvd_beat,
+  input logic [NUM_FB-1:0]                   fill_out_arb,
+  input logic [NUM_FB-1:0]                   fill_rvd_arb,
+  input logic [NUM_FB-1:0][  LINE_BEATS-1:0] fill_err_q,
+  input logic                                skid_valid_q,
 
-   input logic [NUM_FB-1:0][ADDR_W-1:0]       packed_fill_addr_q
+  input logic [NUM_FB-1:0][ADDR_W-1:0] packed_fill_addr_q
 );
 
   logic [ADDR_W-1:0] line_step;
-  assign line_step = {{ADDR_W-LINE_W-1{1'b0}},1'b1,{LINE_W{1'b0}}};
+  assign line_step = {{ADDR_W - LINE_W - 1{1'b0}}, 1'b1, {LINE_W{1'b0}}};
 
   // We are bound into the DUT. This means we don't control the clock and reset directly, but we
   // still want to constrain rst_ni to reset the module at the start of time (for one cycle) and
@@ -175,8 +175,7 @@ module formal_tb #(
   //
   //  Read this as "a negedge of instr_req_o implies that the transaction was granted or squashed on
   //  the previous cycle".
-  `ASSERT(req_to_gnt,
-          `IMPLIES($fell(instr_req_o), $past(instr_gnt_i | instr_pmp_err_i)))
+  `ASSERT(req_to_gnt, `IMPLIES($fell(instr_req_o), $past(instr_gnt_i | instr_pmp_err_i)))
 
   //  ADDR stability
   //
@@ -195,8 +194,7 @@ module formal_tb #(
   //
   //  We also have no requirements on the valid/ready handshake if the address is unknown
   //  (!f_addr_valid).
-  `ASSERT(vld_to_rdy,
-          `IMPLIES(f_addr_valid & $fell(valid_o), $past(branch_i | ready_i)))
+  `ASSERT(vld_to_rdy, `IMPLIES(f_addr_valid & $fell(valid_o), $past(branch_i | ready_i)))
 
   //  ADDR stability
   `ASSERT(addr_stable,
@@ -394,7 +392,7 @@ module formal_tb #(
 
     // There are several signals per fb which must be at most equal to LINE_BEATS, but they are
     // stored with $clog2(LINE_BEATS_W) + 1 bits, so the signals can represent much bigger numbers.
-`define ASSERT_MAX_LINE_BEATS(name) \
+    `define ASSERT_MAX_LINE_BEATS(name) \
     `ASSERT(name``_max, name[fb] <= LINE_BEATS[LINE_BEATS_W:0])
 
     `ASSERT_MAX_LINE_BEATS(fill_ext_cnt_q)
@@ -424,7 +422,7 @@ module formal_tb #(
 
   // Define an analogue of fill_older_q, but only for buffers that are busy, not stale and think
   // they have more data to return.
-  logic [NUM_FB-1:0]             f_has_output;
+  logic [NUM_FB-1:0] f_has_output;
   logic [NUM_FB-1:0][NUM_FB-1:0] f_older_with_output, f_younger_with_output;
   always_comb begin
     f_has_output = '0;
@@ -434,7 +432,7 @@ module formal_tb #(
     end
     for (int i = 0; i < NUM_FB; i++) begin
       for (int j = 0; j < NUM_FB; j++) begin
-        f_older_with_output[i][j] = f_has_output[i] & f_has_output[j] & fill_older_q[i][j];
+        f_older_with_output[i][j]   = f_has_output[i] & f_has_output[j] & fill_older_q[i][j];
         f_younger_with_output[j][i] = f_older_with_output[i][j];
       end
     end
@@ -443,8 +441,8 @@ module formal_tb #(
   // Find the oldest busy, non-stale fill buffer that doesn't think it's finished returning data.
   // This is the one that should be outputting data. Grab its index and various associated
   // addresses. Similarly with the youngest.
-  int unsigned           f_oldest_fb, f_youngest_fb;
-  logic [ADDR_W-1:0]     f_oldest_fill_addr_q, f_youngest_fill_addr_q;
+  int unsigned f_oldest_fb, f_youngest_fb;
+  logic [ADDR_W-1:0] f_oldest_fill_addr_q, f_youngest_fill_addr_q;
   logic [LINE_BEATS_W:0] f_oldest_fill_out_cnt_q;
   always_comb begin
     f_oldest_fb = NUM_FB;
@@ -465,7 +463,7 @@ module formal_tb #(
   end
 
   logic [ADDR_W-1:0] f_oldest_fill_line_start, f_youngest_fill_line_start;
-  assign f_oldest_fill_line_start = {f_oldest_fill_addr_q[ADDR_W-1:LINE_W], {LINE_W{1'b0}}};
+  assign f_oldest_fill_line_start   = {f_oldest_fill_addr_q[ADDR_W-1:LINE_W], {LINE_W{1'b0}}};
   assign f_youngest_fill_line_start = {f_youngest_fill_addr_q[ADDR_W-1:LINE_W], {LINE_W{1'b0}}};
 
   // Suppose we have at least one fill buffer with data that needs outputting. Consider the oldest
@@ -495,7 +493,7 @@ module formal_tb #(
   logic [ADDR_W-1:0] f_skidded_addr;
   logic [ADDR_W-1:0] f_beat_addr;
   logic [ADDR_W-1:0] f_skidded_beat_addr;
-  assign f_skidded_addr      = addr_o + 2 * {{ADDR_W-1{1'b0}}, skid_valid_q};
+  assign f_skidded_addr      = addr_o + 2 * {{ADDR_W - 1{1'b0}}, skid_valid_q};
   assign f_beat_addr         = {addr_o[ADDR_W-1:2], 2'b00};
   assign f_skidded_beat_addr = {f_skidded_addr[ADDR_W-1:2], 2'b00};
 
@@ -619,8 +617,8 @@ module formal_tb #(
   //   = (c != 0) && (e > (b + ((s > b) << w)))
 
   logic [NUM_FB-1:0][LINE_BEATS_W-1:0] f_fill_first_beat;
-  logic [NUM_FB-1:0][LINE_BEATS_W:0]   f_fill_ext_end_beat, f_fill_rvd_end_beat;
-  logic [NUM_FB-1:0][LINE_BEATS-1:0]   f_fill_ext_mask, f_fill_rvd_mask;
+  logic [NUM_FB-1:0][LINE_BEATS_W:0] f_fill_ext_end_beat, f_fill_rvd_end_beat;
+  logic [NUM_FB-1:0][LINE_BEATS-1:0] f_fill_ext_mask, f_fill_rvd_mask;
 
   always_comb begin
     f_fill_first_beat = '0;
@@ -629,7 +627,7 @@ module formal_tb #(
     f_fill_rvd_end_beat = '0;
     f_fill_rvd_mask = '0;
     for (int i = 0; i < NUM_FB; i++) begin
-      f_fill_first_beat[i] = f_fill_beat_addr_q[i][LINE_W-1:BUS_W];
+      f_fill_first_beat[i]   = f_fill_beat_addr_q[i][LINE_W-1:BUS_W];
       f_fill_ext_end_beat[i] = {1'b0, f_fill_first_beat[i]} + fill_ext_cnt_q[i];
       f_fill_rvd_end_beat[i] = {1'b0, f_fill_first_beat[i]} + fill_rvd_cnt_q[i];
       for (int b = 0; b < LINE_BEATS; b++) begin

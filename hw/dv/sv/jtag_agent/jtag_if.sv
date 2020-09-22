@@ -3,7 +3,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // jtag interface with default 50MHz tck
-interface jtag_if #(time JtagDefaultTckPeriodNs = 20ns) ();
+interface jtag_if #(
+  time JtagDefaultTckPeriodNs = 20ns
+) ();
 
   // interface pins
   logic tck;
@@ -18,29 +20,22 @@ interface jtag_if #(time JtagDefaultTckPeriodNs = 20ns) ();
   time  tck_period_ns = JtagDefaultTckPeriodNs;
 
   clocking host_cb @(posedge tck);
-    output  tms;
-    output  tdi;
-    input   tdo;
-    input   tdo_oe;
+    output tms;
+    output tdi;
+    input tdo;
+    input tdo_oe;
   endclocking
   modport host_mp(clocking host_cb, output trst_n);
 
   clocking device_cb @(posedge tck);
-    input  tms;
-    input  tdi;
+    input tms;
+    input tdi;
     output tdo;
     output tdo_oe;
   endclocking
   modport device_mp(clocking device_cb, input trst_n);
 
-  modport mon_mp (
-    input tck,
-    input trst_n,
-    input tms,
-    input tdi,
-    input tdo,
-    input tdo_oe
-  );
+  modport mon_mp(input tck, input trst_n, input tms, input tdi, input tdo, input tdo_oe);
 
   // debug signals
 

@@ -6,12 +6,8 @@
 class uart_default_seq extends uart_seq;
   `uvm_object_utils(uart_default_seq)
 
-  constraint parity_err_c {
-    parity_err == 0;
-  }
-  constraint frame_err_c {
-    frame_err == 0;
-  }
+  constraint parity_err_c {parity_err == 0;}
+  constraint frame_err_c {frame_err == 0;}
 
   `uvm_object_new
 

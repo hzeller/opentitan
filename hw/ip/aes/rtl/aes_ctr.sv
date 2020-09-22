@@ -8,15 +8,15 @@
 
 `include "prim_assert.sv"
 
-module aes_ctr(
-  input  logic             clk_i,
-  input  logic             rst_ni,
+module aes_ctr (
+  input logic clk_i,
+  input logic rst_ni,
 
-  input  logic             incr_i,
-  output logic             ready_o,
+  input  logic incr_i,
+  output logic ready_o,
 
-  input  logic [7:0][15:0] ctr_i, // 8 times 2 bytes
-  output logic [7:0][15:0] ctr_o, // 8 times 2 bytes
+  input  logic [7:0][15:0] ctr_i,  // 8 times 2 bytes
+  output logic [7:0][15:0] ctr_o,  // 8 times 2 bytes
   output logic [7:0]       ctr_we_o
 );
 
@@ -40,29 +40,30 @@ module aes_ctr(
 
   // Types
   typedef enum logic {
-    IDLE, INCR
+    IDLE,
+    INCR
   } aes_ctr_e;
 
   // Signals
-  aes_ctr_e         aes_ctr_ns, aes_ctr_cs;
-  logic       [2:0] ctr_slice_idx_d, ctr_slice_idx_q;
-  logic             ctr_carry_d, ctr_carry_q;
+  aes_ctr_e aes_ctr_ns, aes_ctr_cs;
+  logic [2:0] ctr_slice_idx_d, ctr_slice_idx_q;
+  logic ctr_carry_d, ctr_carry_q;
 
-  logic [7:0][15:0] ctr_i_rev; // 8 times 2 bytes
-  logic [7:0][15:0] ctr_o_rev; // 8 times 2 bytes
-  logic [7:0]       ctr_we_o_rev;
-  logic             ctr_we;
+  logic [ 7:0][15:0] ctr_i_rev;  // 8 times 2 bytes
+  logic [ 7:0][15:0] ctr_o_rev;  // 8 times 2 bytes
+  logic [ 7:0]       ctr_we_o_rev;
+  logic              ctr_we;
 
-  logic      [15:0] ctr_i_slice;
-  logic      [15:0] ctr_o_slice;
-  logic      [16:0] ctr_value;
+  logic [15:0]       ctr_i_slice;
+  logic [15:0]       ctr_o_slice;
+  logic [16:0]       ctr_value;
 
   ////////////
   // Inputs //
   ////////////
 
   // Reverse byte order
-  assign ctr_i_rev = aes_rev_order_byte(ctr_i);
+  assign ctr_i_rev   = aes_rev_order_byte(ctr_i);
 
   /////////////
   // Counter //

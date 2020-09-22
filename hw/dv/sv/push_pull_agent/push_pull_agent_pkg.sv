@@ -29,4 +29,4 @@ package push_pull_agent_pkg;
   `include "push_pull_seq_list.sv"
   `include "push_pull_agent.sv"
 
-endpackage: push_pull_agent_pkg
+endpackage : push_pull_agent_pkg

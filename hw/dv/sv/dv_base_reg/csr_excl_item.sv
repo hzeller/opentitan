@@ -9,7 +9,7 @@ class csr_excl_item extends uvm_object;
   `uvm_object_utils(csr_excl_item)
 
   typedef struct {
-    int             csr_test_type;
+    int csr_test_type;
     csr_excl_type_e csr_excl_type;
   } csr_excl_s;
   local csr_excl_s exclusions[string];
@@ -77,8 +77,7 @@ class csr_excl_item extends uvm_object;
       if ((exclusions[obj].csr_test_type & csr_test_type) != CsrInvalidTest) begin
         if ((exclusions[obj].csr_excl_type & csr_excl_type) != CsrNoExcl) return 1'b1;
       end
-    end
-    else begin
+    end else begin
       // attempt glob style matching
       foreach (exclusions[str]) begin
         if (!uvm_re_match(str, obj)) begin
@@ -99,7 +98,7 @@ class csr_excl_item extends uvm_object;
     string test_names;
     for (int i = NUM_CSR_TESTS - 1; i >= 0; i--) begin
       csr_test_type_e csr_test = csr_test_type_e'(1 << i);
-      test_names = {test_names, csr_test.name(),  (i > 0) ? " " : ""};
+      test_names = {test_names, csr_test.name(), (i > 0) ? " " : ""};
     end
     foreach (exclusions[item]) begin
       `uvm_info(`gfn, $sformatf("CSR/field [%0s] excluded with %0s in csr_tests: {%s} = {%0b}",

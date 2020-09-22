@@ -41,7 +41,7 @@ tl_device_t xbar_devices[$] = '{
         '{32'h40180000, 32'h40180fff}
 }}};
 
-  // List of Xbar hosts
+// List of Xbar hosts
 tl_host_t xbar_hosts[$] = '{
     '{"main", 0, '{
         "uart",

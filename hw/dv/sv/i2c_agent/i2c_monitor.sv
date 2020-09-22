@@ -2,19 +2,19 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class i2c_monitor extends dv_base_monitor #(
-    .ITEM_T (i2c_item),
-    .CFG_T  (i2c_agent_cfg),
-    .COV_T  (i2c_agent_cov)
-  );
+class i2c_monitor extends dv_base_monitor#(
+    .ITEM_T(i2c_item),
+    .CFG_T (i2c_agent_cfg),
+    .COV_T (i2c_agent_cov)
+);
   `uvm_component_utils(i2c_monitor)
 
   uvm_analysis_port #(i2c_item) mon_item_port;  // used to send partial item to driver
-  uvm_analysis_port #(i2c_item) wr_item_port;   // used to send complete wr_tran to sb
-  uvm_analysis_port #(i2c_item) rd_item_port;   // used to send complete rd_tran to sb
+  uvm_analysis_port #(i2c_item) wr_item_port;  // used to send complete wr_tran to sb
+  uvm_analysis_port #(i2c_item) rd_item_port;  // used to send complete rd_tran to sb
 
-  local bit [7:0] mon_data;
-  local uint      num_dut_tran = 0;
+  local bit [7:0]               mon_data;
+  local uint                    num_dut_tran   = 0;
 
   `uvm_component_new
 
@@ -29,7 +29,7 @@ class i2c_monitor extends dv_base_monitor #(
     @(negedge cfg.vif.rst_ni);
     cfg.vif.scl_o = 1'b1;
     cfg.vif.sda_o = 1'b1;
-    num_dut_tran = 0;
+    num_dut_tran  = 0;
   endtask : process_reset
 
   virtual task run_phase(uvm_phase phase);
@@ -39,8 +39,8 @@ class i2c_monitor extends dv_base_monitor #(
 
   // collect transactions forever
   virtual protected task collect_thread(uvm_phase phase);
-    i2c_item   complete_item;
-    i2c_item   mon_dut_item;
+    i2c_item complete_item;
+    i2c_item mon_dut_item;
 
     mon_dut_item = i2c_item::type_id::create("mon_dut_item", this);
     forever begin
@@ -74,7 +74,7 @@ class i2c_monitor extends dv_base_monitor #(
         end else begin
           @(cfg.vif.clk_i);
         end
-        begin // handle on-the-fly reset
+        begin  // handle on-the-fly reset
           process_reset();
           mon_dut_item.clear_all();
           `uvm_info(`gfn, $sformatf("\nmonitor is reset, drop item\n%s",
@@ -83,7 +83,7 @@ class i2c_monitor extends dv_base_monitor #(
       join_any
       disable fork;
     end
-  endtask: collect_thread
+  endtask : collect_thread
 
   virtual protected task address_thread(i2c_item mon_dut_item, uint id);
     i2c_item clone_item;
@@ -95,7 +95,7 @@ class i2c_monitor extends dv_base_monitor #(
       cfg.vif.get_bit_data("host", cfg.timing_cfg, mon_dut_item.addr[i]);
     end
     cfg.vif.get_bit_data("host", cfg.timing_cfg, rw_req);
-    mon_dut_item.bus_op = (rw_req) ? BusOpRead : BusOpWrite;
+    mon_dut_item.bus_op   = (rw_req) ? BusOpRead : BusOpWrite;
     // get ack after transmitting address
     mon_dut_item.drv_type = DevAck;
     `downcast(clone_item, mon_dut_item.clone());
@@ -106,7 +106,7 @@ class i2c_monitor extends dv_base_monitor #(
 
   virtual protected task read_thread(i2c_item mon_dut_item);
     i2c_item clone_item;
-    
+
     mon_dut_item.stop   = 1'b0;
     mon_dut_item.rstart = 1'b0;
     mon_dut_item.ack    = 1'b0;

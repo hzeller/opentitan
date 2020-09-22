@@ -37,28 +37,28 @@
 
 class tl_seq_item extends uvm_sequence_item;
 
-  rand bit [AddrWidth - 1   : 0] a_addr;
-  rand bit [DataWidth - 1   : 0] a_data;
-  rand bit [MaskWidth - 1   : 0] a_mask;
-  rand bit [SizeWidth - 1   : 0] a_size;
+  rand bit [AddrWidth - 1 : 0]   a_addr;
+  rand bit [DataWidth - 1 : 0]   a_data;
+  rand bit [MaskWidth - 1 : 0]   a_mask;
+  rand bit [SizeWidth - 1 : 0]   a_size;
   rand bit [2:0]                 a_param;
   rand bit [SourceWidth - 1 : 0] a_source;
   rand bit [OpcodeWidth - 1 : 0] a_opcode;
 
   rand bit [2:0]                 d_param;
-  rand bit [DataWidth - 1   : 0] d_data;
+  rand bit [DataWidth - 1 : 0]   d_data;
   rand bit [SourceWidth - 1 : 0] d_source;
-  rand bit [SizeWidth - 1   : 0] d_size;
+  rand bit [SizeWidth - 1 : 0]   d_size;
   rand bit [OpcodeWidth - 1 : 0] d_opcode;
   rand bit                       d_error;
   rand bit [DUserWidth - 1 : 0]  d_user;
   rand bit                       d_sink;
 
   // host mode delays
-  rand int unsigned               a_valid_delay;
+  rand int unsigned              a_valid_delay;
 
   // device mode delays
-  rand int unsigned               d_valid_delay;
+  rand int unsigned              d_valid_delay;
 
   // param is reserved for future use, must be zero
   constraint param_c {
@@ -66,65 +66,47 @@ class tl_seq_item extends uvm_sequence_item;
     d_param == 0;
   }
 
-  constraint no_d_error_c {
-    soft d_error == 0;
-  }
+  constraint no_d_error_c {soft d_error == 0;}
 
   constraint valid_delay_c {
-    soft a_valid_delay inside {[0:50]};
-    soft d_valid_delay inside {[0:50]};
+    soft a_valid_delay inside {[0 : 50]};
+    soft d_valid_delay inside {[0 : 50]};
   }
 
-  constraint d_opcode_c {
-    d_opcode inside {AccessAckData, AccessAck};
-  }
+  constraint d_opcode_c {d_opcode inside {AccessAckData, AccessAck};}
 
-  constraint a_opcode_c {
-    `chk_prot_a_opcode;
-  }
+  constraint a_opcode_c {`chk_prot_a_opcode;}
 
   // mask must be contiguous, e.g. 'b1001, 'b1010 aren't allowed
-  constraint mask_contiguous_c {
-    $countones(a_mask ^ {a_mask[MaskWidth-2:0], 1'b0}) <= 2;
-  }
+  constraint mask_contiguous_c {$countones(a_mask ^ {a_mask[MaskWidth-2:0], 1'b0}) <= 2;}
 
-  constraint mask_w_PutFullData_c {
-    `chk_prot_mask_w_PutFullData;
-  }
+  constraint mask_w_PutFullData_c {`chk_prot_mask_w_PutFullData;}
 
-  constraint mask_w_addr_c {
-    `chk_prot_mask_w_addr;
-  }
+  constraint mask_w_addr_c {`chk_prot_mask_w_addr;}
 
-  constraint mask_in_enabled_lanes_c {
-    `chk_prot_mask_in_enabled_lanes;
-  }
+  constraint mask_in_enabled_lanes_c {`chk_prot_mask_in_enabled_lanes;}
 
-  constraint addr_size_align_c {
-    `chk_prot_addr_size_align;
-  }
+  constraint addr_size_align_c {`chk_prot_addr_size_align;}
 
   // size can't be more than 2
-  constraint max_size_c {
-    `chk_prot_max_size;
-  }
+  constraint max_size_c {`chk_prot_max_size;}
 
   `uvm_object_utils_begin(tl_seq_item)
-    `uvm_field_int  (a_addr,              UVM_DEFAULT)
-    `uvm_field_int  (a_data,              UVM_DEFAULT)
-    `uvm_field_int  (a_mask,              UVM_DEFAULT)
-    `uvm_field_int  (a_size,              UVM_DEFAULT)
-    `uvm_field_int  (a_param,             UVM_DEFAULT)
-    `uvm_field_int  (a_source,            UVM_DEFAULT)
-    `uvm_field_int  (a_opcode,            UVM_DEFAULT)
-    `uvm_field_int  (d_param,             UVM_DEFAULT)
-    `uvm_field_int  (d_source,            UVM_DEFAULT)
-    `uvm_field_int  (d_data,              UVM_DEFAULT)
-    `uvm_field_int  (d_size,              UVM_DEFAULT)
-    `uvm_field_int  (d_opcode,            UVM_DEFAULT)
-    `uvm_field_int  (d_error,             UVM_DEFAULT)
-    `uvm_field_int  (d_sink,              UVM_DEFAULT)
-    `uvm_field_int  (d_user,              UVM_DEFAULT)
+    `uvm_field_int(a_addr, UVM_DEFAULT)
+    `uvm_field_int(a_data, UVM_DEFAULT)
+    `uvm_field_int(a_mask, UVM_DEFAULT)
+    `uvm_field_int(a_size, UVM_DEFAULT)
+    `uvm_field_int(a_param, UVM_DEFAULT)
+    `uvm_field_int(a_source, UVM_DEFAULT)
+    `uvm_field_int(a_opcode, UVM_DEFAULT)
+    `uvm_field_int(d_param, UVM_DEFAULT)
+    `uvm_field_int(d_source, UVM_DEFAULT)
+    `uvm_field_int(d_data, UVM_DEFAULT)
+    `uvm_field_int(d_size, UVM_DEFAULT)
+    `uvm_field_int(d_opcode, UVM_DEFAULT)
+    `uvm_field_int(d_error, UVM_DEFAULT)
+    `uvm_field_int(d_sink, UVM_DEFAULT)
+    `uvm_field_int(d_user, UVM_DEFAULT)
   `uvm_object_utils_end
 
   function new (string name = "");
@@ -191,14 +173,16 @@ class tl_seq_item extends uvm_sequence_item;
   function void randomize_a_chan_with_protocol_error();
     bit cm_a_opcode, cm_mask_w_PutFullData;
     bit cm_mask_w_addr, cm_mask_in_enabled_lanes, cm_addr_size_align, cm_max_size;
-    `DV_CHECK_FATAL(std::randomize(cm_a_opcode, cm_mask_w_PutFullData,
+    `DV_CHECK_FATAL(std::randomize(
+                    cm_a_opcode, cm_mask_w_PutFullData,
                                    cm_mask_w_addr, cm_mask_in_enabled_lanes,
-                                   cm_addr_size_align, cm_max_size) with {
-                                   // at least one constraint_mode is off
-                                   !(cm_a_opcode && cm_mask_w_PutFullData &&
+                                   cm_addr_size_align, cm_max_size
+                    ) with {
+                    // at least one constraint_mode is off
+                    !(cm_a_opcode && cm_mask_w_PutFullData &&
                                    cm_mask_w_addr && cm_mask_in_enabled_lanes &&
                                    cm_addr_size_align && cm_max_size);
-                                   })
+                    })
     a_opcode_c.constraint_mode(cm_a_opcode);
     mask_w_PutFullData_c.constraint_mode(cm_mask_w_PutFullData);
     mask_w_addr_c.constraint_mode(cm_mask_w_addr);

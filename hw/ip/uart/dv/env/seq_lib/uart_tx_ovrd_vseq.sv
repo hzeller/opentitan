@@ -19,7 +19,9 @@ class uart_tx_ovrd_vseq extends uart_sanity_vseq;
 
     // disable monitor as monitor can't handle this
     cfg.m_uart_agent_cfg.en_tx_monitor = 0;
-    repeat ($urandom_range(1, 5)) begin
+    repeat ($urandom_range(
+        1, 5
+    )) begin
       `DV_CHECK_STD_RANDOMIZE_FATAL(en_ovrd)
       `DV_CHECK_STD_RANDOMIZE_FATAL(txval)
       `DV_CHECK_MEMBER_RANDOMIZE_FATAL(dly_to_next_trans)

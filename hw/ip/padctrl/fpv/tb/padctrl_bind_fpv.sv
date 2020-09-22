@@ -5,13 +5,9 @@
 
 module padctrl_bind_fpv;
 
-  bind padring padring_assert_fpv i_padring_assert_fpv (
-    .*
-  );
+  bind padring padring_assert_fpv i_padring_assert_fpv (.*);
 
-  bind padctrl padctrl_assert_fpv i_padctrl_assert_fpv (
-    .*
-  );
+  bind padctrl padctrl_assert_fpv i_padctrl_assert_fpv (.*);
 
   bind padctrl tlul_assert #(
     .EndpointType("Device")

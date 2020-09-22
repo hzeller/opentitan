@@ -11,7 +11,7 @@
 module usbdpi #(
   parameter string NAME = "usb0",
   parameter LOG_LEVEL = 1
-)(
+) (
   input  logic clk_i,
   input  logic rst_ni,
   input  logic clk_48MHz_i,
@@ -25,17 +25,13 @@ module usbdpi #(
   input  logic pullup_d2p,
   input  logic pullup_en_d2p
 );
-  import "DPI-C" function
-    chandle usbdpi_create(input string name, input int loglevel);
+  import "DPI-C" function chandle usbdpi_create(input string name, input int loglevel);
 
-  import "DPI-C" function
-    void usbdpi_device_to_host(input chandle ctx, input bit [4:0] d2p);
+  import "DPI-C" function void usbdpi_device_to_host(input chandle ctx, input bit [4:0] d2p);
 
-  import "DPI-C" function
-    void usbdpi_close(input chandle ctx);
+  import "DPI-C" function void usbdpi_close(input chandle ctx);
 
-  import "DPI-C" function
-    byte usbdpi_host_to_device(input chandle ctx, input bit [4:0] d2p);
+  import "DPI-C" function byte usbdpi_host_to_device(input chandle ctx, input bit [4:0] d2p);
 
   chandle ctx;
 
@@ -52,7 +48,7 @@ module usbdpi #(
   logic       unused_dummy;
   logic       unused_clk = clk_i;
   logic       unused_rst = rst_ni;
-  logic       dp_int, dn_int;
+  logic dp_int, dn_int;
 
   assign d2p = {dp_d2p, dp_en_d2p, dn_d2p, dn_en_d2p, pullup_d2p & pullup_en_d2p};
   always_ff @(posedge clk_48MHz_i) begin

@@ -21,31 +21,33 @@
 
 `include "prim_assert.sv"
 
-module alert_handler_ping_timer import alert_pkg::*; #(
+module alert_handler_ping_timer
+import alert_pkg::*;
+#(
   // Enable this for DV, disable this for long LFSRs in FPV
-  parameter bit                MaxLenSVA  = 1'b1,
+  parameter bit MaxLenSVA = 1'b1,
   // Can be disabled in cases where entropy
   // inputs are unused in order to not distort coverage
   // (the SVA will be unreachable in such cases)
-  parameter bit                LockupSVA  = 1'b1
+  parameter bit LockupSVA = 1'b1
 ) (
   input                          clk_i,
   input                          rst_ni,
-  input                          entropy_i,          // from TRNG
-  input                          en_i,               // enable ping testing
-  input        [NAlerts-1:0]     alert_en_i,         // determines which alerts to ping
-  input        [PING_CNT_DW-1:0] ping_timeout_cyc_i, // timeout in cycles
-  input        [PING_CNT_DW-1:0] wait_cyc_mask_i,    // wait cycles mask
-  output logic [NAlerts-1:0]     alert_ping_req_o,   // request to alert receivers
-  output logic [N_ESC_SEV-1:0]   esc_ping_req_o,     // enable to esc senders
-  input        [NAlerts-1:0]     alert_ping_ok_i,    // response from alert receivers
-  input        [N_ESC_SEV-1:0]   esc_ping_ok_i,      // response from esc senders
+  input                          entropy_i,  // from TRNG
+  input                          en_i,  // enable ping testing
+  input        [    NAlerts-1:0] alert_en_i,  // determines which alerts to ping
+  input        [PING_CNT_DW-1:0] ping_timeout_cyc_i,  // timeout in cycles
+  input        [PING_CNT_DW-1:0] wait_cyc_mask_i,  // wait cycles mask
+  output logic [    NAlerts-1:0] alert_ping_req_o,  // request to alert receivers
+  output logic [  N_ESC_SEV-1:0] esc_ping_req_o,  // enable to esc senders
+  input        [    NAlerts-1:0] alert_ping_ok_i,  // response from alert receivers
+  input        [  N_ESC_SEV-1:0] esc_ping_ok_i,  // response from esc senders
   output logic                   alert_ping_fail_o,  // any of the alert receivers failed
-  output logic                   esc_ping_fail_o     // any of the esc senders failed
+  output logic                   esc_ping_fail_o  // any of the esc senders failed
 );
 
   localparam int unsigned NModsToPing = NAlerts + N_ESC_SEV;
-  localparam int unsigned IdDw        = $clog2(NModsToPing);
+  localparam int unsigned IdDw = $clog2(NModsToPing);
 
   // this defines a random permutation
   localparam int unsigned Perm [32] = '{
@@ -68,21 +70,21 @@ module alert_handler_ping_timer import alert_pkg::*; #(
   logic [16-IdDw-1:0] unused_perm_state;
 
   prim_lfsr #(
-    .LfsrDw      ( 32         ),
-    .EntropyDw   ( 1          ),
-    .StateOutDw  ( 32         ),
-    .DefaultSeed ( LfsrSeed   ),
-    .MaxLenSVA   ( MaxLenSVA  ),
-    .LockupSVA   ( LockupSVA  ),
-    .ExtSeedSVA  ( 1'b0       ) // ext seed is unused
+      .LfsrDw     (32),
+      .EntropyDw  (1),
+      .StateOutDw (32),
+      .DefaultSeed(LfsrSeed),
+      .MaxLenSVA  (MaxLenSVA),
+      .LockupSVA  (LockupSVA),
+      .ExtSeedSVA (1'b0)  // ext seed is unused
   ) i_prim_lfsr (
-    .clk_i,
-    .rst_ni,
-    .seed_en_i  ( 1'b0       ),
-    .seed_i     ( '0         ),
-    .lfsr_en_i  ( lfsr_en    ),
-    .entropy_i,
-    .state_o    ( lfsr_state )
+      .clk_i,
+      .rst_ni,
+      .seed_en_i(1'b0),
+      .seed_i   ('0),
+      .lfsr_en_i(lfsr_en),
+      .entropy_i,
+      .state_o  (lfsr_state)
   );
 
   for (genvar k = 0; k < 32; k++) begin : gen_perm
@@ -99,18 +101,18 @@ module alert_handler_ping_timer import alert_pkg::*; #(
 
   // concatenate with constant offset, introduce some stagger
   // by concatenating the lower bits below
-  assign wait_cyc   = PING_CNT_DW'({perm_state[15:2], 8'h01, perm_state[1:0]}) & wait_cyc_mask_i;
+  assign wait_cyc = PING_CNT_DW'({perm_state[15:2], 8'h01, perm_state[1:0]}) & wait_cyc_mask_i;
 
   logic [2**IdDw-1:0] enable_mask;
   always_comb begin : p_enable_mask
-    enable_mask                        = '0;         // tie off unused
-    enable_mask[NAlerts-1:0]           = alert_en_i; // alerts
-    enable_mask[NModsToPing-1:NAlerts] = '1;         // escalation senders
+    enable_mask                        = '0;  // tie off unused
+    enable_mask[NAlerts-1:0]           = alert_en_i;  // alerts
+    enable_mask[NModsToPing-1:NAlerts] = '1;  // escalation senders
   end
 
   logic id_vld;
   // check if the randomly drawn ID is actually valid and the alert is enabled
-  assign id_vld  = enable_mask[id_to_ping];
+  assign id_vld = enable_mask[id_to_ping];
 
   /////////////
   // Counter //
@@ -128,7 +130,11 @@ module alert_handler_ping_timer import alert_pkg::*; #(
   // Ping and Timeout Logic //
   ////////////////////////////
 
-  typedef enum logic [1:0] {Init, RespWait, DoPing} state_e;
+  typedef enum logic [1:0] {
+    Init,
+    RespWait,
+    DoPing
+  } state_e;
   state_e state_d, state_q;
   logic ping_en, ping_ok;
   logic [NModsToPing-1:0] ping_sel;
@@ -136,9 +142,9 @@ module alert_handler_ping_timer import alert_pkg::*; #(
   logic spurious_alert_ping, spurious_esc_ping;
 
   // generate ping enable vector
-  assign ping_sel        = NModsToPing'(ping_en) << id_to_ping;
-  assign alert_ping_req_o = ping_sel[NAlerts-1:0];
-  assign esc_ping_req_o   = ping_sel[NModsToPing-1:NAlerts];
+  assign ping_sel            = NModsToPing'(ping_en) << id_to_ping;
+  assign alert_ping_req_o    = ping_sel[NAlerts-1:0];
+  assign esc_ping_req_o      = ping_sel[NModsToPing-1:NAlerts];
 
   // mask out response
   assign ping_ok             = |({esc_ping_ok_i, alert_ping_ok_i} & ping_sel);
@@ -152,13 +158,13 @@ module alert_handler_ping_timer import alert_pkg::*; #(
   always_comb begin : p_fsm
     // default
     state_d = state_q;
-    cnt_en  = 1'b0;
+    cnt_en = 1'b0;
     cnt_clr = 1'b0;
     lfsr_en = 1'b0;
     ping_en = 1'b0;
     // this captures spurious
     alert_ping_fail_o = spurious_alert_ping;
-    esc_ping_fail_o   = spurious_esc_ping;
+    esc_ping_fail_o = spurious_esc_ping;
 
     unique case (state_q)
       // wait until activiated
@@ -197,7 +203,7 @@ module alert_handler_ping_timer import alert_pkg::*; #(
             if (id_to_ping < NAlerts) begin
               alert_ping_fail_o = 1'b1;
             end else begin
-              esc_ping_fail_o   = 1'b1;
+              esc_ping_fail_o = 1'b1;
             end
           end
         end

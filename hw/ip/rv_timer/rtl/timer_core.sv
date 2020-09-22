@@ -17,7 +17,7 @@ module timer_core #(
   output logic        tick,
   output logic [63:0] mtime_d,
   input        [63:0] mtime,
-  input        [63:0] mtimecmp [N],
+  input        [63:0] mtimecmp[N],
 
   output logic [N-1:0] intr
 );

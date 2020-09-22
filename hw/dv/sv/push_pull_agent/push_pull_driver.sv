@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class push_pull_driver #(parameter int DataWidth = 32) extends dv_base_driver #(
+class push_pull_driver #(
+  parameter int DataWidth = 32
+) extends dv_base_driver#(
     .ITEM_T(push_pull_item#(DataWidth)),
-    .CFG_T(push_pull_agent_cfg#(DataWidth))
+    .CFG_T (push_pull_agent_cfg#(DataWidth))
 );
 
   bit in_reset = 1'b0;

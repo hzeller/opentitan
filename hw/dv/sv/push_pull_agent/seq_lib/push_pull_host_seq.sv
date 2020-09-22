@@ -5,7 +5,9 @@
 // Request sequence for Push and Pull protocols.
 // This sequence will send num_trans requests to the DUT.
 
-class push_pull_host_seq #(parameter int DataWidth = 32) extends push_pull_base_seq #(DataWidth);
+class push_pull_host_seq #(
+  parameter int DataWidth = 32
+) extends push_pull_base_seq#(DataWidth);
 
   `uvm_object_param_utils(push_pull_host_seq#(DataWidth))
 

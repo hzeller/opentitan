@@ -6,25 +6,22 @@ import tlul_pkg::*;
 import trial1_reg_pkg::*;
 
 module trial1_test (
-  input                   clk,
-  input                   rst_n,
+  input clk,
+  input rst_n,
 
-  output tl_h2d_t         tl_h2d,
-  input  tl_d2h_t         tl_d2h,
+  output tl_h2d_t tl_h2d,
+  input  tl_d2h_t tl_d2h,
 
-  input  trial1_reg2hw_t  reg2hw,
-  output trial1_hw2reg_t  hw2reg
+  input  trial1_reg2hw_t reg2hw,
+  output trial1_hw2reg_t hw2reg
 );
 
-  int errorcount = 0;
+  int   errorcount = 0;
   logic DEBUG = 1'b1;
   // for now always accept read responses
-  assign  tl_h2d.d_ready = 1'b1;
+  assign tl_h2d.d_ready = 1'b1;
 
-  task automatic send_wr (
-    input bit [11:0] waddr,
-    input bit [31:0] wdata
-  );
+  task automatic send_wr(input bit [11:0] waddr, input bit [31:0] wdata);
     begin
       tl_h2d.a_address <= waddr;
       tl_h2d.a_data <= wdata;
@@ -41,12 +38,9 @@ module trial1_test (
     end
   endtask
 
-  task automatic send_rd (
-    input  bit [11:0] raddr,
-    output bit [31:0] rdata
-  );
+  task automatic send_rd(input bit [11:0] raddr, output bit [31:0] rdata);
     begin
-      tl_h2d.a_address  <= raddr;
+      tl_h2d.a_address <= raddr;
       tl_h2d.a_opcode <= Get;
       tl_h2d.a_mask <= 4'hF;
       tl_h2d.a_size <= 'h2;
@@ -62,17 +56,12 @@ module trial1_test (
     end
   endtask
 
-  task automatic test_q (
-    string regname,
-    input bit [31:0] gotval,
-    input bit [31:0] expval
-  );
+  task automatic test_q(string regname, input bit [31:0] gotval, input bit [31:0] expval);
     begin
       if (gotval !== expval) begin
         $display("ERROR: expected q value for %s is %x got %x", regname, expval, gotval);
         errorcount++;
-      end else if (DEBUG)
-        $display("INFO: got expected q value for %s of %x", regname, expval);
+      end else if (DEBUG) $display("INFO: got expected q value for %s of %x", regname, expval);
     end
   endtask
 
@@ -107,11 +96,7 @@ module trial1_test (
   // externalized register
   assign hw2reg.rotype1.d = rotype1_capture;
 
-  task automatic test_capture (
-    string regname,
-    input bit [31:0] gotval,
-    input bit [31:0] expval
-  );
+  task automatic test_capture(string regname, input bit [31:0] gotval, input bit [31:0] expval);
     begin
       if (gotval !== expval) begin
         $display("ERROR: expected hwqe captured value for %s is %x got %x", regname, expval,
@@ -122,19 +107,14 @@ module trial1_test (
     end
   endtask
 
-  task automatic test_reg (
-    string regname,
-    input bit [11:0] addr,
-    input bit [31:0] expval
-  );
+  task automatic test_reg(string regname, input bit [11:0] addr, input bit [31:0] expval);
     begin
       logic [31:0] gotval;
       send_rd(addr, gotval);
       if (gotval !== expval) begin
         $display("ERROR: expected rd value for %s is %x got %x", regname, expval, gotval);
         errorcount++;
-      end else if (DEBUG)
-        $display("INFO: got expected rd value for %s of %x", regname, expval);
+      end else if (DEBUG) $display("INFO: got expected rd value for %s of %x", regname, expval);
     end
   endtask
 
@@ -144,7 +124,7 @@ module trial1_test (
     // test q
     test_q("RWTYPE0", reg2hw.rwtype0.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("RWTYPE0", 12'h0, expdata);
     // test q
@@ -161,7 +141,7 @@ module trial1_test (
     test_q("RWTYPE1.field4", reg2hw.rwtype1.field4.q, maskexp[4]);
     test_q("RWTYPE1.field15_8", reg2hw.rwtype1.field15_8.q, maskexp[15:8]);
     // hold value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     test_reg("RWTYPE1", 12'h4, maskexp);
     // test q
     test_q("RWTYPE1.field0", reg2hw.rwtype1.field0.q, maskexp[0]);
@@ -176,7 +156,7 @@ module trial1_test (
     // test q
     test_q("RWTYPE2", reg2hw.rwtype2.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("RWTYPE2", 12'h8, expdata);
     // test q
@@ -189,7 +169,7 @@ module trial1_test (
     test_q("RWTYPE3.field0", reg2hw.rwtype3.field0.q, expdata[15:0]);
     test_q("RWTYPE3.field1", reg2hw.rwtype3.field1.q, expdata[31:16]);
     // hold value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     test_reg("RWTYPE3", 12'hc, expdata);
     // test q
     test_q("RWTYPE3.field0", reg2hw.rwtype3.field0.q, expdata[15:0]);
@@ -202,7 +182,7 @@ module trial1_test (
     test_q("RWTYPE4.field0", reg2hw.rwtype4.field0.q, expdata[15:0]);
     test_q("RWTYPE4.field1", reg2hw.rwtype4.field1.q, expdata[31:16]);
     // hold value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     test_reg("RWTYPE4", 12'h200, expdata);
     // test q
     test_q("RWTYPE4.field0", reg2hw.rwtype4.field0.q, expdata[15:0]);
@@ -215,7 +195,7 @@ module trial1_test (
     // test q
     test_q("ROTYPE0", reg2hw.rotype0.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("ROTYPE0", 12'h204, expdata);
     // test q
@@ -228,7 +208,7 @@ module trial1_test (
     // test q
     test_q("W1CTYPE0", reg2hw.w1ctype0.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("W1CTYPE0", 12'h208, expdata);
     // test q
@@ -241,7 +221,7 @@ module trial1_test (
     test_q("W1CTYPE1.field0", reg2hw.w1ctype1.field0.q, expdata[15:0]);
     test_q("W1CTYPE1.field1", reg2hw.w1ctype1.field1.q, expdata[31:16]);
     // hold value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     test_reg("W1CTYPE1", 12'h20c, expdata);
     // test q
     test_q("W1CTYPE1.field0", reg2hw.w1ctype1.field0.q, expdata[15:0]);
@@ -254,7 +234,7 @@ module trial1_test (
     // test q
     test_q("W1CTYPE2", reg2hw.w1ctype2.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("W1CTYPE2", 12'h210, expdata);
     // test q
@@ -267,7 +247,7 @@ module trial1_test (
     // test q
     test_q("W1STYPE2", reg2hw.w1stype2.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("W1STYPE2", 12'h214, expdata);
     // test q
@@ -280,7 +260,7 @@ module trial1_test (
     // test q
     test_q("W0CTYPE2", reg2hw.w0ctype2.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("W0CTYPE2", 12'h218, expdata);
     // test q
@@ -293,7 +273,7 @@ module trial1_test (
     // test q
     test_q("R0W1CTYPE2", reg2hw.r0w1ctype2.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("R0W1CTYPE2", 12'h21c, 0);
     // test q
@@ -306,7 +286,7 @@ module trial1_test (
     // test register read
     test_reg("RCTYPE0", 12'h220, expdata);
     // second read returns zero value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("RCTYPE0", 12'h220, 32'h0);
     // test q
@@ -319,7 +299,7 @@ module trial1_test (
     // test q
     test_q("WOTYPE0", reg2hw.wotype0.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("WOTYPE0", 12'h224, 32'h0);
     // test q
@@ -339,7 +319,7 @@ module trial1_test (
     // test register
     test_reg("MIXTYPE0", 12'h228, expdata & 32'h0fffffff);  // [31:28] is write-only
     // hold value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // [31:28] is write-only, [27:24] is read-clear
     test_reg("MIXTYPE0", 12'h228, expdata & 32'h00ffffff);
     // test q
@@ -349,7 +329,7 @@ module trial1_test (
     test_q("MIXTYPE0.field3", reg2hw.mixtype0.field3.q, expdata[15:12]);
     test_q("MIXTYPE0.field4", reg2hw.mixtype0.field4.q, expdata[19:16]);
     test_q("MIXTYPE0.field5", reg2hw.mixtype0.field5.q, expdata[23:20]);
-    test_q("MIXTYPE0.field6", reg2hw.mixtype0.field6.q, 4'h0); // read-clear
+    test_q("MIXTYPE0.field6", reg2hw.mixtype0.field6.q, 4'h0);  // read-clear
     test_q("MIXTYPE0.field7", reg2hw.mixtype0.field7.q, expdata[31:28]);
   endtask
 
@@ -359,7 +339,7 @@ module trial1_test (
     // test q
     test_q("RWTYPE5", reg2hw.rwtype5.q, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("RWTYPE5", 12'h22c, expdata);
     // test q
@@ -375,7 +355,7 @@ module trial1_test (
     // test register read
     test_reg("RWTYPE6", 12'h230, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("RWTYPE6", 12'h230, expdata);
   endtask
@@ -389,7 +369,7 @@ module trial1_test (
     // test register read
     test_reg("RWTYPE7", 12'h23c, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("RWTYPE7", 12'h23c, expdata);
   endtask
@@ -398,7 +378,7 @@ module trial1_test (
     // test register read
     test_reg("ROTYPE1", 12'h234, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("ROTYPE1", 12'h234, expdata);
   endtask
@@ -412,7 +392,7 @@ module trial1_test (
     // test register read
     test_reg("ROTYPE2", 12'h238, expdata);
     // holds value
-    repeat(5) @(posedge clk);
+    repeat (5) @(posedge clk);
     // test register read
     test_reg("ROTYPE2", 12'h238, expdata);
   endtask
@@ -437,42 +417,42 @@ module trial1_test (
   logic [31:0] hold_wd, hold_q;
   initial begin
     hw2reg.rwtype2.de = 1'b0;
-    hw2reg.rwtype2.d  = 32'hxxxxxxxx;
+    hw2reg.rwtype2.d = 32'hxxxxxxxx;
     hw2reg.rwtype3.field0.de = 1'b0;
-    hw2reg.rwtype3.field0.d  = 16'hxxxx;
+    hw2reg.rwtype3.field0.d = 16'hxxxx;
     hw2reg.rwtype3.field1.de = 1'b0;
-    hw2reg.rwtype3.field1.d  = 16'hxxxx;
+    hw2reg.rwtype3.field1.d = 16'hxxxx;
     hw2reg.rotype0.de = 1'b0;
-    hw2reg.rotype0.d  = 32'hxxxxxxxx;
+    hw2reg.rotype0.d = 32'hxxxxxxxx;
     hw2reg.w1ctype2.de = 1'b0;
-    hw2reg.w1ctype2.d  = 32'hxxxxxxxx;
+    hw2reg.w1ctype2.d = 32'hxxxxxxxx;
     hw2reg.w1stype2.de = 1'b0;
-    hw2reg.w1stype2.d  = 32'hxxxxxxxx;
+    hw2reg.w1stype2.d = 32'hxxxxxxxx;
     hw2reg.w0ctype2.de = 1'b0;
-    hw2reg.w0ctype2.d  = 32'hxxxxxxxx;
+    hw2reg.w0ctype2.d = 32'hxxxxxxxx;
     hw2reg.r0w1ctype2.de = 1'b0;
-    hw2reg.r0w1ctype2.d  = 32'hxxxxxxxx;
+    hw2reg.r0w1ctype2.d = 32'hxxxxxxxx;
     hw2reg.rctype0.de = 1'b0;
-    hw2reg.rctype0.d  = 32'hxxxxxxxx;
+    hw2reg.rctype0.d = 32'hxxxxxxxx;
     hw2reg.mixtype0.field1.de = 1'b0;
-    hw2reg.mixtype0.field1.d  = 4'hx;
+    hw2reg.mixtype0.field1.d = 4'hx;
     hw2reg.mixtype0.field3.de = 1'b0;
-    hw2reg.mixtype0.field3.d  = 4'hx;
+    hw2reg.mixtype0.field3.d = 4'hx;
     hw2reg.mixtype0.field4.de = 1'b0;
-    hw2reg.mixtype0.field4.d  = 4'hx;
+    hw2reg.mixtype0.field4.d = 4'hx;
     hw2reg.mixtype0.field5.de = 1'b0;
-    hw2reg.mixtype0.field5.d  = 4'hx;
+    hw2reg.mixtype0.field5.d = 4'hx;
     hw2reg.mixtype0.field6.de = 1'b0;
-    hw2reg.mixtype0.field6.d  = 4'hx;
+    hw2reg.mixtype0.field6.d = 4'hx;
     hw2reg.rwtype5.de = 1'b0;
-    hw2reg.rwtype5.d  = 32'hxxxxxxxx;
+    hw2reg.rwtype5.d = 32'hxxxxxxxx;
     my_rotype1_de = 1'b0;
     my_rotype1_d = 32'hxxxxxxxx;
     tl_h2d.a_valid = 1'b0;
     tl_h2d.a_opcode = Get;
     tl_h2d.a_user = 16'h0;
-    repeat(20) @(posedge clk);
-     ///////
+    repeat (20) @(posedge clk);
+    ///////
     //
     // test RWTYPE0
     //
@@ -486,7 +466,7 @@ module trial1_test (
     hold_wd = ~32'hdeadbeef;
     send_wr(12'h0, hold_wd);
     test_rwtype0(hold_wd);
-     ///////
+    ///////
     //
     // test RWTYPE1
     //
@@ -500,7 +480,7 @@ module trial1_test (
     hold_wd = ~32'hdeadbeef;
     send_wr(12'h4, hold_wd);
     test_rwtype1(hold_wd);
-     ///////
+    ///////
     //
     // test RWTYPE2, RW + HRW
     //
@@ -548,7 +528,7 @@ module trial1_test (
     join
     @(posedge clk);
     test_rwtype2(hold_wd);
-     ///////
+    ///////
     //
     // test RWTYPE3, separate HRW fields
     //
@@ -563,7 +543,7 @@ module trial1_test (
     send_wr(12'hc, hold_wd);
     test_rwtype3(hold_wd);
     // write one field from HW side
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = $urandom;
     hw2reg.rwtype3.field0.de <= 1'b1;
     hw2reg.rwtype3.field0.d  <= hold_wd[15:0];
@@ -571,7 +551,7 @@ module trial1_test (
     hw2reg.rwtype3.field0.de <= 1'b0;
     hw2reg.rwtype3.field0.d  <= 16'hxxxx;
     @(posedge clk);
-    test_rwtype3({hold_q[31:16],hold_wd[15:0]});
+    test_rwtype3({hold_q[31:16], hold_wd[15:0]});
     // write other field from HW side
     hw2reg.rwtype3.field1.de <= 1'b1;
     hw2reg.rwtype3.field1.d  <= hold_wd[31:16];
@@ -581,7 +561,7 @@ module trial1_test (
     @(posedge clk);
     test_rwtype3(hold_wd);
     // write inverted
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = ~hold_wd;
     hw2reg.rwtype3.field1.de <= 1'b1;
     hw2reg.rwtype3.field1.d  <= hold_wd[31:16];
@@ -589,7 +569,7 @@ module trial1_test (
     hw2reg.rwtype3.field1.de <= 1'b0;
     hw2reg.rwtype3.field1.d  <= 16'hxxxx;
     @(posedge clk);
-    test_rwtype3({hold_wd[31:16],hold_q[15:0]});
+    test_rwtype3({hold_wd[31:16], hold_q[15:0]});
     // write other field from HW side
     hw2reg.rwtype3.field0.de <= 1'b1;
     hw2reg.rwtype3.field0.d  <= hold_wd[15:0];
@@ -599,7 +579,7 @@ module trial1_test (
     @(posedge clk);
     test_rwtype3(hold_wd);
     // try and get both the we and one de at the same time, we should win
-    hold_q = 32'h55555555;
+    hold_q  = 32'h55555555;
     hold_wd = 32'haaaaaaaa;
     fork
       begin
@@ -615,7 +595,7 @@ module trial1_test (
     join
     @(posedge clk);
     test_rwtype3(hold_wd);
-    hold_q = 32'h77777777;
+    hold_q  = 32'h77777777;
     hold_wd = 32'hcccccccc;
     fork
       begin
@@ -631,7 +611,7 @@ module trial1_test (
     join
     @(posedge clk);
     test_rwtype3(hold_wd);
-     ///////
+    ///////
     //
     // test RWTYPE4
     //
@@ -645,7 +625,7 @@ module trial1_test (
     hold_wd = ~32'hdeadbeef;
     send_wr(12'h200, hold_wd);
     test_rwtype4(hold_wd);
-     ///////
+    ///////
     //
     // test ROTYPE0
     //
@@ -676,7 +656,7 @@ module trial1_test (
     hw2reg.rotype0.d  <= 32'hxxxxxxxx;
     @(posedge clk);
     test_rotype0(hold_wd);
-     ///////
+    ///////
     //
     // test W1CTYPE0
     //
@@ -693,7 +673,7 @@ module trial1_test (
     hold_q &= ~hold_wd;
     send_wr(12'h208, hold_wd);
     test_w1ctype0(hold_q);
-     ///////
+    ///////
     //
     // test W1CTYPE1
     //
@@ -710,7 +690,7 @@ module trial1_test (
     hold_q &= ~hold_wd;
     send_wr(12'h20c, hold_wd);
     test_w1ctype1(hold_q);
-     ///////
+    ///////
     //
     // test W1CTYPE2, W1C + HRW
     //
@@ -746,14 +726,14 @@ module trial1_test (
     @(posedge clk);
     test_w1ctype2(hold_wd);
     // write value
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = 32'hdeadbeef;
     hold_q &= ~hold_wd;
     send_wr(12'h210, hold_wd);
     test_w1ctype2(hold_q);
     // try and get both the we and the de at the same time, we should clear bits in d
     hold_wd = 32'h44444444;
-    hold_q = 32'heeddbb77;
+    hold_q  = 32'heeddbb77;
     fork
       begin
         send_wr(12'h210, hold_wd);
@@ -769,7 +749,7 @@ module trial1_test (
     @(posedge clk);
     hold_q &= ~hold_wd;
     test_w1ctype2(hold_q);
-     ///////
+    ///////
     //
     // test W1STYPE2, W1S + HRW
     //
@@ -805,14 +785,14 @@ module trial1_test (
     @(posedge clk);
     test_w1stype2(hold_wd);
     // write value
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = 32'hdeadbeef;
     hold_q |= hold_wd;
     send_wr(12'h214, hold_wd);
     test_w1stype2(hold_q);
     // try and get both the we and the de at the same time, we should set bits in d
     hold_wd = 32'h44444444;
-    hold_q = 32'h9955cc33;
+    hold_q  = 32'h9955cc33;
     fork
       begin
         send_wr(12'h214, hold_wd);
@@ -828,7 +808,7 @@ module trial1_test (
     @(posedge clk);
     hold_q |= hold_wd;
     test_w1stype2(hold_q);
-     ///////
+    ///////
     //
     // test W0CTYPE2, W0C + HRW
     //
@@ -864,14 +844,14 @@ module trial1_test (
     @(posedge clk);
     test_w0ctype2(hold_wd);
     // write value
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = 32'hdeadbeef;
     hold_q &= hold_wd;
     send_wr(12'h218, hold_wd);
     test_w0ctype2(hold_q);
     // try and get both the we and the de at the same time, we should set bits in d
     hold_wd = 32'hee77bbcc;
-    hold_q = 32'hbcada8e4;
+    hold_q  = 32'hbcada8e4;
     fork
       begin
         send_wr(12'h218, hold_wd);
@@ -887,7 +867,7 @@ module trial1_test (
     @(posedge clk);
     hold_q &= hold_wd;
     test_w0ctype2(hold_q);
-     ///////
+    ///////
     //
     // test R0W1CTYPE2, R0W1C + HRW
     //
@@ -923,14 +903,14 @@ module trial1_test (
     @(posedge clk);
     test_r0w1ctype2(hold_wd);
     // write value
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = 32'hdeadbeef;
     hold_q &= ~hold_wd;
     send_wr(12'h21c, hold_wd);
     test_r0w1ctype2(hold_q);
     // try and get both the we and the de at the same time, we should clear bits in d
     hold_wd = 32'h44444444;
-    hold_q = 32'heeddbb77;
+    hold_q  = 32'heeddbb77;
     fork
       begin
         send_wr(12'h21c, hold_wd);
@@ -946,7 +926,7 @@ module trial1_test (
     @(posedge clk);
     hold_q &= ~hold_wd;
     test_r0w1ctype2(hold_q);
-     ///////
+    ///////
     //
     // test RCTYPE0 (read-only clear)
     //
@@ -979,7 +959,7 @@ module trial1_test (
     hw2reg.rctype0.d  <= 32'hxxxxxxxx;
     @(posedge clk);
     test_rctype0(hold_wd);
-     ///////
+    ///////
     //
     // test WOTYPE0
     //
@@ -994,7 +974,7 @@ module trial1_test (
     hold_wd = ~32'hdeadbeef;
     send_wr(12'h224, hold_wd);
     test_wotype0(hold_wd);
-     ///////
+    ///////
     //
     // test MIXTYPE0
     //
@@ -1002,7 +982,7 @@ module trial1_test (
     hold_q = 32'h87654321;
     test_mixtype0(hold_q);
     // read cleared bits [27:24]
-    hold_q  &= 32'hf0ffffff;
+    hold_q &= 32'hf0ffffff;
     // write value
     hold_wd = 32'h55555555;
     send_wr(12'h228, hold_wd);
@@ -1029,7 +1009,7 @@ module trial1_test (
                hold_wd[ 7: 4],                  // rw
                hold_wd[ 3: 0]};                 // rw
     test_mixtype0(hold_q);
-    repeat(2) begin
+    repeat (2) begin
       // write one field at a time from HW side
       hold_wd = $urandom;
       // field 1
@@ -1040,7 +1020,7 @@ module trial1_test (
       hw2reg.mixtype0.field1.de <= 1'b0;
       hw2reg.mixtype0.field1.d  <= 4'hx;
       @(posedge clk);
-      hold_q = {hold_q[31:8],hold_wd[7:4],hold_q[3:0]};
+      hold_q = {hold_q[31:8], hold_wd[7:4], hold_q[3:0]};
       test_mixtype0(hold_q);
       // field 3
       $display("INFO: trying field[3] with %h", hold_wd);
@@ -1050,7 +1030,7 @@ module trial1_test (
       hw2reg.mixtype0.field3.de <= 1'b0;
       hw2reg.mixtype0.field3.d  <= 4'hx;
       @(posedge clk);
-      hold_q = {hold_q[31:16],hold_wd[15:12],hold_q[11:0]};
+      hold_q = {hold_q[31:16], hold_wd[15:12], hold_q[11:0]};
       test_mixtype0(hold_q);
       // field 4
       $display("INFO: trying field[4] with %h", hold_wd);
@@ -1060,7 +1040,7 @@ module trial1_test (
       hw2reg.mixtype0.field4.de <= 1'b0;
       hw2reg.mixtype0.field4.d  <= 4'hx;
       @(posedge clk);
-      hold_q = {hold_q[31:20],hold_wd[19:16],hold_q[15:0]};
+      hold_q = {hold_q[31:20], hold_wd[19:16], hold_q[15:0]};
       test_mixtype0(hold_q);
       // field 5
       $display("INFO: trying field[5] with %h", hold_wd);
@@ -1070,7 +1050,7 @@ module trial1_test (
       hw2reg.mixtype0.field5.de <= 1'b0;
       hw2reg.mixtype0.field5.d  <= 4'hx;
       @(posedge clk);
-      hold_q = {hold_q[31:24],hold_wd[23:20],hold_q[19:0]};
+      hold_q = {hold_q[31:24], hold_wd[23:20], hold_q[19:0]};
       test_mixtype0(hold_q);
       // field 6
       $display("INFO: trying field[6] with %h", hold_wd);
@@ -1080,12 +1060,12 @@ module trial1_test (
       hw2reg.mixtype0.field6.de <= 1'b0;
       hw2reg.mixtype0.field6.d  <= 4'hx;
       @(posedge clk);
-      hold_q = {hold_q[31:28],hold_wd[27:24],hold_q[23:0]};
+      hold_q = {hold_q[31:28], hold_wd[27:24], hold_q[23:0]};
       test_mixtype0(hold_q);
-      hold_q &= 32'hf0ffffff; // read-clear
+      hold_q &= 32'hf0ffffff;  // read-clear
     end
     // try and get both the we and the de's at the same time, we should win
-    repeat(2) begin
+    repeat (2) begin
       // bits [11:8] (field2) can never be changed
       hold_q  = ($urandom & 32'hfffff0ff) | (hold_q & 32'h00000f00);
       hold_wd = $urandom;
@@ -1129,7 +1109,7 @@ module trial1_test (
                  hold_wd[ 3: 0]};                 // rw
       test_mixtype0(hold_q);
     end
-     ///////
+    ///////
     //
     // test RWTYPE5, RW + HRW + HWQE
     // test that only sw writes effect captured value
@@ -1147,7 +1127,7 @@ module trial1_test (
     test_rwtype5(hold_wd);
     test_rwtype5_capture(hold_wd);
     // write from HW side
-    hold_q = hold_wd;
+    hold_q  = hold_wd;
     hold_wd = $urandom;
     hw2reg.rwtype5.de <= 1'b1;
     hw2reg.rwtype5.d  <= hold_wd;
@@ -1184,7 +1164,7 @@ module trial1_test (
     @(posedge clk);
     test_rwtype5(hold_wd);
     test_rwtype5_capture(hold_wd);
-     ///////
+    ///////
     //
     // test RWTYPE6, RW + HRW + HWEXT
     // create a true external register
@@ -1201,7 +1181,7 @@ module trial1_test (
     send_wr(12'h230, hold_wd);
     test_rwtype6(hold_wd);
     test_rwtype6_capture(hold_wd);
-     ///////
+    ///////
     //
     // test ROTYPE1, RO + HRW + HWEXT
     // create a true external register, writable only by us
@@ -1226,7 +1206,7 @@ module trial1_test (
     my_rotype1_d = hold_wd;
     @(posedge clk);
     my_rotype1_de = 1'b0;
-    my_rotype1_d = 32'hxxxxxxxx;
+    my_rotype1_d  = 32'hxxxxxxxx;
     @(posedge clk);
     test_rotype1(hold_wd);
     test_rotype1_capture(hold_wd);
@@ -1236,11 +1216,11 @@ module trial1_test (
     my_rotype1_d = hold_wd;
     @(posedge clk);
     my_rotype1_de = 1'b0;
-    my_rotype1_d = 32'hxxxxxxxx;
+    my_rotype1_d  = 32'hxxxxxxxx;
     @(posedge clk);
     test_rotype1(hold_wd);
     test_rotype1_capture(hold_wd);
-     ///////
+    ///////
     //
     // test ROTYPE2, RO + HWNONE
     //
@@ -1255,7 +1235,7 @@ module trial1_test (
     hold_wd = ~32'hdeadbeef;
     send_wr(12'h238, hold_wd);
     test_rotype2(hold_q);
-     ///////
+    ///////
     //
     // test RWTYPE7, RW + HWNONE
     //

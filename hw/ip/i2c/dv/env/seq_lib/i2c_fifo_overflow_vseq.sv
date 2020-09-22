@@ -13,7 +13,7 @@ class i2c_fifo_overflow_vseq extends i2c_fifo_watermark_vseq;
   local uint cnt_rx_overflow;
 
   // send more one data than rx_fifo depth to trigger rx_overflow
-  constraint num_rd_bytes_c { num_rd_bytes == I2C_RX_FIFO_DEPTH + 1; }
+  constraint num_rd_bytes_c {num_rd_bytes == I2C_RX_FIFO_DEPTH + 1;}
 
   virtual task body();
     bit check_fmt_overflow;
