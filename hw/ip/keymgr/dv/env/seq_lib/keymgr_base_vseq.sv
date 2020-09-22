@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class keymgr_base_vseq extends cip_base_vseq #(
-    .RAL_T               (keymgr_reg_block),
-    .CFG_T               (keymgr_env_cfg),
-    .COV_T               (keymgr_env_cov),
-    .VIRTUAL_SEQUENCER_T (keymgr_virtual_sequencer)
-  );
+class keymgr_base_vseq extends cip_base_vseq#(
+    .RAL_T              (keymgr_reg_block),
+    .CFG_T              (keymgr_env_cfg),
+    .COV_T              (keymgr_env_cov),
+    .VIRTUAL_SEQUENCER_T(keymgr_virtual_sequencer)
+);
   `uvm_object_utils(keymgr_base_vseq)
 
   // various knobs to enable certain routines
@@ -31,7 +31,7 @@ class keymgr_base_vseq extends cip_base_vseq #(
     ral.control.init.set(1'b1);
     csr_update(.csr(ral.control));
     csr_spinwait(.ptr(ral.working_state), .exp_data(keymgr_pkg::StInit));
-  endtask // keymgr_init
+  endtask  // keymgr_init
 
   virtual task keymgr_advance();
     bit [3:0] current_state;
@@ -41,18 +41,17 @@ class keymgr_base_vseq extends cip_base_vseq #(
     csr_update(.csr(ral.control));
 
     csr_rd(.ptr(ral.working_state), .value(current_state));
-    if (current_state < keymgr_pkg::StInit ||
-      current_state == keymgr_pkg::StDisabled) begin
+    if (current_state < keymgr_pkg::StInit || current_state == keymgr_pkg::StDisabled) begin
       csr_spinwait(.ptr(ral.op_status.status), .exp_data(keymgr_pkg::OpDoneFail));
     end else begin
       csr_spinwait(.ptr(ral.op_status.status), .exp_data(keymgr_pkg::OpDoneSuccess));
     end
 
-  endtask // keymgr_advance
+  endtask  // keymgr_advance
 
 
   // by default generate for software
-  virtual task keymgr_generate(bit Identity=0);
+  virtual task keymgr_generate(bit Identity = 0);
     bit [2:0] operation;
     bit [3:0] current_state;
 
@@ -68,13 +67,12 @@ class keymgr_base_vseq extends cip_base_vseq #(
     csr_update(.csr(ral.control));
 
     csr_rd(.ptr(ral.working_state), .value(current_state));
-    if (current_state < keymgr_pkg::StInit ||
-      current_state == keymgr_pkg::StDisabled) begin
+    if (current_state < keymgr_pkg::StInit || current_state == keymgr_pkg::StDisabled) begin
       csr_spinwait(.ptr(ral.op_status.status), .exp_data(keymgr_pkg::OpDoneFail));
     end else begin
       csr_spinwait(.ptr(ral.op_status.status), .exp_data(keymgr_pkg::OpDoneSuccess));
     end
-  endtask // keymgr_generate
+  endtask  // keymgr_generate
 
 
   virtual task keymgr_rd_clr();
@@ -105,7 +103,7 @@ class keymgr_base_vseq extends cip_base_vseq #(
     csr_rd_check(.ptr(ral.sw_share0_output_6), .compare_value('0));
     csr_rd_check(.ptr(ral.sw_share0_output_7), .compare_value('0));
 
-  endtask // keymgr_rd_clr
+  endtask  // keymgr_rd_clr
 
 
 

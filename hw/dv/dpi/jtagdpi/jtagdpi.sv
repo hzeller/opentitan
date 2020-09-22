@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 module jtagdpi #(
-  parameter string Name = "jtag0", // name of the JTAG interface (display only)
-  parameter int ListenPort = 44853 // TCP port to listen on
-)(
-  input  logic clk_i,
-  input  logic rst_ni,
+  parameter string Name = "jtag0",  // name of the JTAG interface (display only)
+  parameter int ListenPort = 44853  // TCP port to listen on
+) (
+  input logic clk_i,
+  input logic rst_ni,
 
   output logic jtag_tck,
   output logic jtag_tms,
@@ -17,16 +17,14 @@ module jtagdpi #(
   output logic jtag_srst_n
 );
 
-  import "DPI-C"
-  function chandle jtagdpi_create(input string name, input int listen_port);
+  import "DPI-C" function chandle jtagdpi_create(input string name, input int listen_port);
 
   import "DPI-C"
   function void jtagdpi_tick(input chandle ctx, output bit tck, output bit tms,
                              output bit tdi, output bit trst_n,
                              output bit srst_n, input bit tdo);
 
-  import "DPI-C"
-  function void jtagdpi_close(input chandle ctx);
+  import "DPI-C" function void jtagdpi_close(input chandle ctx);
 
   chandle ctx;
 

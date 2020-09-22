@@ -14,13 +14,13 @@
 `include "prim_assert.sv"
 
 module ibex_compressed_decoder (
-    input  logic        clk_i,
-    input  logic        rst_ni,
-    input  logic        valid_i,
-    input  logic [31:0] instr_i,
-    output logic [31:0] instr_o,
-    output logic        is_compressed_o,
-    output logic        illegal_instr_o
+  input  logic        clk_i,
+  input  logic        rst_ni,
+  input  logic        valid_i,
+  input  logic [31:0] instr_i,
+  output logic [31:0] instr_o,
+  output logic        is_compressed_o,
+  output logic        illegal_instr_o
 );
   import ibex_pkg::*;
 
@@ -47,7 +47,7 @@ module ibex_compressed_decoder (
             // c.addi4spn -> addi rd', x2, imm
             instr_o = {2'b0, instr_i[10:7], instr_i[12:11], instr_i[5],
                        instr_i[6], 2'b00, 5'h02, 3'b000, 2'b01, instr_i[4:2], {OPCODE_OP_IMM}};
-            if (instr_i[12:5] == 8'b0)  illegal_instr_o = 1'b1;
+            if (instr_i[12:5] == 8'b0) illegal_instr_o = 1'b1;
           end
 
           3'b010: begin
@@ -109,7 +109,7 @@ module ibex_compressed_decoder (
           3'b011: begin
             // c.lui -> lui rd, imm
             // (c.lui hints are translated into a lui hint)
-            instr_o = {{15 {instr_i[12]}}, instr_i[6:2], instr_i[11:7], {OPCODE_LUI}};
+            instr_o = {{15{instr_i[12]}}, instr_i[6:2], instr_i[11:7], {OPCODE_LUI}};
 
             if (instr_i[11:7] == 5'h02) begin
               // c.addi16sp -> addi x2, x2, nzimm
@@ -122,14 +122,13 @@ module ibex_compressed_decoder (
 
           3'b100: begin
             unique case (instr_i[11:10])
-              2'b00,
-              2'b01: begin
+              2'b00, 2'b01: begin
                 // 00: c.srli -> srli rd, rd, shamt
                 // 01: c.srai -> srai rd, rd, shamt
                 // (c.srli/c.srai hints are translated into a srli/srai hint)
                 instr_o = {1'b0, instr_i[10], 5'b0, instr_i[6:2], 2'b01, instr_i[9:7],
                            3'b101, 2'b01, instr_i[9:7], {OPCODE_OP_IMM}};
-                if (instr_i[12] == 1'b1)  illegal_instr_o = 1'b1;
+                if (instr_i[12] == 1'b1) illegal_instr_o = 1'b1;
               end
 
               2'b10: begin
@@ -139,7 +138,9 @@ module ibex_compressed_decoder (
               end
 
               2'b11: begin
-                unique case ({instr_i[12], instr_i[6:5]})
+                unique case ({
+                  instr_i[12], instr_i[6:5]
+                })
                   3'b000: begin
                     // c.sub -> sub rd', rd', rs2'
                     instr_o = {2'b01, 5'b0, 2'b01, instr_i[4:2], 2'b01, instr_i[9:7],
@@ -164,10 +165,7 @@ module ibex_compressed_decoder (
                                2'b01, instr_i[9:7], {OPCODE_OP}};
                   end
 
-                  3'b100,
-                  3'b101,
-                  3'b110,
-                  3'b111: begin
+                  3'b100, 3'b101, 3'b110, 3'b111: begin
                     // 100: c.subw
                     // 101: c.addw
                     illegal_instr_o = 1'b1;
@@ -210,14 +208,14 @@ module ibex_compressed_decoder (
             // c.slli -> slli rd, rd, shamt
             // (c.ssli hints are translated into a slli hint)
             instr_o = {7'b0, instr_i[6:2], instr_i[11:7], 3'b001, instr_i[11:7], {OPCODE_OP_IMM}};
-            if (instr_i[12] == 1'b1)  illegal_instr_o = 1'b1; // reserved for custom extensions
+            if (instr_i[12] == 1'b1) illegal_instr_o = 1'b1;  // reserved for custom extensions
           end
 
           3'b010: begin
             // c.lwsp -> lw rd, imm(x2)
             instr_o = {4'b0, instr_i[3:2], instr_i[12], instr_i[6:4], 2'b00, 5'h02,
                        3'b010, instr_i[11:7], OPCODE_LOAD};
-            if (instr_i[11:7] == 5'b0)  illegal_instr_o = 1'b1;
+            if (instr_i[11:7] == 5'b0) illegal_instr_o = 1'b1;
           end
 
           3'b100: begin
@@ -229,7 +227,7 @@ module ibex_compressed_decoder (
               end else begin
                 // c.jr -> jalr x0, rd/rs1, 0
                 instr_o = {12'b0, instr_i[11:7], 3'b0, 5'b0, {OPCODE_JALR}};
-                if (instr_i[11:7] == 5'b0)  illegal_instr_o = 1'b1;
+                if (instr_i[11:7] == 5'b0) illegal_instr_o = 1'b1;
               end
             end else begin
               if (instr_i[6:2] != 5'b0) begin
@@ -268,7 +266,7 @@ module ibex_compressed_decoder (
       end
 
       // Incoming instruction is not compressed.
-      2'b11:;
+      2'b11: ;
 
       default: begin
         illegal_instr_o = 1'b1;
@@ -283,18 +281,14 @@ module ibex_compressed_decoder (
   ////////////////
 
   // Selectors must be known/valid.
-  `ASSERT(IbexInstrLSBsKnown, valid_i |->
-      !$isunknown(instr_i[1:0]))
-  `ASSERT(IbexC0Known1, (valid_i && (instr_i[1:0] == 2'b00)) |->
-      !$isunknown(instr_i[15:13]))
-  `ASSERT(IbexC1Known1, (valid_i && (instr_i[1:0] == 2'b01)) |->
-      !$isunknown(instr_i[15:13]))
+  `ASSERT(IbexInstrLSBsKnown, valid_i |-> !$isunknown(instr_i[1:0]))
+  `ASSERT(IbexC0Known1, (valid_i && (instr_i[1:0] == 2'b00)) |-> !$isunknown(instr_i[15:13]))
+  `ASSERT(IbexC1Known1, (valid_i && (instr_i[1:0] == 2'b01)) |-> !$isunknown(instr_i[15:13]))
   `ASSERT(IbexC1Known2, (valid_i && (instr_i[1:0] == 2'b01) && (instr_i[15:13] == 3'b100)) |->
       !$isunknown(instr_i[11:10]))
   `ASSERT(IbexC1Known3, (valid_i &&
       (instr_i[1:0] == 2'b01) && (instr_i[15:13] == 3'b100) && (instr_i[11:10] == 2'b11)) |->
       !$isunknown({instr_i[12], instr_i[6:5]}))
-  `ASSERT(IbexC2Known1, (valid_i && (instr_i[1:0] == 2'b10)) |->
-      !$isunknown(instr_i[15:13]))
+  `ASSERT(IbexC2Known1, (valid_i && (instr_i[1:0] == 2'b10)) |-> !$isunknown(instr_i[15:13]))
 
 endmodule

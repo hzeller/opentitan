@@ -5,7 +5,9 @@
 `define PUSH_DRIVER cfg.vif.device_push_cb
 `define PULL_DRIVER cfg.vif.device_pull_cb
 
-class push_pull_device_driver #(parameter int DataWidth = 32) extends push_pull_driver #(DataWidth);
+class push_pull_device_driver #(
+  parameter int DataWidth = 32
+) extends push_pull_driver#(DataWidth);
 
   `uvm_component_param_utils(push_pull_device_driver#(DataWidth))
 
@@ -18,8 +20,8 @@ class push_pull_device_driver #(parameter int DataWidth = 32) extends push_pull_
     if (cfg.agent_type == PushAgent) begin
       cfg.vif.ready <= '0;
     end else begin
-      cfg.vif.ack   <= '0;
-      cfg.vif.data  <= 'x;
+      cfg.vif.ack  <= '0;
+      cfg.vif.data <= 'x;
     end
   endtask
 

@@ -7,19 +7,19 @@
 //   Implementing ECC should be done inside wrapper not this model.
 `include "prim_assert.sv"
 module prim_generic_ram_2p #(
-  parameter  int Width           = 32, // bit
-  parameter  int Depth           = 128,
-  parameter  int DataBitsPerMask = 1, // Number of data bits per bit of write mask
-  parameter      MemInitFile     = "", // VMEM file to initialize the memory with
+  parameter int Width           = 32,  // bit
+  parameter int Depth           = 128,
+  parameter int DataBitsPerMask = 1,  // Number of data bits per bit of write mask
+  parameter     MemInitFile     = "",  // VMEM file to initialize the memory with
 
-  localparam int Aw              = $clog2(Depth)  // derived parameter
+  localparam int Aw = $clog2 (Depth)  // derived parameter
 ) (
   input clk_a_i,
   input clk_b_i,
 
   input                    a_req_i,
   input                    a_write_i,
-  input        [Aw-1:0]    a_addr_i,
+  input        [   Aw-1:0] a_addr_i,
   input        [Width-1:0] a_wdata_i,
   input  logic [Width-1:0] a_wmask_i,
   output logic [Width-1:0] a_rdata_o,
@@ -27,7 +27,7 @@ module prim_generic_ram_2p #(
 
   input                    b_req_i,
   input                    b_write_i,
-  input        [Aw-1:0]    b_addr_i,
+  input        [   Aw-1:0] b_addr_i,
   input        [Width-1:0] b_wdata_i,
   input  logic [Width-1:0] b_wmask_i,
   output logic [Width-1:0] b_rdata_o
@@ -36,7 +36,7 @@ module prim_generic_ram_2p #(
   // to be the full bit mask.
   localparam int MaskWidth = Width / DataBitsPerMask;
 
-  logic [Width-1:0]     mem [Depth];
+  logic [    Width-1:0] mem     [Depth];
   logic [MaskWidth-1:0] a_wmask;
   logic [MaskWidth-1:0] b_wmask;
 
@@ -59,7 +59,7 @@ module prim_generic_ram_2p #(
   always @(posedge clk_a_i) begin
     if (a_req_i) begin
       if (a_write_i) begin
-        for (int i=0; i < MaskWidth; i = i + 1) begin
+        for (int i = 0; i < MaskWidth; i = i + 1) begin
           if (a_wmask[i]) begin
             mem[a_addr_i][i*DataBitsPerMask +: DataBitsPerMask] <=
               a_wdata_i[i*DataBitsPerMask +: DataBitsPerMask];
@@ -74,7 +74,7 @@ module prim_generic_ram_2p #(
   always @(posedge clk_b_i) begin
     if (b_req_i) begin
       if (b_write_i) begin
-        for (int i=0; i < MaskWidth; i = i + 1) begin
+        for (int i = 0; i < MaskWidth; i = i + 1) begin
           if (b_wmask[i]) begin
             mem[b_addr_i][i*DataBitsPerMask +: DataBitsPerMask] <=
               b_wdata_i[i*DataBitsPerMask +: DataBitsPerMask];

@@ -15,74 +15,74 @@ module keccak_round_fpv #(
   output logic             done_o
 );
 
-  localparam int W        = Width/25;
-  localparam int L        = $clog2(W);
-  localparam int NumRound = 12 + 2*L; // Keccak-f only
-  localparam int RndW     = $clog2(NumRound+1);
+  localparam int W = Width / 25;
+  localparam int L = $clog2(W);
+  localparam int NumRound = 12 + 2 * L;  // Keccak-f only
+  localparam int RndW = $clog2(NumRound + 1);
 
   // Feed parameters
-  localparam int DInWidth = 64; // currently only 64bit supported
+  localparam int DInWidth = 64;  // currently only 64bit supported
   localparam int DInEntry = Width / DInWidth;
-  localparam int DInAddr  = $clog2(DInEntry);
+  localparam int DInAddr = $clog2(DInEntry);
 
-  logic [Width-1:0] masked_state   [2];
-  logic [Width-1:0] masked_state_d [2];
-  logic [Width-1:0] unmasked_state  [1];
-  logic [Width-1:0] unmasked_state_d[1];
+  logic [   Width-1:0] masked_state    [2];
+  logic [   Width-1:0] masked_state_d  [2];
+  logic [   Width-1:0] unmasked_state  [1];
+  logic [   Width-1:0] unmasked_state_d[1];
 
   // Data input
   logic                msg_valid;
-  logic [DInAddr-1:0]  msg_addr;
+  logic [ DInAddr-1:0] msg_addr;
   logic [DInWidth-1:0] msg_data;
-  logic                msg_ready_masked, msg_ready_unmasked;
+  logic msg_ready_masked, msg_ready_unmasked;
 
   logic run, clear, masked_complete, unmasked_complete;
 
   // Masked Keccak round
 
   keccak_round #(
-    .Width      (Width),
-    .EnMasking  (1),
-    .ReuseShare (0)
+      .Width     (Width),
+      .EnMasking (1),
+      .ReuseShare(0)
   ) u_masked (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    .valid_i (msg_valid),
-    .addr_i  (msg_addr),
-    .data_i  ({'0, msg_data}),
-    .ready_o (msg_ready_masked),
+      .valid_i(msg_valid),
+      .addr_i (msg_addr),
+      .data_i ({'0, msg_data}),
+      .ready_o(msg_ready_masked),
 
-    .run_i   (run),
-    .rand_valid_i (1'b1),
-    .rand_data_i  ('0),
-    .rand_consumed_o (),
+      .run_i   (run),
+      .rand_valid_i (1'b1),
+      .rand_data_i  ('0),
+      .rand_consumed_o (),
 
-    .complete_o (masked_complete),
-    .state_o    (masked_state),
-    .clear_i    (clear)
+      .complete_o(masked_complete),
+      .state_o   (masked_state),
+      .clear_i   (clear)
   );
 
   keccak_round #(
-    .Width      (Width),
-    .EnMasking  (0)
+      .Width    (Width),
+      .EnMasking(0)
   ) u_unmasked (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    .valid_i (msg_valid),
-    .addr_i  (msg_addr),
-    .data_i  ('{msg_data}),
-    .ready_o (msg_ready_unmasked),
+      .valid_i(msg_valid),
+      .addr_i (msg_addr),
+      .data_i ('{msg_data}),
+      .ready_o(msg_ready_unmasked),
 
-    .run_i   (run),
-    .rand_valid_i (1'b1),
-    .rand_data_i  ('0),
-    .rand_consumed_o (),
+      .run_i   (run),
+      .rand_valid_i (1'b1),
+      .rand_data_i  ('0),
+      .rand_consumed_o (),
 
-    .complete_o (unmasked_complete),
-    .state_o    (unmasked_state),
-    .clear_i    (clear)
+      .complete_o(unmasked_complete),
+      .state_o   (unmasked_state),
+      .clear_i   (clear)
   );
 
   logic [Width-1:0] compare_states;
@@ -90,12 +90,12 @@ module keccak_round_fpv #(
   assign compare_states = unmasked_state[0] ^ (masked_state[0] ^ masked_state[1]);
 
   // Test with value 0
-  logic [1599:0] data_0 ;
+  logic [1599:0] data_0;
   always_comb begin
     data_0 = '0;
     // SHA3-256 ==> r : 1088
-    data_0[1087] = 1'b 1;
-    data_0[2:0] = 3'b 110;
+    data_0[1087] = 1'b1;
+    data_0[2:0] = 3'b110;
   end
 
   // Data input : SHA3-256
@@ -104,7 +104,7 @@ module keccak_round_fpv #(
     if (!rst_ni) begin
       msg_addr <= '0;
     end else if (msg_valid) begin
-      msg_addr <= msg_addr + 1'b 1;
+      msg_addr <= msg_addr + 1'b1;
     end else if (run) begin
       msg_addr <= '0;
     end
@@ -117,9 +117,9 @@ module keccak_round_fpv #(
     if (!rst_ni) begin
       in_progress <= 1'b0;
     end else if (valid_i) begin
-      in_progress <= 1'b 1;
+      in_progress <= 1'b1;
     end else if (done_o) begin
-      in_progress <= 1'b 0;
+      in_progress <= 1'b0;
     end
   end
 
@@ -148,7 +148,7 @@ module keccak_round_fpv #(
     msg_valid = 1'b0;
     done_o = 1'b0;
 
-    clear = 1'b 0;
+    clear = 1'b0;
 
     unique case (st)
       StIdle: begin
@@ -158,10 +158,10 @@ module keccak_round_fpv #(
       end
 
       StMsg: begin
-        if (msg_addr == 1088/64) begin
+        if (msg_addr == 1088 / 64) begin
           st_d = StRun;
 
-          run = 1'b1;
+          run  = 1'b1;
         end else begin
           st_d = StMsg;
 
@@ -178,8 +178,8 @@ module keccak_round_fpv #(
       end
 
       StComplete: begin
-        st_d = StIdle;
-        clear = 1'b1;
+        st_d   = StIdle;
+        clear  = 1'b1;
         done_o = 1'b1;
       end
 

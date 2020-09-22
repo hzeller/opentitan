@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class spi_device_base_vseq extends cip_base_vseq #(
-        .CFG_T               (spi_device_env_cfg),
-        .RAL_T               (spi_device_reg_block),
-        .COV_T               (spi_device_env_cov),
-        .VIRTUAL_SEQUENCER_T (spi_device_virtual_sequencer)
-    );
+class spi_device_base_vseq extends cip_base_vseq#(
+    .CFG_T              (spi_device_env_cfg),
+    .RAL_T              (spi_device_reg_block),
+    .COV_T              (spi_device_env_cov),
+    .VIRTUAL_SEQUENCER_T(spi_device_virtual_sequencer)
+);
   `uvm_object_utils(spi_device_base_vseq)
 
   bit do_spi_device_init    = 1'b0;
@@ -43,39 +43,45 @@ class spi_device_base_vseq extends cip_base_vseq #(
   constraint sram_addr_c {
     // host and device addr space within sram should not overlap
     sram_host_base_addr == 32'h0;
-    sram_host_limit_addr == 32'h1ff; // 512 bytes
+    sram_host_limit_addr == 32'h1ff;  // 512 bytes
     sram_device_base_addr == 32'h200;
-    sram_device_limit_addr == 32'h3ff; // 512 bytes
+    sram_device_limit_addr == 32'h3ff;  // 512 bytes
   }
 
   constraint sram_size_c {
     solve num_host_sram_words before sram_host_byte_size;
     solve num_device_sram_words before sram_device_byte_size;
-    num_host_sram_words   == sram_host_limit_addr[31:2] - sram_host_base_addr[31:2] + 1;
+    num_host_sram_words == sram_host_limit_addr[31:2] - sram_host_base_addr[31:2] + 1;
     num_device_sram_words == sram_device_limit_addr[31:2] - sram_device_base_addr[31:2] + 1;
-    sram_host_byte_size   == num_host_sram_words << 2;
+    sram_host_byte_size == num_host_sram_words << 2;
     sram_device_byte_size == num_device_sram_words << 2;
   }
 
   constraint tx_watermark_lvl_c {
     tx_watermark_lvl dist {
-      [0 : SRAM_WORD_SIZE]                                       :/ 1, // first 2 words
-      [SRAM_WORD_SIZE+1 : sram_host_byte_size-1-SRAM_WORD_SIZE]  :/ 7,
-      [sram_host_byte_size-SRAM_WORD_SIZE : sram_host_byte_size] :/ 1, // max 2 words
-      [sram_host_byte_size+1 : SRAM_SIZE]                        :/ 1};// over the max size
+      [0 : SRAM_WORD_SIZE] :/ 1
+      ,  // first 2 words
+      [SRAM_WORD_SIZE + 1 : sram_host_byte_size - 1 - SRAM_WORD_SIZE] :/ 7,
+      [sram_host_byte_size - SRAM_WORD_SIZE : sram_host_byte_size] :/ 1
+      ,  // max 2 words
+      [sram_host_byte_size + 1 : SRAM_SIZE] :/ 1
+    };  // over the max size
   }
 
   constraint rx_watermark_lvl_c {
     rx_watermark_lvl dist {
-      [0 : SRAM_WORD_SIZE]                                           :/ 1, // first 2 words
-      [SRAM_WORD_SIZE+1 : sram_device_byte_size-1-SRAM_WORD_SIZE]    :/ 7,
-      [sram_device_byte_size-SRAM_WORD_SIZE : sram_device_byte_size] :/ 1, // max 2 words
-      [sram_device_byte_size+1 : SRAM_SIZE]                          :/ 1};// over the max size
+      [0 : SRAM_WORD_SIZE] :/ 1
+      ,  // first 2 words
+      [SRAM_WORD_SIZE + 1 : sram_device_byte_size - 1 - SRAM_WORD_SIZE] :/ 7,
+      [sram_device_byte_size - SRAM_WORD_SIZE : sram_device_byte_size] :/ 1
+      ,  // max 2 words
+      [sram_device_byte_size + 1 : SRAM_SIZE] :/ 1
+    };  // over the max size
   }
 
   // core clk freq / spi clk freq is from 1/4 to 8
   constraint freq_c {
-    core_spi_freq_ratio inside {[1:8]};
+    core_spi_freq_ratio inside {[1 : 8]};
     spi_freq_faster -> core_spi_freq_ratio <= 4;
   }
 
@@ -160,8 +166,7 @@ class spi_device_base_vseq extends cip_base_vseq #(
 
   // set sram circular fifo limits for tx (spi_device)
   // args are 32 bits to be generic - corresponding fields are only 16 bits
-  virtual task set_sram_device_addr_range(bit [31:0] base,
-                                          bit [31:0] limit);
+  virtual task set_sram_device_addr_range(bit [31:0] base, bit [31:0] limit);
     ral.txf_addr.base.set(base);
     ral.txf_addr.limit.set(limit);
     csr_update(.csr(ral.txf_addr));
@@ -169,8 +174,7 @@ class spi_device_base_vseq extends cip_base_vseq #(
 
   // set sram circular fifo limits for rx (host agant)
   // args are 32 bits to be generic - corresponding fields are only 16 bits
-  virtual task set_sram_host_addr_range(bit [31:0] base,
-                                        bit [31:0] limit);
+  virtual task set_sram_host_addr_range(bit [31:0] base, bit [31:0] limit);
     ral.rxf_addr.base.set(base);
     ral.rxf_addr.limit.set(limit);
     csr_update(.csr(ral.rxf_addr));
@@ -220,13 +224,13 @@ class spi_device_base_vseq extends cip_base_vseq #(
     foreach (device_data[i]) begin
       bit [TL_DW-1:0] tx_wptr_addr;
       bit [TL_DW-1:0] tx_base_addr = ral.txf_addr.base.get_mirrored_value();
-      tx_base_addr[1:0] = 0; // ignore lower 2 bits
+      tx_base_addr[1:0] = 0;  // ignore lower 2 bits
       tx_wptr_addr = cfg.sram_start_addr + tx_base_addr + tx_wptr[SRAM_MSB:0];
       `uvm_info(`gfn, $sformatf({"tx_wptr[SRAM_MSB:0] = 0x%0h, tx_wptr_phase_bit = 0x%0h, ",
                                  "tx_sram_size_bytes = 0x%0h, tx_wptr_addr = 0x%0h"},
                                  tx_wptr[SRAM_MSB:0], tx_wptr[SRAM_PTR_PHASE_BIT],
                                  tx_sram_size_bytes, tx_wptr_addr), UVM_MEDIUM)
-      tl_access(.addr(tx_wptr_addr), .write(1'b1), .data(device_data[i])); // TODO: bkdr wr?
+      tl_access(.addr(tx_wptr_addr), .write(1'b1), .data(device_data[i]));  // TODO: bkdr wr?
 
       // advance tx wptr by SRAM_WORD_SIZE
       tx_wptr = get_sram_new_ptr(.ptr(tx_wptr),
@@ -248,16 +252,16 @@ class spi_device_base_vseq extends cip_base_vseq #(
     // read data from rx base address + curr rptr
     rx_rptr = ral.rxf_ptr.rptr.get_mirrored_value();
     repeat (num_words) begin
-      bit   [TL_DW-1:0] rx_rptr_addr;
-      bit   [TL_DW-1:0] word_data;
-      bit   [TL_DW-1:0] rx_base_addr = ral.rxf_addr.base.get_mirrored_value();
-      rx_base_addr[1:0] = 0; // ignore lower 2 bits
+      bit [TL_DW-1:0] rx_rptr_addr;
+      bit [TL_DW-1:0] word_data;
+      bit [TL_DW-1:0] rx_base_addr = ral.rxf_addr.base.get_mirrored_value();
+      rx_base_addr[1:0] = 0;  // ignore lower 2 bits
       rx_rptr_addr = cfg.sram_start_addr + rx_base_addr + rx_rptr[SRAM_MSB:0];
       `uvm_info(`gfn, $sformatf({"rx_rptr[SRAM_MSB:0] = 0x%0h, rx_rptr_phase_bit = 0x%0h, ",
                                  "rx_sram_size_bytes = 0x%0h, rx_rptr_addr = 0x%0h"},
                                  rx_rptr[SRAM_MSB:0], rx_rptr[SRAM_PTR_PHASE_BIT],
                                  rx_sram_size_bytes, rx_rptr_addr), UVM_MEDIUM)
-      tl_access(.addr(rx_rptr_addr), .write(1'b0), .data(word_data)); // TODO: bkdr rd?
+      tl_access(.addr(rx_rptr_addr), .write(1'b0), .data(word_data));  // TODO: bkdr rd?
       host_data.push_back(word_data);
       // advance rx rptr by SRAM_WORD_SIZE
       rx_rptr = get_sram_new_ptr(.ptr(rx_rptr),
@@ -271,13 +275,13 @@ class spi_device_base_vseq extends cip_base_vseq #(
   endtask
 
   virtual task read_tx_avail_bytes(sram_avail_type_e avail_type, ref uint avail_bytes);
-    bit [TL_DW-1:0] rptr;
-    bit [TL_DW-1:0] wptr;
-    uint            sram_size_bytes = `GET_TX_ALLOCATED_SRAM_SIZE_BYTES;
+    bit  [TL_DW-1:0] rptr;
+    bit  [TL_DW-1:0] wptr;
+    uint             sram_size_bytes = `GET_TX_ALLOCATED_SRAM_SIZE_BYTES;
 
     csr_rd(.ptr(ral.txf_ptr.rptr), .value(rptr));
     wptr = ral.txf_ptr.wptr.get_mirrored_value();
-    case(avail_type)
+    case (avail_type)
       SramDataAvail: begin
         avail_bytes = get_sram_filled_bytes(wptr, rptr, sram_size_bytes, "read_tx_avail_bytes");
         // if sram has no data, check async fifo level
@@ -296,13 +300,13 @@ class spi_device_base_vseq extends cip_base_vseq #(
   endtask
 
   virtual task read_rx_avail_bytes(sram_avail_type_e avail_type, ref uint avail_bytes);
-    bit [TL_DW-1:0] rptr;
-    bit [TL_DW-1:0] wptr;
-    uint            sram_size_bytes = `GET_RX_ALLOCATED_SRAM_SIZE_BYTES;
+    bit  [TL_DW-1:0] rptr;
+    bit  [TL_DW-1:0] wptr;
+    uint             sram_size_bytes = `GET_RX_ALLOCATED_SRAM_SIZE_BYTES;
 
     csr_rd(.ptr(ral.rxf_ptr.wptr), .value(wptr));
     rptr = ral.rxf_ptr.rptr.get_mirrored_value();
-    case(avail_type)
+    case (avail_type)
       SramDataAvail: begin
         avail_bytes = get_sram_filled_bytes(wptr, rptr, sram_size_bytes, "read_rx_avail_bytes");
       end

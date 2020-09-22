@@ -5,8 +5,8 @@
 class chip_sw_gpio_vseq extends chip_sw_base_vseq;
   `uvm_object_utils(chip_sw_gpio_vseq)
 
-    bit [NUM_GPIOS-1:0] gpios_mask = {chip_env_pkg::NUM_GPIOS{1'b1}};
-    uint                timeout_ns = 2_000_000;
+  bit [NUM_GPIOS-1:0] gpios_mask = {chip_env_pkg::NUM_GPIOS{1'b1}};
+  uint                timeout_ns = 2_000_000;
 
   `uvm_object_new
 

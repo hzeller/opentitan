@@ -2,9 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
-                                                    .RAL_T(uart_reg_block),
-                                                    .COV_T(uart_env_cov));
+class uart_scoreboard extends cip_base_scoreboard#(
+    .CFG_T(uart_env_cfg),
+    .RAL_T(uart_reg_block),
+    .COV_T(uart_env_cov)
+);
   `uvm_component_utils(uart_scoreboard)
 
   virtual uart_if uart_vif;
@@ -30,8 +32,8 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
   local bit rx_watermark_triggered = 0;
 
   // TLM fifos to pick up the packets
-  uvm_tlm_analysis_fifo #(uart_item)    uart_tx_fifo;
-  uvm_tlm_analysis_fifo #(uart_item)    uart_rx_fifo;
+  uvm_tlm_analysis_fifo #(uart_item) uart_tx_fifo;
+  uvm_tlm_analysis_fifo #(uart_item) uart_rx_fifo;
 
   // local queues to hold incoming packets pending comparison
   uart_item tx_q[$];
@@ -109,19 +111,18 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
           `uvm_info(`gfn, $sformatf("dropped uart rx item due to frame err:\n%0s",
                                     item.sprint()), UVM_HIGH)
         end
-        if (!parity_err && item.stop_bit == 1) begin // no parity/frame error
+        if (!parity_err && item.stop_bit == 1) begin  // no parity/frame error
           if (rx_q.size < UART_FIFO_DEPTH) begin
             rx_q.push_back(item);
             predict_rx_watermark_intr();
-          end
-          else begin
+          end else begin
             intr_exp[RxOverflow] = 1;
             `uvm_info(`gfn, $sformatf("dropped uart rx item due to overflow:\n%0s",
                                       item.sprint()), UVM_HIGH)
           end
-        end // no parity/frame error
-      end // if (rx_enabled)
-    end // forever
+        end  // no parity/frame error
+      end  // if (rx_enabled)
+    end  // forever
   endtask
 
   // when interrupt is non-sticky, interrupt will be triggered once unless it exits interrupt
@@ -160,9 +161,9 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
   endfunction
 
   virtual task process_tl_access(tl_seq_item item, tl_channels_e channel = DataChannel);
-    uvm_reg csr;
-    bit     do_read_check   = 1'b1;
-    bit     write           = item.is_write();
+    uvm_reg        csr;
+    bit            do_read_check = 1'b1;
+    bit            write = item.is_write();
     uvm_reg_addr_t csr_addr = get_normalized_addr(item.a_addr);
 
     // if access was to a valid csr, get the csr handle
@@ -180,8 +181,8 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
       end
 
       // need to store uart_tx/tx_clk_pulses earlier to predict reg value correctly
-      uart_tx_clk_pulses   = uart_vif.uart_tx_clk_pulses;
-      uart_rx_clk_pulses   = uart_vif.uart_rx_clk_pulses;
+      uart_tx_clk_pulses = uart_vif.uart_tx_clk_pulses;
+      uart_rx_clk_pulses = uart_vif.uart_rx_clk_pulses;
       // save fifo level at address phase
       tx_q_size_at_addr_phase = tx_q.size;
       rx_q_size_at_addr_phase = rx_q.size;
@@ -199,10 +200,12 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
           if ((tx_q.size > 0 || tx_processing_item_q.size > 0) && tx_enabled) begin
             if (tx_q.size > 0 && tx_processing_item_q.size == 0) begin
               tx_processing_item_q.push_back(tx_q.pop_front());
-              fork begin
-                cfg.clk_rst_vif.wait_n_clks(NUM_CLK_DLY_TO_UPDATE_TX_WATERMARK);
-                predict_tx_watermark_intr();
-              end join_none
+              fork
+                begin
+                  cfg.clk_rst_vif.wait_n_clks(NUM_CLK_DLY_TO_UPDATE_TX_WATERMARK);
+                  predict_tx_watermark_intr();
+                end
+              join_none
             end
           end
         end
@@ -221,22 +224,24 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
                 "Drop tx item: %0h, tx_q size: %0d, uart_tx_clk_pulses: %0d",
                 csr.get_mirrored_value(), tx_q.size(), uart_tx_clk_pulses), UVM_MEDIUM)
           end
-          fork begin
-            // use negedge to avoid race condition
-            cfg.clk_rst_vif.wait_n_clks(NUM_CLK_DLY_TO_UPDATE_TX_WATERMARK);
-            if (ral.ctrl.slpbk.get_mirrored_value()) begin
-              // if sys loopback is on, tx item isn't sent to uart pin but rx fifo
-              uart_item tx_item = tx_q.pop_front();
-              if (rx_enabled && (rx_q.size < UART_FIFO_DEPTH)) begin
-                rx_q.push_back(tx_item);
-                predict_rx_watermark_intr();
+          fork
+            begin
+              // use negedge to avoid race condition
+              cfg.clk_rst_vif.wait_n_clks(NUM_CLK_DLY_TO_UPDATE_TX_WATERMARK);
+              if (ral.ctrl.slpbk.get_mirrored_value()) begin
+                // if sys loopback is on, tx item isn't sent to uart pin but rx fifo
+                uart_item tx_item = tx_q.pop_front();
+                if (rx_enabled && (rx_q.size < UART_FIFO_DEPTH)) begin
+                  rx_q.push_back(tx_item);
+                  predict_rx_watermark_intr();
+                end
+              end else if (tx_enabled && tx_processing_item_q.size == 0 && tx_q.size > 0) begin
+                tx_processing_item_q.push_back(tx_q.pop_front());
               end
-            end else if (tx_enabled && tx_processing_item_q.size == 0 && tx_q.size > 0) begin
-              tx_processing_item_q.push_back(tx_q.pop_front());
+              predict_tx_watermark_intr();
             end
-            predict_tx_watermark_intr();
-          end join_none
-        end // write && channel == AddrChannel
+          join_none
+        end  // write && channel == AddrChannel
       end
       "fifo_ctrl": begin
         if (write && channel == AddrChannel) begin
@@ -267,11 +272,13 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
           end
           // recalculate watermark when RXILVL/TXILVL is updated
           predict_rx_watermark_intr();
-          fork begin
-            if (txrst_val) cfg.clk_rst_vif.wait_n_clks(NUM_CLK_DLY_TO_UPDATE_TX_WATERMARK);
-            predict_tx_watermark_intr();
-          end join_none
-        end // write && channel == AddrChannel
+          fork
+            begin
+              if (txrst_val) cfg.clk_rst_vif.wait_n_clks(NUM_CLK_DLY_TO_UPDATE_TX_WATERMARK);
+              predict_tx_watermark_intr();
+            end
+          join_none
+        end  // write && channel == AddrChannel
       end
       "intr_test": begin
         if (write && channel == AddrChannel) begin
@@ -285,9 +292,9 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
         end
       end
       "status": begin
-        if (!write) begin // read
+        if (!write) begin  // read
           case (channel)
-            AddrChannel: begin // predict at address phase
+            AddrChannel: begin  // predict at address phase
               tx_full_exp  = tx_q.size >= UART_FIFO_DEPTH;
               tx_empty_exp = tx_q.size == 0;
               tx_idle_exp  = tx_q.size == 0 && tx_processing_item_q.size == 0;
@@ -295,7 +302,7 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
               rx_empty_exp = rx_q.size == 0;
               rx_idle_exp  = (uart_rx_clk_pulses == 0) || !rx_enabled;
             end
-            DataChannel: begin // check at data phase
+            DataChannel: begin  // check at data phase
               int uart_bits;
 
               do_read_check = 1'b0;
@@ -303,7 +310,7 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
               // status value, check it in seq
               if (ral.ctrl.slpbk.get_mirrored_value()) return;
 
-              uart_bits  = 10 + ral.ctrl.parity_en.get_mirrored_value();
+              uart_bits = 10 + ral.ctrl.parity_en.get_mirrored_value();
 
               // ignore corner case when item is about to complete, also fifo is changing from
               // full to not full and it's at ignored period
@@ -350,34 +357,36 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
               end
             end
           endcase
-        end // if (!write)
-      end // status
+        end  // if (!write)
+      end  // status
       "intr_state": begin
-        if (write && channel == AddrChannel) begin // write & address phase
-          bit[TL_DW-1:0] intr_wdata = item.a_data;
-          fork begin
-            bit [NumUartIntr-1:0] pre_intr = intr_exp;
-            // add 1 cycle delay to avoid race condition when fifo changing and interrupt clearing
-            // occur simultaneously
-            cfg.clk_rst_vif.wait_clks(1);
-            intr_exp &= ~intr_wdata;
-          end join_none
-        end else if (!write && channel == AddrChannel) begin // read & addr phase
+        if (write && channel == AddrChannel) begin  // write & address phase
+          bit [TL_DW-1:0] intr_wdata = item.a_data;
+          fork
+            begin
+              bit [NumUartIntr-1:0] pre_intr = intr_exp;
+              // add 1 cycle delay to avoid race condition when fifo changing and interrupt clearing
+              // occur simultaneously
+              cfg.clk_rst_vif.wait_clks(1);
+              intr_exp &= ~intr_wdata;
+            end
+          join_none
+        end else if (!write && channel == AddrChannel) begin  // read & addr phase
           intr_exp_at_addr_phase = intr_exp;
-        end else if (!write && channel == DataChannel) begin // read & data phase
-          uart_intr_e     intr;
-          bit [TL_DW-1:0] intr_en = ral.intr_enable.get_mirrored_value();
+        end else if (!write && channel == DataChannel) begin  // read & data phase
+          uart_intr_e             intr;
+          bit         [TL_DW-1:0] intr_en = ral.intr_enable.get_mirrored_value();
           do_read_check = 1'b0;
           foreach (intr_exp[i]) begin
-            intr = uart_intr_e'(i); // cast to enum to get interrupt name
+            intr = uart_intr_e'(i);  // cast to enum to get interrupt name
             if (cfg.en_cov) begin
               cov.intr_cg.sample(intr, intr_en[intr], intr_exp[intr]);
               cov.intr_pins_cg.sample(intr, cfg.intr_vif.pins[intr]);
             end
             // don't check it when it's in ignored period
-            if (intr inside {TxWatermark, TxEmpty}) begin // TX interrupts
+            if (intr inside {TxWatermark, TxEmpty}) begin  // TX interrupts
               if (is_in_ignored_period(UartTx)) continue;
-            end else begin // RX interrupts
+            end else begin  // RX interrupts
               // RxTimeout, RxBreakErr is checked in seq
               if (intr inside {RxTimeout, RxBreakErr} || is_in_ignored_period(UartRx) ||
                   (cfg.disable_scb_rx_parity_check && intr == RxParityErr) ||
@@ -391,10 +400,10 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
             `DV_CHECK_CASE_EQ(cfg.intr_vif.pins[i], (intr_en[i] & intr_exp[i]),
                          $sformatf("Interrupt_pin: %0s", intr.name));
           end
-        end // read & data phase
+        end  // read & data phase
       end
       "rdata": begin
-        if (!write) begin // read only
+        if (!write) begin  // read only
           // rdata is removed from fifo after addr phase
           if (channel == AddrChannel) begin
             if (rx_q.size() > 0) begin
@@ -404,20 +413,20 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
             end else begin
               do_read_check = 1'b0;
               `uvm_error(`gfn, "unexpected read when fifo is empty")
-            end // rx_q.size() == 0
-          end else begin //DataChannel
+            end  // rx_q.size() == 0
+          end else begin  //DataChannel
             void'(csr.predict(.value(rdata_exp), .kind(UVM_PREDICT_READ)));
-          end // channel == DataChannel
-        end // !write
+          end  // channel == DataChannel
+        end  // !write
       end
       "fifo_status": begin
         if (!write) begin
           case (channel)
-            AddrChannel: begin // predict at address phase
+            AddrChannel: begin  // predict at address phase
               txlvl_exp = tx_q.size() > UART_FIFO_DEPTH ? UART_FIFO_DEPTH : tx_q.size();
               rxlvl_exp = rx_q.size();
             end
-            DataChannel: begin // check at data phase
+            DataChannel: begin  // check at data phase
               bit [5:0] txlvl_act, rxlvl_act;
 
               void'(csr.predict(.value(item.d_data), .kind(UVM_PREDICT_READ)));
@@ -483,8 +492,7 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
     if (!act.compare(exp)) begin
       `uvm_error(`gfn, $sformatf("%s item mismatch!\nexp:\n%0s\nobs:\n%0s",
                                   dir, exp.sprint(), act.sprint()))
-    end
-    else begin
+    end else begin
       `uvm_info(`gfn, $sformatf("%s item match!\nexp:\n%0s\nobs:\n%0s",
                                  dir, exp.sprint(), act.sprint()), UVM_HIGH)
     end
@@ -499,24 +507,24 @@ class uart_scoreboard extends cip_base_scoreboard #(.CFG_T(uart_env_cfg),
     tx_processing_item_q.delete();
     rx_q.delete();
     // reset local variables
-    uart_tx_clk_pulses   = 0;
-    uart_rx_clk_pulses   = 0;
+    uart_tx_clk_pulses      = 0;
+    uart_rx_clk_pulses      = 0;
     tx_q_size_at_addr_phase = 0;
     rx_q_size_at_addr_phase = 0;
     tx_watermark_triggered  = 1;
     rx_watermark_triggered  = 0;
-    tx_enabled           = ral.ctrl.tx.get_reset();
-    rx_enabled           = ral.ctrl.rx.get_reset();
-    tx_full_exp          = ral.status.txfull.get_reset();
-    rx_full_exp          = ral.status.rxfull.get_reset();
-    tx_empty_exp         = ral.status.txempty.get_reset();
-    rx_empty_exp         = ral.status.rxempty.get_reset();
-    tx_idle_exp          = ral.status.txidle.get_reset();
-    rx_idle_exp          = ral.status.rxidle.get_reset();
-    txlvl_exp            = ral.fifo_status.txlvl.get_reset();
-    rxlvl_exp            = ral.fifo_status.rxlvl.get_reset();
-    intr_exp             = ral.intr_state.get_reset();
-    rdata_exp            = ral.rdata.get_reset();
+    tx_enabled              = ral.ctrl.tx.get_reset();
+    rx_enabled              = ral.ctrl.rx.get_reset();
+    tx_full_exp             = ral.status.txfull.get_reset();
+    rx_full_exp             = ral.status.rxfull.get_reset();
+    tx_empty_exp            = ral.status.txempty.get_reset();
+    rx_empty_exp            = ral.status.rxempty.get_reset();
+    tx_idle_exp             = ral.status.txidle.get_reset();
+    rx_idle_exp             = ral.status.rxidle.get_reset();
+    txlvl_exp               = ral.fifo_status.txlvl.get_reset();
+    rxlvl_exp               = ral.fifo_status.rxlvl.get_reset();
+    intr_exp                = ral.intr_state.get_reset();
+    rdata_exp               = ral.rdata.get_reset();
   endfunction
 
   function void check_phase(uvm_phase phase);

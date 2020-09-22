@@ -2,13 +2,13 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class jtag_agent extends dv_base_agent #(
-      .CFG_T          (jtag_agent_cfg),
-      .DRIVER_T       (jtag_driver),
-      .SEQUENCER_T    (jtag_sequencer),
-      .MONITOR_T      (jtag_monitor),
-      .COV_T          (jtag_agent_cov)
-  );
+class jtag_agent extends dv_base_agent#(
+    .CFG_T      (jtag_agent_cfg),
+    .DRIVER_T   (jtag_driver),
+    .SEQUENCER_T(jtag_sequencer),
+    .MONITOR_T  (jtag_monitor),
+    .COV_T      (jtag_agent_cov)
+);
 
   `uvm_component_utils(jtag_agent)
 

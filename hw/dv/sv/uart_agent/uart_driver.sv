@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class uart_driver extends dv_base_driver #(uart_item, uart_agent_cfg);
+class uart_driver extends dv_base_driver#(uart_item, uart_agent_cfg);
   `uvm_component_utils(uart_driver)
 
   `uvm_component_new
@@ -40,10 +40,9 @@ class uart_driver extends dv_base_driver #(uart_item, uart_agent_cfg);
         `uvm_info(`gfn, $sformatf("starting to send rx item: %0s", rsp.sprint()), UVM_HIGH)
         // we send parity if enabled or if overridden in the req
         if (cfg.en_parity ^ req.ovrd_en_parity) begin
-          send_data = new[NUM_UART_XFER_BITS_WO_PARITY + 1]; // + 1 for parity bit
+          send_data = new[NUM_UART_XFER_BITS_WO_PARITY + 1];  // + 1 for parity bit
           {<<{send_data}} = {req.stop_bit, req.parity, req.data, req.start_bit};
-        end
-        else begin
+        end else begin
           send_data = new[NUM_UART_XFER_BITS_WO_PARITY];
           {<<{send_data}} = {req.stop_bit, req.data, req.start_bit};
         end
@@ -54,7 +53,7 @@ class uart_driver extends dv_base_driver #(uart_item, uart_agent_cfg);
         end
         `uvm_info(`gfn, $sformatf("finished sending rx item: %0s", rsp.sprint()), UVM_HIGH)
       end
-      if (cfg.under_reset) begin // under_reset
+      if (cfg.under_reset) begin  // under_reset
         `uvm_info(`gfn, $sformatf("Reset happens and drop rx item: %0s", rsp.sprint()), UVM_HIGH)
       end
       seq_item_port.put_response(rsp);

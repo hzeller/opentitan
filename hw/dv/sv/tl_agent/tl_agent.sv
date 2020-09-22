@@ -6,14 +6,14 @@
 // TileLink agent
 // ---------------------------------------------
 class tl_agent extends dv_base_agent#(
-    .CFG_T           (tl_agent_cfg),
-    .DRIVER_T        (tl_base_driver),
-    .HOST_DRIVER_T   (tl_host_driver),
-    .DEVICE_DRIVER_T (tl_device_driver),
-    .SEQUENCER_T     (tl_sequencer),
-    .MONITOR_T       (tl_monitor),
-    .COV_T           (tl_agent_cov)
-  );
+    .CFG_T          (tl_agent_cfg),
+    .DRIVER_T       (tl_base_driver),
+    .HOST_DRIVER_T  (tl_host_driver),
+    .DEVICE_DRIVER_T(tl_device_driver),
+    .SEQUENCER_T    (tl_sequencer),
+    .MONITOR_T      (tl_monitor),
+    .COV_T          (tl_agent_cov)
+);
 
   `uvm_component_utils(tl_agent)
 

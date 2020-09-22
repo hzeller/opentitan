@@ -53,7 +53,7 @@ class alert_receiver_driver extends alert_esc_base_driver;
           $sformatf("finished sending receiver item, ping_send=%0b, alert_rsp=%0b, int_fail=%0b",
           req.r_alert_ping_send, req.r_alert_rsp, req.int_err), UVM_HIGH)
       seq_item_port.put_response(rsp);
-    end // end forever
+    end  // end forever
   endtask : send_ping
 
   virtual task rsp_alert();
@@ -86,11 +86,11 @@ class alert_receiver_driver extends alert_esc_base_driver;
           $sformatf("finished sending receiver item, ping_send=%0b, alert_rsp=%0b, int_fail=%0b",
           req.r_alert_ping_send, req.r_alert_rsp, req.int_err), UVM_HIGH)
       seq_item_port.put_response(rsp);
-    end // end forever
+    end  // end forever
   endtask : rsp_alert
 
   virtual task drive_alert_ping(alert_esc_seq_item req);
-    int unsigned       ping_delay;
+    int unsigned ping_delay;
     ping_delay = (cfg.use_seq_item_ping_delay) ?
                  req.ping_delay : $urandom_range(cfg.ping_delay_max, cfg.ping_delay_min);
     if (!req.int_err) begin
@@ -113,7 +113,7 @@ class alert_receiver_driver extends alert_esc_base_driver;
         end
       join
     end else begin
-    // TODO: differential signal fail
+      // TODO: differential signal fail
     end
   endtask
 
@@ -143,7 +143,7 @@ class alert_receiver_driver extends alert_esc_base_driver;
         end : isolation_fork
       join
     end else begin
-    // TODO: differential signal fail
+      // TODO: differential signal fail
     end
   endtask : set_ack_pins
 
@@ -174,8 +174,8 @@ class alert_receiver_driver extends alert_esc_base_driver;
   virtual task do_reset();
     cfg.vif.alert_rx_int.ping_p <= 1'b0;
     cfg.vif.alert_rx_int.ping_n <= 1'b1;
-    cfg.vif.alert_rx_int.ack_p <= 1'b0;
-    cfg.vif.alert_rx_int.ack_n <= 1'b1;
+    cfg.vif.alert_rx_int.ack_p  <= 1'b0;
+    cfg.vif.alert_rx_int.ack_n  <= 1'b1;
   endtask
 
 endclass : alert_receiver_driver

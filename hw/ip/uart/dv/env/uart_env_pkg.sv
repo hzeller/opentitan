@@ -20,7 +20,7 @@ package uart_env_pkg;
 
   // local types
   // csr and mem total size for IP
-  parameter uint UART_ADDR_MAP_SIZE   = 64;
+  parameter uint UART_ADDR_MAP_SIZE = 64;
   parameter uint UART_FIFO_DEPTH = 32;
 
   typedef enum int {
@@ -37,7 +37,7 @@ package uart_env_pkg;
 
   // get the number of bytes that triggers watermark interrupt
   function automatic int get_watermark_bytes_by_level(int lvl, uart_dir_e dir);
-    case(lvl)
+    case (lvl)
       0: return dir == UartTx ? 2 : 1;
       1: return 4;
       2: return 8;
@@ -52,7 +52,7 @@ package uart_env_pkg;
 
   // get the number of bytes that triggers break interrupt
   function automatic int get_break_bytes_by_level(int lvl);
-    case(lvl)
+    case (lvl)
       0: return 2;
       1: return 4;
       2: return 8;

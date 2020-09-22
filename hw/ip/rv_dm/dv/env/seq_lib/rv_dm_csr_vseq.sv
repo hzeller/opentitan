@@ -5,9 +5,7 @@
 class rv_dm_csr_vseq extends rv_dm_base_vseq;
   `uvm_object_utils(rv_dm_csr_vseq)
 
-  constraint num_trans_c {
-    num_trans inside {[1:2]};
-  }
+  constraint num_trans_c {num_trans inside {[1 : 2]};}
   `uvm_object_new
 
   virtual task body();

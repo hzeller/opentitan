@@ -46,19 +46,17 @@ class gpio_full_random_vseq extends gpio_random_long_reg_writes_reg_reads_vseq;
         1: begin
           `uvm_info(msg_id, $sformatf("Latest data_out = 0x%0h [%0b]", data_out, data_out),
                     UVM_HIGH)
-          `uvm_info(msg_id, $sformatf("Latest data_oe = 0x%0h [%0b]", data_oe, data_oe),
-                    UVM_HIGH)
+          `uvm_info(msg_id, $sformatf("Latest data_oe = 0x%0h [%0b]", data_oe, data_oe), UVM_HIGH)
           // Set all 1's in gpio_i_oen first up
           gpio_i_oen = '1;
           `DV_CHECK_STD_RANDOMIZE_FATAL(gpio_i)
           `uvm_info(msg_id, $sformatf("drive random value 0x%0h on gpio_i", gpio_i), UVM_HIGH)
 
-          foreach(gpio_i[pin]) begin
+          foreach (gpio_i[pin]) begin
             if (data_oe[pin]) begin
               if (gpio_i[pin] != data_out[pin]) begin
                 data_oe[pin] = 1'b0;
-              end
-              else begin
+              end else begin
                 bit gpio_i_oe_pin;
                 `DV_CHECK_STD_RANDOMIZE_FATAL(gpio_i_oe_pin)
                 gpio_i_oen[pin] = gpio_i_oe_pin;
@@ -70,7 +68,7 @@ class gpio_full_random_vseq extends gpio_random_long_reg_writes_reg_reads_vseq;
           csr_update(ral.direct_oe);
           // drive gpio_vif after setting all output enables to 0's
           cfg.gpio_vif.pins_oe = gpio_i_oen;
-          cfg.gpio_vif.pins_o = gpio_i;
+          cfg.gpio_vif.pins_o  = gpio_i;
           wait_for_filter_cyles();
           prev_gpio_val = cfg.gpio_vif.sample();
           `uvm_info(`gfn, $sformatf("prev_gpio_val updated to %0h", prev_gpio_val), UVM_HIGH)
@@ -93,7 +91,7 @@ class gpio_full_random_vseq extends gpio_random_long_reg_writes_reg_reads_vseq;
 
       `uvm_info(msg_id, "End of Transaction", UVM_HIGH)
 
-    end // end for
+    end  // end for
 
   endtask : body
 
@@ -274,7 +272,7 @@ class gpio_full_random_vseq extends gpio_random_long_reg_writes_reg_reads_vseq;
         `DV_CHECK_RANDOMIZE_FATAL(ral.data_in)
         csr_update(.csr(ral.data_in));
       end
-      1 : begin
+      1: begin
         `DV_CHECK_RANDOMIZE_FATAL(ral.ctrl_en_input_filter)
         wait_for_filter_cyles();
         csr_update(.csr(ral.ctrl_en_input_filter));

@@ -334,27 +334,27 @@ class riscv_b_instr extends riscv_instr;
 
   function bit [4:0] get_func5();
     case (instr_name) inside
-      SLOI: get_func5 = 5'b00100;
-      SROI: get_func5 = 5'b00100;
-      RORI: get_func5 = 5'b01100;
+      SLOI:   get_func5 = 5'b00100;
+      SROI:   get_func5 = 5'b00100;
+      RORI:   get_func5 = 5'b01100;
       SBCLRI: get_func5 = 5'b01001;
       SBSETI: get_func5 = 5'b01001;
       SBINVI: get_func5 = 5'b01101;
       SBEXTI: get_func5 = 5'b01001;
-      GORCI: get_func5 = 5'b00101;
-      GREVI: get_func5 = 5'b01101;
+      GORCI:  get_func5 = 5'b00101;
+      GREVI:  get_func5 = 5'b01101;
 
-      CLZW: get_func5 = 5'b00000;
-      CTZW: get_func5 = 5'b00001;
+      CLZW:  get_func5 = 5'b00000;
+      CTZW:  get_func5 = 5'b00001;
       PCNTW: get_func5 = 5'b00010;
 
-      CRC32_B: get_func5 = 5'b10000;
-      CRC32_H: get_func5 = 5'b10001;
-      CRC32_W: get_func5 = 5'b10010;
+      CRC32_B:  get_func5 = 5'b10000;
+      CRC32_H:  get_func5 = 5'b10001;
+      CRC32_W:  get_func5 = 5'b10010;
       CRC32C_B: get_func5 = 5'b11000;
       CRC32C_H: get_func5 = 5'b11001;
       CRC32C_W: get_func5 = 5'b11010;
-      CRC32_D: get_func5 = 5'b10011;
+      CRC32_D:  get_func5 = 5'b10011;
       CRC32C_D: get_func5 = 5'b11011;
 
       CLZ: get_func5 = 5'b00000;
@@ -443,7 +443,7 @@ class riscv_b_instr extends riscv_instr;
   virtual function void do_copy(uvm_object rhs);
     riscv_b_instr rhs_;
     super.copy(rhs);
-    assert($cast(rhs_, rhs));
+    assert ($cast(rhs_, rhs));
     this.rs3 = rhs_.rs3;
     this.has_rs3 = rhs_.has_rs3;
   endfunction : do_copy
@@ -500,7 +500,7 @@ class riscv_b_instr extends riscv_instr;
   // coverage related functons
   virtual function void update_src_regs(string operands[$]);
     // handle special I_FORMAT (FSRI, FSRIW) and R4_FORMAT
-    case(format)
+    case (format)
       I_FORMAT: begin
         if (instr_name inside {FSRI, FSRIW}) begin
           `DV_CHECK_FATAL(operands.size() == 4, instr_name)

@@ -10,15 +10,15 @@ class aes_wake_up_vseq extends aes_base_vseq;
   `uvm_object_new
 
 
-  parameter bit       ENCRYPT = 1'b0;
-  parameter bit       DECRYPT = 1'b1;
+  parameter bit ENCRYPT = 1'b0;
+  parameter bit DECRYPT = 1'b1;
 
-  bit [3:0] [31:0]    plain_text       = 128'hDEADBEEFEEDDBBAABAADBEEFDEAFBEAD;
+  bit [3:0][31:0] plain_text = 128'hDEADBEEFEEDDBBAABAADBEEFDEAFBEAD;
   logic [255:0]       init_key [2]     = '{256'h0000111122223333444455556666777788889999AAAABBBBCCCCDDDDEEEEFFFF, 256'h0};
-  bit [3:0] [31:0]    cypher_text;
-  bit [3:0] [31:0]    decrypted_text;
-  logic [3:0] [31:0]  read_text;
-  string              str="";
+  bit [3:0][31:0] cypher_text;
+  bit [3:0][31:0] decrypted_text;
+  logic [3:0][31:0] read_text;
+  string str = "";
 
 
   task body();
@@ -46,7 +46,7 @@ class aes_wake_up_vseq extends aes_base_vseq;
     `uvm_info(`gfn, $sformatf("\n\t ---| Polling for data register %s",
                               ral.status.convert2string()), UVM_DEBUG)
 
-    csr_spinwait(.ptr(ral.status.output_valid) , .exp_data(1'b1));
+    csr_spinwait(.ptr(ral.status.output_valid), .exp_data(1'b1));
     read_data(cypher_text);
     // read output
     `uvm_info(`gfn, $sformatf("\n\t ------|WAIT 0 |-------"), UVM_HIGH)
@@ -66,14 +66,14 @@ class aes_wake_up_vseq extends aes_base_vseq;
               UVM_DEBUG)
 
     cfg.clk_rst_vif.wait_clks(20);
-    csr_spinwait(.ptr(ral.status.output_valid) , .exp_data(1'b1));
+    csr_spinwait(.ptr(ral.status.output_valid), .exp_data(1'b1));
     read_data(decrypted_text);
     //need scoreboard disable
-    foreach(plain_text[i]) begin
-      if(plain_text[i] != decrypted_text[i]) begin
+    foreach (plain_text[i]) begin
+      if (plain_text[i] != decrypted_text[i]) begin
         str = $sformatf(" \n\t ---| OH NOO TEST FAILED AT POS %d|--- \n \t DECRYPTED: \t %02h \n\t Plaintext: \t %02h ",
                         i, decrypted_text[i], plain_text[i]);
-        `uvm_fatal(`gfn, $sformatf("%s",str));
+        `uvm_fatal(`gfn, $sformatf("%s", str));
       end
 
     end

@@ -8,9 +8,7 @@
 covergroup intr_cg (uint num_interrupts) with function sample(uint intr,
                                                               bit intr_en,
                                                               bit intr_state);
-  cp_intr: coverpoint intr {
-    bins all_values[] = {[0:num_interrupts-1]};
-  }
+  cp_intr: coverpoint intr {bins all_values[] = {[0 : num_interrupts - 1]};}
   cp_intr_en: coverpoint intr_en;
   cp_intr_state: coverpoint intr_state;
   cross cp_intr, cp_intr_en, cp_intr_state;
@@ -20,9 +18,7 @@ covergroup intr_test_cg (uint num_interrupts) with function sample(uint intr,
                                                                    bit intr_test,
                                                                    bit intr_en,
                                                                    bit intr_state);
-  cp_intr: coverpoint intr {
-    bins all_values[] = {[0:num_interrupts-1]};
-  }
+  cp_intr: coverpoint intr {bins all_values[] = {[0 : num_interrupts - 1]};}
   cp_intr_test: coverpoint intr_test;
   cp_intr_en: coverpoint intr_en;
   cp_intr_state: coverpoint intr_state;
@@ -34,9 +30,7 @@ endgroup
 
 covergroup intr_pins_cg (uint num_interrupts) with function sample(uint intr_pin,
                                                                    bit  intr_pin_value);
-  cp_intr_pin: coverpoint intr_pin {
-    bins all_pins[] = {[0:num_interrupts-1]};
-  }
+  cp_intr_pin: coverpoint intr_pin {bins all_pins[] = {[0 : num_interrupts - 1]};}
   cp_intr_pin_value: coverpoint intr_pin_value {
     bins values[] = {0, 1};
     bins transitions[] = (0 => 1), (1 => 0);
@@ -50,13 +44,15 @@ covergroup alert_cg (uint num_alerts) with function sample(uint alert);
   }
 endgroup
 
-class cip_base_env_cov #(type CFG_T = cip_base_env_cfg) extends dv_base_env_cov #(CFG_T);
-  `uvm_component_param_utils(cip_base_env_cov #(CFG_T))
+class cip_base_env_cov #(
+  type CFG_T = cip_base_env_cfg
+) extends dv_base_env_cov#(CFG_T);
+  `uvm_component_param_utils(cip_base_env_cov#(CFG_T))
 
-  intr_cg        intr_cg;
-  intr_test_cg   intr_test_cg;
-  intr_pins_cg   intr_pins_cg;
-  alert_cg       alert_cg;
+  intr_cg                 intr_cg;
+  intr_test_cg            intr_test_cg;
+  intr_pins_cg            intr_pins_cg;
+  alert_cg                alert_cg;
   // Coverage for sticky interrupt functionality described in CIP specification
   // As some interrupts are non-sticky, this covergroup should be populated on "as and when needed"
   // basis in extended <ip>_env_cov class for interrupt types that are sticky

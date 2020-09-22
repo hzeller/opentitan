@@ -17,155 +17,115 @@ package keymgr_reg_pkg;
   // Typedefs for registers //
   ////////////////////////////
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } op_done;
-    struct packed {
-      logic        q;
-    } err;
+    struct packed {logic q;} op_done;
+    struct packed {logic q;} err;
   } keymgr_reg2hw_intr_state_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } op_done;
-    struct packed {
-      logic        q;
-    } err;
+    struct packed {logic q;} op_done;
+    struct packed {logic q;} err;
   } keymgr_reg2hw_intr_enable_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } op_done;
     struct packed {
-      logic        q;
-      logic        qe;
+      logic q;
+      logic qe;
     } err;
   } keymgr_reg2hw_intr_test_reg_t;
 
   typedef struct packed {
-    struct packed {
-      logic        q;
-    } init;
-    struct packed {
-      logic        q;
-    } start;
-    struct packed {
-      logic [2:0]  q;
-    } operation;
-    struct packed {
-      logic [1:0]  q;
-    } dest_sel;
+    struct packed {logic q;} init;
+    struct packed {logic q;} start;
+    struct packed {logic [2:0] q;} operation;
+    struct packed {logic [1:0] q;} dest_sel;
   } keymgr_reg2hw_control_reg_t;
 
-  typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_rom_ext_desc_mreg_t;
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_rom_ext_desc_mreg_t;
+
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_software_binding_mreg_t;
+
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_salt_mreg_t;
+
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_key_version_mreg_t;
+
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_max_creator_key_ver_reg_t;
+
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_max_owner_int_key_ver_reg_t;
+
+  typedef struct packed {logic [31:0] q;} keymgr_reg2hw_max_owner_key_ver_reg_t;
 
   typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_software_binding_mreg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_salt_mreg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_key_version_mreg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_max_creator_key_ver_reg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_max_owner_int_key_ver_reg_t;
-
-  typedef struct packed {
-    logic [31:0] q;
-  } keymgr_reg2hw_max_owner_key_ver_reg_t;
-
-  typedef struct packed {
-    struct packed {
-      logic        q;
-    } invalid_op;
-    struct packed {
-      logic        q;
-    } invalid_cmd;
-    struct packed {
-      logic        q;
-    } invalid_kmac_input;
-    struct packed {
-      logic        q;
-    } invalid_kmac_data;
+    struct packed {logic q;} invalid_op;
+    struct packed {logic q;} invalid_cmd;
+    struct packed {logic q;} invalid_kmac_input;
+    struct packed {logic q;} invalid_kmac_data;
   } keymgr_reg2hw_err_code_reg_t;
 
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } op_done;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } err;
   } keymgr_hw2reg_intr_state_reg_t;
 
-  typedef struct packed {
-    logic        d;
-  } keymgr_hw2reg_cfgen_reg_t;
+  typedef struct packed {logic d;} keymgr_hw2reg_cfgen_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } init;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } start;
   } keymgr_hw2reg_control_reg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } keymgr_hw2reg_sw_share0_output_mreg_t;
 
   typedef struct packed {
     logic [31:0] d;
-    logic        de;
+    logic de;
   } keymgr_hw2reg_sw_share1_output_mreg_t;
 
   typedef struct packed {
-    logic [2:0]  d;
-    logic        de;
+    logic [2:0] d;
+    logic de;
   } keymgr_hw2reg_working_state_reg_t;
 
   typedef struct packed {
-    logic [1:0]  d;
-    logic        de;
+    logic [1:0] d;
+    logic de;
   } keymgr_hw2reg_op_status_reg_t;
 
   typedef struct packed {
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } invalid_op;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } invalid_cmd;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } invalid_kmac_input;
     struct packed {
-      logic        d;
-      logic        de;
+      logic d;
+      logic de;
     } invalid_kmac_data;
   } keymgr_hw2reg_err_code_reg_t;
 
@@ -174,79 +134,79 @@ package keymgr_reg_pkg;
   // Register to internal design logic //
   ///////////////////////////////////////
   typedef struct packed {
-    keymgr_reg2hw_intr_state_reg_t intr_state; // [530:529]
-    keymgr_reg2hw_intr_enable_reg_t intr_enable; // [528:527]
-    keymgr_reg2hw_intr_test_reg_t intr_test; // [526:523]
-    keymgr_reg2hw_control_reg_t control; // [522:516]
-    keymgr_reg2hw_rom_ext_desc_mreg_t [3:0] rom_ext_desc; // [515:388]
-    keymgr_reg2hw_software_binding_mreg_t [3:0] software_binding; // [387:260]
-    keymgr_reg2hw_salt_mreg_t [3:0] salt; // [259:132]
-    keymgr_reg2hw_key_version_mreg_t [0:0] key_version; // [131:100]
-    keymgr_reg2hw_max_creator_key_ver_reg_t max_creator_key_ver; // [99:68]
-    keymgr_reg2hw_max_owner_int_key_ver_reg_t max_owner_int_key_ver; // [67:36]
-    keymgr_reg2hw_max_owner_key_ver_reg_t max_owner_key_ver; // [35:4]
-    keymgr_reg2hw_err_code_reg_t err_code; // [3:0]
+    keymgr_reg2hw_intr_state_reg_t intr_state;  // [530:529]
+    keymgr_reg2hw_intr_enable_reg_t intr_enable;  // [528:527]
+    keymgr_reg2hw_intr_test_reg_t intr_test;  // [526:523]
+    keymgr_reg2hw_control_reg_t control;  // [522:516]
+    keymgr_reg2hw_rom_ext_desc_mreg_t [3:0] rom_ext_desc;  // [515:388]
+    keymgr_reg2hw_software_binding_mreg_t [3:0] software_binding;  // [387:260]
+    keymgr_reg2hw_salt_mreg_t [3:0] salt;  // [259:132]
+    keymgr_reg2hw_key_version_mreg_t [0:0] key_version;  // [131:100]
+    keymgr_reg2hw_max_creator_key_ver_reg_t max_creator_key_ver;  // [99:68]
+    keymgr_reg2hw_max_owner_int_key_ver_reg_t max_owner_int_key_ver;  // [67:36]
+    keymgr_reg2hw_max_owner_key_ver_reg_t max_owner_key_ver;  // [35:4]
+    keymgr_reg2hw_err_code_reg_t err_code;  // [3:0]
   } keymgr_reg2hw_t;
 
   ///////////////////////////////////////
   // Internal design logic to register //
   ///////////////////////////////////////
   typedef struct packed {
-    keymgr_hw2reg_intr_state_reg_t intr_state; // [551:550]
-    keymgr_hw2reg_cfgen_reg_t cfgen; // [549:550]
-    keymgr_hw2reg_control_reg_t control; // [549:543]
-    keymgr_hw2reg_sw_share0_output_mreg_t [7:0] sw_share0_output; // [542:279]
-    keymgr_hw2reg_sw_share1_output_mreg_t [7:0] sw_share1_output; // [278:15]
-    keymgr_hw2reg_working_state_reg_t working_state; // [14:15]
-    keymgr_hw2reg_op_status_reg_t op_status; // [14:15]
-    keymgr_hw2reg_err_code_reg_t err_code; // [14:11]
+    keymgr_hw2reg_intr_state_reg_t intr_state;  // [551:550]
+    keymgr_hw2reg_cfgen_reg_t cfgen;  // [549:550]
+    keymgr_hw2reg_control_reg_t control;  // [549:543]
+    keymgr_hw2reg_sw_share0_output_mreg_t [7:0] sw_share0_output;  // [542:279]
+    keymgr_hw2reg_sw_share1_output_mreg_t [7:0] sw_share1_output;  // [278:15]
+    keymgr_hw2reg_working_state_reg_t working_state;  // [14:15]
+    keymgr_hw2reg_op_status_reg_t op_status;  // [14:15]
+    keymgr_hw2reg_err_code_reg_t err_code;  // [14:11]
   } keymgr_hw2reg_t;
 
   // Register Address
-  parameter logic [7:0] KEYMGR_INTR_STATE_OFFSET = 8'h 0;
-  parameter logic [7:0] KEYMGR_INTR_ENABLE_OFFSET = 8'h 4;
-  parameter logic [7:0] KEYMGR_INTR_TEST_OFFSET = 8'h 8;
-  parameter logic [7:0] KEYMGR_CFGEN_OFFSET = 8'h c;
-  parameter logic [7:0] KEYMGR_CONTROL_OFFSET = 8'h 10;
-  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_EN_OFFSET = 8'h 14;
-  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_0_OFFSET = 8'h 18;
-  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_1_OFFSET = 8'h 1c;
-  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_2_OFFSET = 8'h 20;
-  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_3_OFFSET = 8'h 24;
-  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_0_OFFSET = 8'h 28;
-  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_1_OFFSET = 8'h 2c;
-  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_2_OFFSET = 8'h 30;
-  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_3_OFFSET = 8'h 34;
-  parameter logic [7:0] KEYMGR_SALT_0_OFFSET = 8'h 38;
-  parameter logic [7:0] KEYMGR_SALT_1_OFFSET = 8'h 3c;
-  parameter logic [7:0] KEYMGR_SALT_2_OFFSET = 8'h 40;
-  parameter logic [7:0] KEYMGR_SALT_3_OFFSET = 8'h 44;
-  parameter logic [7:0] KEYMGR_KEY_VERSION_OFFSET = 8'h 48;
-  parameter logic [7:0] KEYMGR_MAX_CREATOR_KEY_VER_EN_OFFSET = 8'h 4c;
-  parameter logic [7:0] KEYMGR_MAX_CREATOR_KEY_VER_OFFSET = 8'h 50;
-  parameter logic [7:0] KEYMGR_MAX_OWNER_INT_KEY_VER_EN_OFFSET = 8'h 54;
-  parameter logic [7:0] KEYMGR_MAX_OWNER_INT_KEY_VER_OFFSET = 8'h 58;
-  parameter logic [7:0] KEYMGR_MAX_OWNER_KEY_VER_EN_OFFSET = 8'h 5c;
-  parameter logic [7:0] KEYMGR_MAX_OWNER_KEY_VER_OFFSET = 8'h 60;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_0_OFFSET = 8'h 64;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_1_OFFSET = 8'h 68;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_2_OFFSET = 8'h 6c;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_3_OFFSET = 8'h 70;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_4_OFFSET = 8'h 74;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_5_OFFSET = 8'h 78;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_6_OFFSET = 8'h 7c;
-  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_7_OFFSET = 8'h 80;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_0_OFFSET = 8'h 84;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_1_OFFSET = 8'h 88;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_2_OFFSET = 8'h 8c;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_3_OFFSET = 8'h 90;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_4_OFFSET = 8'h 94;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_5_OFFSET = 8'h 98;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_6_OFFSET = 8'h 9c;
-  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_7_OFFSET = 8'h a0;
-  parameter logic [7:0] KEYMGR_WORKING_STATE_OFFSET = 8'h a4;
-  parameter logic [7:0] KEYMGR_OP_STATUS_OFFSET = 8'h a8;
-  parameter logic [7:0] KEYMGR_ERR_CODE_OFFSET = 8'h ac;
+  parameter logic [7:0] KEYMGR_INTR_STATE_OFFSET = 8'h0;
+  parameter logic [7:0] KEYMGR_INTR_ENABLE_OFFSET = 8'h4;
+  parameter logic [7:0] KEYMGR_INTR_TEST_OFFSET = 8'h8;
+  parameter logic [7:0] KEYMGR_CFGEN_OFFSET = 8'hc;
+  parameter logic [7:0] KEYMGR_CONTROL_OFFSET = 8'h10;
+  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_EN_OFFSET = 8'h14;
+  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_0_OFFSET = 8'h18;
+  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_1_OFFSET = 8'h1c;
+  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_2_OFFSET = 8'h20;
+  parameter logic [7:0] KEYMGR_ROM_EXT_DESC_3_OFFSET = 8'h24;
+  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_0_OFFSET = 8'h28;
+  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_1_OFFSET = 8'h2c;
+  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_2_OFFSET = 8'h30;
+  parameter logic [7:0] KEYMGR_SOFTWARE_BINDING_3_OFFSET = 8'h34;
+  parameter logic [7:0] KEYMGR_SALT_0_OFFSET = 8'h38;
+  parameter logic [7:0] KEYMGR_SALT_1_OFFSET = 8'h3c;
+  parameter logic [7:0] KEYMGR_SALT_2_OFFSET = 8'h40;
+  parameter logic [7:0] KEYMGR_SALT_3_OFFSET = 8'h44;
+  parameter logic [7:0] KEYMGR_KEY_VERSION_OFFSET = 8'h48;
+  parameter logic [7:0] KEYMGR_MAX_CREATOR_KEY_VER_EN_OFFSET = 8'h4c;
+  parameter logic [7:0] KEYMGR_MAX_CREATOR_KEY_VER_OFFSET = 8'h50;
+  parameter logic [7:0] KEYMGR_MAX_OWNER_INT_KEY_VER_EN_OFFSET = 8'h54;
+  parameter logic [7:0] KEYMGR_MAX_OWNER_INT_KEY_VER_OFFSET = 8'h58;
+  parameter logic [7:0] KEYMGR_MAX_OWNER_KEY_VER_EN_OFFSET = 8'h5c;
+  parameter logic [7:0] KEYMGR_MAX_OWNER_KEY_VER_OFFSET = 8'h60;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_0_OFFSET = 8'h64;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_1_OFFSET = 8'h68;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_2_OFFSET = 8'h6c;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_3_OFFSET = 8'h70;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_4_OFFSET = 8'h74;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_5_OFFSET = 8'h78;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_6_OFFSET = 8'h7c;
+  parameter logic [7:0] KEYMGR_SW_SHARE0_OUTPUT_7_OFFSET = 8'h80;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_0_OFFSET = 8'h84;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_1_OFFSET = 8'h88;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_2_OFFSET = 8'h8c;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_3_OFFSET = 8'h90;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_4_OFFSET = 8'h94;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_5_OFFSET = 8'h98;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_6_OFFSET = 8'h9c;
+  parameter logic [7:0] KEYMGR_SW_SHARE1_OUTPUT_7_OFFSET = 8'ha0;
+  parameter logic [7:0] KEYMGR_WORKING_STATE_OFFSET = 8'ha4;
+  parameter logic [7:0] KEYMGR_OP_STATUS_OFFSET = 8'ha8;
+  parameter logic [7:0] KEYMGR_ERR_CODE_OFFSET = 8'hac;
 
 
   // Register Index

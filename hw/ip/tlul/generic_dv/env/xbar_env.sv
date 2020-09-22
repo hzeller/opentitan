@@ -5,13 +5,15 @@
 // ---------------------------------------------
 // Xbar environment class
 // ---------------------------------------------
-class xbar_env extends dv_base_env#(.CFG_T              (xbar_env_cfg),
-                                    .VIRTUAL_SEQUENCER_T(xbar_virtual_sequencer),
-                                    .SCOREBOARD_T       (xbar_scoreboard),
-                                    .COV_T              (xbar_env_cov));
+class xbar_env extends dv_base_env#(
+    .CFG_T              (xbar_env_cfg),
+    .VIRTUAL_SEQUENCER_T(xbar_virtual_sequencer),
+    .SCOREBOARD_T       (xbar_scoreboard),
+    .COV_T              (xbar_env_cov)
+);
 
-  tl_agent          host_agent[];
-  tl_agent          device_agent[];
+  tl_agent host_agent[];
+  tl_agent device_agent[];
 
   `uvm_component_utils(xbar_env)
 
@@ -66,7 +68,7 @@ class xbar_env extends dv_base_env#(.CFG_T              (xbar_env_cfg),
     super.connect_phase(phase);
     // Connect virtual sequencer
     if (cfg.is_active) begin
-      virtual_sequencer.host_seqr = new[cfg.num_hosts];
+      virtual_sequencer.host_seqr   = new[cfg.num_hosts];
       virtual_sequencer.device_seqr = new[cfg.num_devices];
       foreach (host_agent[i]) begin
         virtual_sequencer.host_seqr[i] = host_agent[i].sequencer;

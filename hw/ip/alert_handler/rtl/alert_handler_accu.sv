@@ -12,15 +12,17 @@
 
 `include "prim_assert.sv"
 
-module alert_handler_accu import alert_pkg::*; (
+module alert_handler_accu
+import alert_pkg::*;
+(
   input                        clk_i,
   input                        rst_ni,
-  input                        class_en_i,   // class enable
-  input                        clr_i,        // clear the accumulator
-  input                        class_trig_i, // increments the accu
-  input        [AccuCntDw-1:0] thresh_i,     // escalation trigger threshold
-  output logic [AccuCntDw-1:0] accu_cnt_o,   // output of current accu value
-  output logic                 accu_trig_o   // escalation trigger output
+  input                        class_en_i,  // class enable
+  input                        clr_i,  // clear the accumulator
+  input                        class_trig_i,  // increments the accu
+  input        [AccuCntDw-1:0] thresh_i,  // escalation trigger threshold
+  output logic [AccuCntDw-1:0] accu_cnt_o,  // output of current accu value
+  output logic                 accu_trig_o  // escalation trigger output
 );
 
   logic trig_gated;

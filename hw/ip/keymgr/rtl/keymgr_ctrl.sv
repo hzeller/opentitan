@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module keymgr_ctrl import keymgr_pkg::*;(
+module keymgr_ctrl
+import keymgr_pkg::*;
+(
   input clk_i,
   input rst_ni,
 
@@ -29,7 +31,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
   output keymgr_working_state_e working_state_o,
 
   // Data input
-  input  [KeyWidth-1:0] root_key_i,
+  input [KeyWidth-1:0] root_key_i,
   output keymgr_gen_out_e hw_sel_o,
   output keymgr_stage_e stage_sel_o,
 
@@ -40,9 +42,9 @@ module keymgr_ctrl import keymgr_pkg::*;(
   output logic [Shares-1:0][KeyWidth-1:0] key_o,
   output logic load_key_o,
   input kmac_done_i,
-  input kmac_input_invalid_i, // asserted when selected data fails criteria check
-  input kmac_fsm_err_i, // asserted when kmac fsm reaches unexpected state
-  input kmac_cmd_err_i, // asserted when more than one command given to kmac
+  input kmac_input_invalid_i,  // asserted when selected data fails criteria check
+  input kmac_fsm_err_i,  // asserted when kmac fsm reaches unexpected state
+  input kmac_cmd_err_i,  // asserted when more than one command given to kmac
   input [Shares-1:0][KeyWidth-1:0] kmac_data_i
 );
   localparam int EntropyWidth = LfsrWidth / 2;
@@ -72,20 +74,20 @@ module keymgr_ctrl import keymgr_pkg::*;(
   // something went wrong with the kmac interface operation
   logic kmac_op_err;
 
-  assign advance_sel    = op_i == OpAdvance  & keymgr_en_i;
-  assign gen_id_sel     = op_i == OpGenId    & keymgr_en_i;
+  assign advance_sel = op_i == OpAdvance & keymgr_en_i;
+  assign gen_id_sel = op_i == OpGenId & keymgr_en_i;
   assign gen_out_sw_sel = op_i == OpGenSwOut & keymgr_en_i;
   assign gen_out_hw_sel = op_i == OpGenHwOut & keymgr_en_i;
-  assign gen_out_sel    = gen_out_sw_sel | gen_out_hw_sel;
-  assign gen_sel        = gen_id_sel | gen_out_sel;
+  assign gen_out_sel = gen_out_sw_sel | gen_out_hw_sel;
+  assign gen_sel = gen_id_sel | gen_out_sel;
 
   // disable is selected whenever a normal operation is not, and when
   // keymgr is disabled
-  assign disable_sel    = !(gen_sel | advance_sel) | !keymgr_en_i;
+  assign disable_sel = !(gen_sel | advance_sel) | !keymgr_en_i;
 
-  assign adv_en_o   = op_accepted & (advance_sel | disable_sel);
-  assign id_en_o    = op_accepted & gen_id_sel;
-  assign gen_en_o   = op_accepted & gen_out_sel;
+  assign adv_en_o = op_accepted & (advance_sel | disable_sel);
+  assign id_en_o = op_accepted & gen_id_sel;
+  assign gen_en_o = op_accepted & gen_out_sel;
   assign load_key_o = adv_en_o & !adv_en_q;
 
   // check incoming kmac data validity
@@ -96,10 +98,10 @@ module keymgr_ctrl import keymgr_pkg::*;(
   // Unlike the key state, the working state can be safely reset.
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      state_q <= StReset;
+      state_q  <= StReset;
       adv_en_q <= 1'b0;
     end else begin
-      state_q <= state_d;
+      state_q  <= state_d;
       adv_en_q <= adv_en_o;
     end
   end
@@ -107,7 +109,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
   // prevents unknowns from reaching the outside world.
   // whatever operation causes the input data select to be disabled should
   // also not expose the key state
-  assign key_o = disable_sel ? {EntropyRounds * Shares {entropy_i}} : key_state_q;
+  assign key_o = disable_sel ? {EntropyRounds * Shares{entropy_i}} : key_state_q;
 
   // key state is intentionally not reset
   always_ff @(posedge clk_i) begin
@@ -164,7 +166,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
       // This state does not accept any command. Issuing any command
       // will cause an immediate error
       StWipe: begin
-        op_done_o = op_start_i;
+        op_done_o  = op_start_i;
         invalid_op = op_start_i;
 
         // populate both shares with the same entropy
@@ -178,7 +180,8 @@ module keymgr_ctrl import keymgr_pkg::*;(
         // when mask population is complete, xor the root_key into the zero share
         // if in the future the root key is updated to 2 shares, it will direclty overwrite
         // the values here
-        else begin
+        else
+        begin
           cnt_clr = 1'b1;
           key_state_d[0] = key_state_q[0] ^ root_key_i;
           state_d = StInit;
@@ -218,8 +221,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
 
         if (op_start_i || !keymgr_en_i) begin
           op_accepted = 1'b1;
-          stage_sel_o = disable_sel ? Disable  :
-                        advance_sel ? OwnerInt : Creator;
+          stage_sel_o = disable_sel ? Disable : advance_sel ? OwnerInt : Creator;
           hw_sel_o = gen_out_hw_sel ? HwKey : SwKey;
         end
 
@@ -243,8 +245,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
         // when disabling, select random data input
         if (op_start_i || !keymgr_en_i) begin
           op_accepted = 1'b1;
-          stage_sel_o = disable_sel ? Disable  :
-                        advance_sel ? Owner : OwnerInt;
+          stage_sel_o = disable_sel ? Disable : advance_sel ? Owner : OwnerInt;
           hw_sel_o = gen_out_hw_sel ? HwKey : SwKey;
         end
 
@@ -264,7 +265,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
 
         if (op_start_i || !keymgr_en_i) begin
           op_accepted = 1'b1;
-          stage_sel_o = disable_sel || advance_sel  ? Disable : Owner;
+          stage_sel_o = disable_sel || advance_sel ? Disable : Owner;
           hw_sel_o = gen_out_hw_sel ? HwKey : SwKey;
         end
 
@@ -294,7 +295,7 @@ module keymgr_ctrl import keymgr_pkg::*;(
         invalid_op = 1'b1;
       end
 
-    endcase // unique case (state_q)
+    endcase  // unique case (state_q)
   end
 
 
@@ -306,9 +307,9 @@ module keymgr_ctrl import keymgr_pkg::*;(
   assign data_valid_o = op_done_o & op_accepted & data_valid & gen_sel;
 
   // data errors are not relevant when operation was not accepted.
-  assign error_o[ErrInvalidOp]  = invalid_op;
+  assign error_o[ErrInvalidOp] = invalid_op;
   assign error_o[ErrInvalidCmd] = op_start_i & op_accepted & kmac_op_err;
-  assign error_o[ErrInvalidIn]  = op_done_o & op_accepted & kmac_input_invalid_i;
+  assign error_o[ErrInvalidIn] = op_done_o & op_accepted & kmac_input_invalid_i;
   assign error_o[ErrInvalidOut] = op_done_o & op_accepted & ~data_valid;
 
   always_comb begin
@@ -328,10 +329,10 @@ module keymgr_ctrl import keymgr_pkg::*;(
 
   // unclear what this is supposed to be yet
   // right now just check to see if it not all 0's and not all 1's
-  function automatic logic valid_data_chk (logic [KeyWidth-1:0] value);
+  function automatic logic valid_data_chk(logic [KeyWidth-1:0] value);
 
     return |value & ~&value;
 
-  endfunction // byte_mask
+  endfunction  // byte_mask
 
 endmodule

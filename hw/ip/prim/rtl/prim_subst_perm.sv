@@ -12,7 +12,7 @@
 module prim_subst_perm #(
   parameter int DataWidth = 64,
   parameter int NumRounds = 31,
-  parameter bit Decrypt   = 0    // 0: encrypt, 1: decrypt
+  parameter bit Decrypt   = 0  // 0: encrypt, 1: decrypt
 ) (
   input        [DataWidth-1:0] data_i,
   input        [DataWidth-1:0] key_i,
@@ -36,7 +36,7 @@ module prim_subst_perm #(
       always_comb begin : p_dec
         data_state_sbox = data_state[r] ^ key_i;
         // Reverse odd/even grouping
-        for (int k = 0; k < DataWidth/2; k++) begin
+        for (int k = 0; k < DataWidth / 2; k++) begin
           data_state_flipped[k * 2]     = data_state_sbox[k];
           data_state_flipped[k * 2 + 1] = data_state_sbox[k + DataWidth/2];
         end
@@ -50,8 +50,8 @@ module prim_subst_perm #(
         end
         data_state[r + 1] = data_state_sbox;
       end
-    ////////////////////////////////
-    // encryption pass
+      ////////////////////////////////
+      // encryption pass
     end else begin : gen_enc
       always_comb begin : p_dec
         data_state_sbox = data_state[r] ^ key_i;
@@ -68,15 +68,15 @@ module prim_subst_perm #(
         // Regroup bits such that all even indices are stacked up first, followed by all odd
         // indices, and then flip the vector. Note that if the Width is odd, this is still ok, since
         // the uppermost bit just stays in place in that case.
-        for (int k = 0; k < DataWidth/2; k++) begin
+        for (int k = 0; k < DataWidth / 2; k++) begin
           data_state_sbox[k]               = data_state_flipped[k * 2];
           data_state_sbox[k + DataWidth/2] = data_state_flipped[k * 2 + 1];
         end
         data_state[r + 1] = data_state_sbox;
       end
-    end // gen_enc
+    end  // gen_enc
     ////////////////////////////////
-  end // gen_round
+  end  // gen_round
 
   // finalize
   assign data_o = data_state[NumRounds] ^ key_i;

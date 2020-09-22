@@ -2,11 +2,11 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class jtag_monitor extends dv_base_monitor #(
-    .ITEM_T (jtag_item),
-    .CFG_T  (jtag_agent_cfg),
-    .COV_T  (jtag_agent_cov)
-  );
+class jtag_monitor extends dv_base_monitor#(
+    .ITEM_T(jtag_item),
+    .CFG_T (jtag_agent_cfg),
+    .COV_T (jtag_agent_cov)
+);
   `uvm_component_utils(jtag_monitor)
 
   // the base class provides the following handles for use:

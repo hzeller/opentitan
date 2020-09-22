@@ -16,7 +16,9 @@ class uart_rx_start_bit_filter_vseq extends uart_sanity_vseq;
 
     // monitor doesn't have start bit filter, need to disable it while driving filtered start bit
     cfg.m_uart_agent_cfg.en_rx_monitor = 0;
-    repeat ($urandom_range(10, 100)) begin
+    repeat ($urandom_range(
+        10, 100
+    )) begin
       // drive 0 for up to 0.4 uart clk and 1 for 0.8 clk. Design samples start bit (0) first,
       // after 0.5 clk, design will sample 1 and should drop this start bit
       // need stable period > 0.5, use 0.8 clk to have enough margin

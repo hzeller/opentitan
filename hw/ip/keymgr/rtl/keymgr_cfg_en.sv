@@ -35,4 +35,4 @@ module keymgr_cfg_en (
     end
   end
 
-endmodule // keymgr_cfg_en
+endmodule  // keymgr_cfg_en

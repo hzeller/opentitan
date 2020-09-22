@@ -20,7 +20,7 @@ class i2c_seq_cfg extends uvm_object;
   uint i2c_max_data              = 255;
   uint i2c_min_dly               = 0;
   uint i2c_max_dly               = 5;
-  uint i2c_min_timing            = 1; // at least 1
+  uint i2c_min_timing            = 1;  // at least 1
   uint i2c_max_timing            = 5;
   uint i2c_time_range            = i2c_max_timing - i2c_min_timing;
   uint i2c_min_timeout           = 1;

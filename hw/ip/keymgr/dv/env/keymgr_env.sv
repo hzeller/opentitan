@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class keymgr_env extends cip_base_env #(
+class keymgr_env extends cip_base_env#(
     .CFG_T              (keymgr_env_cfg),
     .COV_T              (keymgr_env_cov),
     .VIRTUAL_SEQUENCER_T(keymgr_virtual_sequencer),
     .SCOREBOARD_T       (keymgr_scoreboard)
-  );
+);
   `uvm_component_utils(keymgr_env)
 
   `uvm_component_new

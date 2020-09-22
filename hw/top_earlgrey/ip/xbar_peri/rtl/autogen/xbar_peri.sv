@@ -63,12 +63,12 @@ module xbar_peri (
   logic unused_scanmode;
   assign unused_scanmode = scanmode_i;
 
-  tl_h2d_t tl_s1n_12_us_h2d ;
-  tl_d2h_t tl_s1n_12_us_d2h ;
+  tl_h2d_t tl_s1n_12_us_h2d;
+  tl_d2h_t tl_s1n_12_us_d2h;
 
 
-  tl_h2d_t tl_s1n_12_ds_h2d [11];
-  tl_d2h_t tl_s1n_12_ds_d2h [11];
+  tl_h2d_t tl_s1n_12_ds_h2d[11];
+  tl_d2h_t tl_s1n_12_ds_d2h[11];
 
   // Create steering signal
   logic [3:0] dev_sel_s1n_12;
@@ -146,25 +146,25 @@ module xbar_peri (
 
     end else if ((tl_s1n_12_us_h2d.a_address & ~(ADDR_MASK_AST_WRAPPER)) == ADDR_SPACE_AST_WRAPPER) begin
       dev_sel_s1n_12 = 4'd10;
-end
+    end
   end
 
 
   // Instantiation phase
   tlul_socket_1n #(
-    .HReqDepth (4'h0),
-    .HRspDepth (4'h0),
-    .DReqDepth (44'h0),
-    .DRspDepth (44'h0),
-    .N         (11)
+      .HReqDepth(4'h0),
+      .HRspDepth(4'h0),
+      .DReqDepth(44'h0),
+      .DRspDepth(44'h0),
+      .N        (11)
   ) u_s1n_12 (
-    .clk_i        (clk_peri_i),
-    .rst_ni       (rst_peri_ni),
-    .tl_h_i       (tl_s1n_12_us_h2d),
-    .tl_h_o       (tl_s1n_12_us_d2h),
-    .tl_d_o       (tl_s1n_12_ds_h2d),
-    .tl_d_i       (tl_s1n_12_ds_d2h),
-    .dev_select_i (dev_sel_s1n_12)
+      .clk_i       (clk_peri_i),
+      .rst_ni      (rst_peri_ni),
+      .tl_h_i      (tl_s1n_12_us_h2d),
+      .tl_h_o      (tl_s1n_12_us_d2h),
+      .tl_d_o      (tl_s1n_12_ds_h2d),
+      .tl_d_i      (tl_s1n_12_ds_d2h),
+      .dev_select_i(dev_sel_s1n_12)
   );
 
 endmodule

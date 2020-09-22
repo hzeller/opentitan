@@ -9,14 +9,14 @@
 
 // TODO: Implement protocl check in the monitor
 class tl_monitor extends dv_base_monitor#(
-    .ITEM_T (tl_seq_item),
-    .CFG_T  (tl_agent_cfg),
-    .COV_T  (tl_agent_cov)
-  );
+    .ITEM_T(tl_seq_item),
+    .CFG_T (tl_agent_cfg),
+    .COV_T (tl_agent_cov)
+);
 
-  tl_seq_item    pending_a_req[$];
-  string         agent_name;
-  uvm_phase      run_phase_h;
+  tl_seq_item                      pending_a_req[$];
+  string                           agent_name;
+  uvm_phase                        run_phase_h;
 
   uvm_analysis_port #(tl_seq_item) d_chan_port;
   uvm_analysis_port #(tl_seq_item) a_chan_port;
@@ -77,12 +77,12 @@ class tl_monitor extends dv_base_monitor#(
         tlul_pkg::tl_h2d_t h2d = valid_req_with_same_cycle_rsp ? cfg.vif.h2d : cfg.vif.mon_cb.h2d;
 
         req = tl_seq_item::type_id::create("req");
-        req.a_addr   = h2d.a_address;
+        req.a_addr = h2d.a_address;
         req.a_opcode = h2d.a_opcode;
-        req.a_size   = h2d.a_size;
-        req.a_param  = h2d.a_param;
-        req.a_data   = h2d.a_data;
-        req.a_mask   = h2d.a_mask;
+        req.a_size = h2d.a_size;
+        req.a_param = h2d.a_param;
+        req.a_data = h2d.a_data;
+        req.a_mask = h2d.a_mask;
         req.a_source = h2d.a_source;
         `uvm_info("tl_logging", $sformatf("[%0s][a_chan] : %0s",
                    agent_name, req.convert2string()), UVM_HIGH)
@@ -136,13 +136,13 @@ class tl_monitor extends dv_base_monitor#(
           if (pending_a_req[i].a_source == cfg.vif.mon_cb.d2h.d_source) begin
             rsp = pending_a_req[i];
             rsp.d_opcode = cfg.vif.mon_cb.d2h.d_opcode;
-            rsp.d_data   = cfg.vif.mon_cb.d2h.d_data;
+            rsp.d_data = cfg.vif.mon_cb.d2h.d_data;
             rsp.d_source = cfg.vif.mon_cb.d2h.d_source;
-            rsp.d_param  = cfg.vif.mon_cb.d2h.d_param;
-            rsp.d_error  = cfg.vif.mon_cb.d2h.d_error;
-            rsp.d_sink   = cfg.vif.mon_cb.d2h.d_sink;
-            rsp.d_size   = cfg.vif.mon_cb.d2h.d_size;
-            rsp.d_user   = cfg.vif.mon_cb.d2h.d_user;
+            rsp.d_param = cfg.vif.mon_cb.d2h.d_param;
+            rsp.d_error = cfg.vif.mon_cb.d2h.d_error;
+            rsp.d_sink = cfg.vif.mon_cb.d2h.d_sink;
+            rsp.d_size = cfg.vif.mon_cb.d2h.d_size;
+            rsp.d_user = cfg.vif.mon_cb.d2h.d_user;
             `uvm_info("tl_logging", $sformatf("[%0s][d_chan] : %0s",
                       agent_name, rsp.convert2string()), UVM_HIGH)
             d_chan_port.write(rsp);

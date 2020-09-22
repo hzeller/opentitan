@@ -19,7 +19,9 @@
 // Basically...this is a tag ram + data ram combined into one
 //
 
-module flash_phy_rd_buffers import flash_phy_pkg::*; (
+module flash_phy_rd_buffers
+import flash_phy_pkg::*;
+(
   input clk_i,
   input rst_ni,
   input alloc_i,
@@ -49,4 +51,4 @@ module flash_phy_rd_buffers import flash_phy_pkg::*; (
     end
   end
 
-endmodule // flash_phy_rd_buffers
+endmodule  // flash_phy_rd_buffers

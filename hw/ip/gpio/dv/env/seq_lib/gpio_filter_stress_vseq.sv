@@ -57,8 +57,10 @@ class gpio_filter_stress_vseq extends gpio_intr_with_filter_rand_intr_event_vseq
       read_and_check(stable_value, crnt_intr_status);
 
       begin : drive_noise_on_each_pin
-        repeat ($urandom_range(1, 10)) begin
-          for (uint pin_num = 0; pin_num  < NUM_GPIOS; pin_num++) begin
+        repeat ($urandom_range(
+            1, 10
+        )) begin
+          for (uint pin_num = 0; pin_num < NUM_GPIOS; pin_num++) begin
             automatic uint pin = pin_num;
             fork
               begin
@@ -67,8 +69,8 @@ class gpio_filter_stress_vseq extends gpio_intr_with_filter_rand_intr_event_vseq
                   drive_noise_on_pin(pin, gpio_i[pin]);
                 end else begin
                   uint ps_delay;
-                  bit intr_state_this_pin = crnt_intr_status[pin];
-                  `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(ps_delay, ps_delay inside {[1:10000]};)
+                  bit  intr_state_this_pin = crnt_intr_status[pin];
+                  `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(ps_delay, ps_delay inside {[1 : 10000]};)
                   // Drive single asynchronous change for pins with filter disabled
                   #(ps_delay * 1ps);
                   cfg.gpio_vif.drive_pin(pin, ~stable_value[pin]);
@@ -91,34 +93,35 @@ class gpio_filter_stress_vseq extends gpio_intr_with_filter_rand_intr_event_vseq
           // Read and check DATA_IN and INTR_STATE registers
           read_and_check(stable_value, crnt_intr_status);
         end
-      end // drive_noise_on_each_pin
+      end  // drive_noise_on_each_pin
 
       // Drive some regular 'non-noise' data that stays unchanged for
       // FILTER_CYCLES or more cycles
       begin : drive_non_noise_data
-        repeat ($urandom_range(1, 10)) begin
+        repeat ($urandom_range(
+            1, 10
+        )) begin
           uint num_clk_cycles;
           `DV_CHECK_STD_RANDOMIZE_WITH_FATAL(num_clk_cycles,
                                              num_clk_cycles inside {[(FILTER_CYCLES + 1) :
                                                                      (FILTER_CYCLES + 10)]};)
-           `DV_CHECK_STD_RANDOMIZE_FATAL(gpio_i)
-           cfg.gpio_vif.drive(gpio_i);
-           cfg.clk_rst_vif.wait_clks(num_clk_cycles);
-           // Update predicted DATA_IN and INTR_STATE values
-           update_intr_state(crnt_intr_status, stable_value, gpio_i);
-           stable_value = gpio_i;
-           // Read and check DATA_IN and INTR_STATE registers
-           read_and_check(stable_value, crnt_intr_status);
+          `DV_CHECK_STD_RANDOMIZE_FATAL(gpio_i)
+          cfg.gpio_vif.drive(gpio_i);
+          cfg.clk_rst_vif.wait_clks(num_clk_cycles);
+          // Update predicted DATA_IN and INTR_STATE values
+          update_intr_state(crnt_intr_status, stable_value, gpio_i);
+          stable_value = gpio_i;
+          // Read and check DATA_IN and INTR_STATE registers
+          read_and_check(stable_value, crnt_intr_status);
         end
-      end // drive_non_noise_data
+      end  // drive_non_noise_data
 
       `uvm_info(`gfn, $sformatf("End of iteration-%0d", iter_num), UVM_HIGH)
-    end // end for
+    end  // end for
 
   endtask : body
 
-  task drive_noise_on_pin(input  uint pin_idx,
-                          input  bit  crnt_gpio_pin_value);
+  task drive_noise_on_pin(input uint pin_idx, input bit crnt_gpio_pin_value);
     bit  pin_value = crnt_gpio_pin_value;
     uint noise_length_cycles = $urandom_range(2, FILTER_CYCLES - 1);
     bit  noise_length_cycles_done;
@@ -160,10 +163,10 @@ class gpio_filter_stress_vseq extends gpio_intr_with_filter_rand_intr_event_vseq
                                       ref   bit  pin_current_interrupt_state,
                                       input bit  pin_prev_filtered_value,
                                       input bit  pin_crnt_exp_filtered_value);
-    bit [NUM_GPIOS-1:0] intr_ctrl_en_rising  = ral.intr_ctrl_en_rising.get();
+    bit [NUM_GPIOS-1:0] intr_ctrl_en_rising = ral.intr_ctrl_en_rising.get();
     bit [NUM_GPIOS-1:0] intr_ctrl_en_falling = ral.intr_ctrl_en_falling.get();
     bit [NUM_GPIOS-1:0] intr_ctrl_en_lvlhigh = ral.intr_ctrl_en_lvlhigh.get();
-    bit [NUM_GPIOS-1:0] intr_ctrl_en_lvllow  = ral.intr_ctrl_en_lvllow.get();
+    bit [NUM_GPIOS-1:0] intr_ctrl_en_lvllow = ral.intr_ctrl_en_lvllow.get();
     bit new_intr_state_updates;
 
     // Look for edge triggered interrupts

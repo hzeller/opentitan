@@ -7,14 +7,14 @@ class aes_sanity_test extends aes_base_test;
   `uvm_component_utils(aes_sanity_test)
   `uvm_component_new
 
-   virtual function void build_phase(uvm_phase phase);
-     super.build_phase(phase);
-     configure_env();
+  virtual function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    configure_env();
   endfunction
 
   function void configure_env();
     super.configure_env();
-    cfg.errors_en                = 0;     // no errors in sanity test
+    cfg.errors_en                = 0;  // no errors in sanity test
     cfg.num_messages_min         = 2;
     cfg.num_messages_max         = 2;
     // message related knobs
@@ -24,8 +24,8 @@ class aes_sanity_test extends aes_base_test;
     cfg.ofb_weight               = 10;
     cfg.cfb_weight               = 10;
 
-    cfg.message_len_min          = 16;    // one block (16bytes=128bits)
-    cfg.message_len_max          = 32;    //
+    cfg.message_len_min          = 16;  // one block (16bytes=128bits)
+    cfg.message_len_max          = 32;  //
     cfg.manual_operation_pct     = 0;
     cfg.use_key_mask             = 0;
 

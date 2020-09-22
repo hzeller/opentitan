@@ -9,8 +9,8 @@
 module aes_reg_status #(
   parameter int Width = 1
 ) (
-  input  logic             clk_i,
-  input  logic             rst_ni,
+  input logic clk_i,
+  input logic rst_ni,
 
   input  logic [Width-1:0] we_i,
   input  logic             use_i,
@@ -21,11 +21,11 @@ module aes_reg_status #(
 );
 
   logic [Width-1:0] we_d, we_q;
-  logic             armed_d, armed_q;
-  logic             all_written;
-  logic             none_written;
-  logic             new_d, new_q;
-  logic             clean_d, clean_q;
+  logic armed_d, armed_q;
+  logic all_written;
+  logic none_written;
+  logic new_d, new_q;
+  logic clean_d, clean_q;
 
   // Collect write operations. Upon clear or use, we start over. If armed, the next write will
   // restart the tracking.
@@ -45,11 +45,11 @@ module aes_reg_status #(
   end
 
   // Status tracking
-  assign all_written  =  &we_d;
+  assign all_written  = &we_d;
   assign none_written = ~|we_d;
 
   // We have a complete new value if all registers have been written at least once.
-  assign new_d   = (clear_i || use_i) ? 1'b0 : all_written;
+  assign new_d        = (clear_i || use_i) ? 1'b0 : all_written;
 
   // We have a clean value, if either:
   // - all registers have been written at least once, or
@@ -57,9 +57,7 @@ module aes_reg_status #(
   // A value is NOT clean, if either:
   // - we get a clear or reset, or
   // - some but not all registers have been written.
-  assign clean_d = clear_i      ? 1'b0    :
-                   all_written  ? 1'b1    :
-                   none_written ? clean_q : 1'b0;
+  assign clean_d      = clear_i ? 1'b0 : all_written ? 1'b1 : none_written ? clean_q : 1'b0;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : reg_status
     if (!rst_ni) begin

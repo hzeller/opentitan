@@ -2,17 +2,17 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class chip_env extends cip_base_env #(
+class chip_env extends cip_base_env#(
     .CFG_T              (chip_env_cfg),
     .COV_T              (chip_env_cov),
     .VIRTUAL_SEQUENCER_T(chip_virtual_sequencer),
     .SCOREBOARD_T       (chip_scoreboard)
-  );
+);
   `uvm_component_utils(chip_env)
 
-  uart_agent          m_uart_agent;
-  jtag_agent          m_jtag_agent;
-  spi_agent           m_spi_agent;
+  uart_agent m_uart_agent;
+  jtag_agent m_jtag_agent;
+  spi_agent  m_spi_agent;
 
   `uvm_component_new
 
@@ -29,7 +29,7 @@ class chip_env extends cip_base_env #(
       `uvm_fatal(`gfn, "failed to get gpio_vif from uvm_config_db")
     end
 
-    if (!uvm_config_db#(virtual pins_if#(1))::get(this, "", "srst_n_vif", cfg.srst_n_vif)) begin
+    if (!uvm_config_db#(virtual pins_if #(1))::get(this, "", "srst_n_vif", cfg.srst_n_vif)) begin
       `uvm_fatal(`gfn, "failed to get srst_n_vif from uvm_config_db")
     end
 

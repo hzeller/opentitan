@@ -32,128 +32,132 @@ class alert_monitor extends alert_esc_base_monitor;
 
   virtual task ping_thread();
     alert_esc_seq_item req;
-    bit                ping_p, alert_p;
-    forever @(cfg.vif.monitor_cb) begin
-      if (ping_p != cfg.vif.monitor_cb.alert_rx.ping_p) begin
-        under_ping_rsp = 1;
-        req = alert_esc_seq_item::type_id::create("req");
-        req.alert_esc_type = AlertEscPingTrans;
+    bit ping_p, alert_p;
+    forever
+      @(cfg.vif.monitor_cb) begin
+        if (ping_p != cfg.vif.monitor_cb.alert_rx.ping_p) begin
+          under_ping_rsp = 1;
+          req = alert_esc_seq_item::type_id::create("req");
+          req.alert_esc_type = AlertEscPingTrans;
 
-        fork
-          begin : isolation_fork
-            fork
-              begin : wait_ping_timeout
-                repeat (cfg.ping_timeout_cycle - 1) @(cfg.vif.monitor_cb);
-                req.timeout = 1'b1;
-              end
-              begin : wait_ping_handshake
-                // in case there is an alert happened before ping
-                if (alert_p != 0) wait_alert_complete();
-                wait_alert();
-                req.alert_handshake_sta = AlertReceived;
-                wait_ack();
-                req.alert_handshake_sta = AlertAckReceived;
-                under_ping_rsp = 0;
-              end
-              begin
-                wait(under_reset);
-              end
-            join_any
-            // wait 1ps in case 'wait_ping_handshake' and 'wait_ping_timeout' thread finish at the
-            // same clock cycle, and give 1ps to make sure both threads are able to update info
-            if (!under_reset) #1ps;
-            disable fork;
-          end : isolation_fork
-        join
+          fork
+            begin : isolation_fork
+              fork
+                begin : wait_ping_timeout
+                  repeat (cfg.ping_timeout_cycle - 1) @(cfg.vif.monitor_cb);
+                  req.timeout = 1'b1;
+                end
+                begin : wait_ping_handshake
+                  // in case there is an alert happened before ping
+                  if (alert_p != 0) wait_alert_complete();
+                  wait_alert();
+                  req.alert_handshake_sta = AlertReceived;
+                  wait_ack();
+                  req.alert_handshake_sta = AlertAckReceived;
+                  under_ping_rsp = 0;
+                end
+                begin
+                  wait(under_reset);
+                end
+              join_any
+              // wait 1ps in case 'wait_ping_handshake' and 'wait_ping_timeout' thread finish at the
+              // same clock cycle, and give 1ps to make sure both threads are able to update info
+              if (!under_reset) #1ps;
+              disable fork;
+            end : isolation_fork
+          join
 
-        `uvm_info("alert_monitor", $sformatf("[%s]: handshake status is %s",
+          `uvm_info("alert_monitor", $sformatf("[%s]: handshake status is %s",
             req.alert_esc_type.name(), req.alert_handshake_sta.name()), UVM_HIGH)
-        if (!under_reset) begin
-          alert_esc_port.write(req);
-          if (cfg.en_cov && cfg.en_ping_cov) cov.m_alert_esc_trans_cg.sample(req.alert_esc_type);
+          if (!under_reset) begin
+            alert_esc_port.write(req);
+            if (cfg.en_cov && cfg.en_ping_cov) cov.m_alert_esc_trans_cg.sample(req.alert_esc_type);
 
-          // spurious alert error, can only happen one clock after timeout. Detail please see
-          // discussion on Issue #2321
-          if (req.timeout && req.alert_handshake_sta == AlertReceived) begin
-            @(cfg.vif.monitor_cb);
-            if (cfg.vif.alert_rx.ack_p == 1'b1) alert_esc_port.write(req);
+            // spurious alert error, can only happen one clock after timeout. Detail please see
+            // discussion on Issue #2321
+            if (req.timeout && req.alert_handshake_sta == AlertReceived) begin
+              @(cfg.vif.monitor_cb);
+              if (cfg.vif.alert_rx.ack_p == 1'b1) alert_esc_port.write(req);
+            end
           end
+          under_ping_rsp = 0;
         end
-        under_ping_rsp = 0;
+        ping_p  = cfg.vif.monitor_cb.alert_rx.ping_p;
+        alert_p = cfg.vif.monitor_cb.alert_tx.alert_p;
       end
-      ping_p = cfg.vif.monitor_cb.alert_rx.ping_p;
-      alert_p = cfg.vif.monitor_cb.alert_tx.alert_p;
-    end
   endtask : ping_thread
 
   virtual task alert_thread();
     alert_esc_seq_item req;
     bit                alert_p;
-    forever @(cfg.vif.monitor_cb) begin
-      if (!alert_p && is_valid_alert() && !under_ping_rsp) begin
-        alert_async_delays();
-        req = alert_esc_seq_item::type_id::create("req");
-        req.alert_esc_type = AlertEscSigTrans;
-        req.alert_handshake_sta = AlertReceived;
+    forever
+      @(cfg.vif.monitor_cb) begin
+        if (!alert_p && is_valid_alert() && !under_ping_rsp) begin
+          alert_async_delays();
+          req = alert_esc_seq_item::type_id::create("req");
+          req.alert_esc_type = AlertEscSigTrans;
+          req.alert_handshake_sta = AlertReceived;
 
-        // Write alert packet to scb when receiving alert signal
-        alert_esc_port.write(req);
+          // Write alert packet to scb when receiving alert signal
+          alert_esc_port.write(req);
 
-        // Duplicate req for writing alert packet at the end of alert handshake
-        `downcast(req, req.clone())
+          // Duplicate req for writing alert packet at the end of alert handshake
+          `downcast(req, req.clone())
 
-        fork
-          begin : isolation_fork
-            fork
-              begin : alert_timeout
-                repeat (cfg.handshake_timeout_cycle) @(cfg.vif.monitor_cb);
-                req.timeout = 1'b1;
-              end
-              begin : wait_alert_handshake
-                wait_ack();
-                req.alert_handshake_sta = AlertAckReceived;
-                wait_alert_complete();
-                req.alert_handshake_sta = AlertComplete;
-                wait_ack_complete();
-                req.alert_handshake_sta = AlertAckComplete;
-              end
-              begin
-                wait(under_reset);
-              end
-            join_any
-            disable fork;
-          end : isolation_fork
-        join
+          fork
+            begin : isolation_fork
+              fork
+                begin : alert_timeout
+                  repeat (cfg.handshake_timeout_cycle) @(cfg.vif.monitor_cb);
+                  req.timeout = 1'b1;
+                end
+                begin : wait_alert_handshake
+                  wait_ack();
+                  req.alert_handshake_sta = AlertAckReceived;
+                  wait_alert_complete();
+                  req.alert_handshake_sta = AlertComplete;
+                  wait_ack_complete();
+                  req.alert_handshake_sta = AlertAckComplete;
+                end
+                begin
+                  wait(under_reset);
+                end
+              join_any
+              disable fork;
+            end : isolation_fork
+          join
 
-        `uvm_info("alert_monitor", $sformatf("[%s]: handshake status is %s",
+          `uvm_info("alert_monitor", $sformatf("[%s]: handshake status is %s",
             req.alert_esc_type.name(), req.alert_handshake_sta.name()), UVM_HIGH)
-        if (!under_reset) alert_esc_port.write(req);
-        if (cfg.en_cov) begin
-          cov.m_alert_handshake_complete_cg.sample(req.alert_esc_type, req.alert_handshake_sta);
-          if (cfg.en_ping_cov) cov.m_alert_esc_trans_cg.sample(req.alert_esc_type);
+          if (!under_reset) alert_esc_port.write(req);
+          if (cfg.en_cov) begin
+            cov.m_alert_handshake_complete_cg.sample(req.alert_esc_type, req.alert_handshake_sta);
+            if (cfg.en_ping_cov) cov.m_alert_esc_trans_cg.sample(req.alert_esc_type);
+          end
         end
+        alert_p = cfg.vif.monitor_cb.alert_tx.alert_p;
       end
-      alert_p = cfg.vif.monitor_cb.alert_tx.alert_p;
-    end
   endtask : alert_thread
 
   virtual task int_fail_thread();
     alert_esc_seq_item req;
     bit prev_err;
-    forever @(cfg.vif.monitor_cb) begin
-      // use prev_err to exclude the async clk skew
-      if (!under_reset && is_sig_int_err() && (!cfg.is_async || prev_err != 0)) begin
-        fork
-          begin
-            alert_async_delays();
-            req = alert_esc_seq_item::type_id::create("req");
-            req.alert_esc_type = AlertEscIntFail;
-            alert_esc_port.write(req);
-          end
-        join_none;
+    forever
+      @(cfg.vif.monitor_cb) begin
+        // use prev_err to exclude the async clk skew
+        if (!under_reset && is_sig_int_err() && (!cfg.is_async || prev_err != 0)) begin
+          fork
+            begin
+              alert_async_delays();
+              req = alert_esc_seq_item::type_id::create("req");
+              req.alert_esc_type = AlertEscIntFail;
+              alert_esc_port.write(req);
+            end
+          join_none
+          ;
+        end
+        prev_err = is_sig_int_err();
       end
-      prev_err = is_sig_int_err();
-    end
   endtask : int_fail_thread
 
   virtual task wait_alert();

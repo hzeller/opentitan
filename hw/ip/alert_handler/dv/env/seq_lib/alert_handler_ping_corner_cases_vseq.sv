@@ -15,36 +15,33 @@ class alert_handler_ping_corner_cases_vseq extends alert_handler_entropy_vseq;
 
   rand uint num_ping_trans;
 
-  constraint num_ping_trans_c {
-    num_ping_trans inside {[50:100]};
-  }
+  constraint num_ping_trans_c {num_ping_trans inside {[50 : 100]};}
 
   // always enable clr_en to hit the case when escalation ping interrupted by real esc sig
   constraint clr_and_lock_en_c {
-    clr_en      == '1;
+    clr_en == '1;
     lock_bit_en == 0;
   }
 
-  constraint esc_accum_thresh_c {
-    foreach (accum_thresh[i]) {accum_thresh[i] == 0};
-  }
+  constraint esc_accum_thresh_c {foreach (accum_thresh[i]) {accum_thresh[i] == 0};}
 
   constraint sig_int_c {
     esc_int_err == '1;
-    esc_standalone_int_err dist {0 :/ 9, [1:'b1111] :/ 1};
+    esc_standalone_int_err dist {
+      0 :/ 9,
+      [1 : 'b1111] :/ 1
+    };
     alert_ping_timeout == '1;
   }
 
-  constraint ping_timeout_cyc_c {
-    ping_timeout_cyc inside {[1:MAX_PING_TIMEOUT_CYCLE]};
-  }
+  constraint ping_timeout_cyc_c {ping_timeout_cyc inside {[1 : MAX_PING_TIMEOUT_CYCLE]};}
 
   virtual task pre_start();
     super.pre_start();
     num_ping_trans.rand_mode(0);
     // disable alert/esc build-in coverage, because this test forced original design variable
     for (int i = 0; i < NUM_ALERTS; i++) cfg.alert_host_cfg[i].en_cov = 0;
-    for (int i = 0; i < NUM_ESCS; i++)   cfg.esc_device_cfg[i].en_cov = 0;
+    for (int i = 0; i < NUM_ESCS; i++) cfg.esc_device_cfg[i].en_cov = 0;
   endtask
 
   virtual task body();
@@ -54,20 +51,21 @@ class alert_handler_ping_corner_cases_vseq extends alert_handler_entropy_vseq;
       int ping_index;
       `uvm_info(`gfn, $sformatf("start ping_seq %0d/%0d", trans, num_ping_trans), UVM_LOW)
       `DV_CHECK_MEMBER_RANDOMIZE_FATAL(num_trans)
-      fork begin
-        fork
-          begin : run_normal_sequence
-            run_sanity_seq();
-          end
-          begin : wait_for_ping
-            wait_alert_esc_ping(ping_index);
-            `uvm_info(`gfn, $sformatf("ping %0d triggered", ping_index), UVM_MEDIUM);
-          end
-        join_any
-        csr_utils_pkg::wait_no_outstanding_access();
-        disable fork;
-        if (ping_index > 0) run_ping_interrupt_seqs(ping_index);
-      end
+      fork
+        begin
+          fork
+            begin : run_normal_sequence
+              run_sanity_seq();
+            end
+            begin : wait_for_ping
+              wait_alert_esc_ping(ping_index);
+              `uvm_info(`gfn, $sformatf("ping %0d triggered", ping_index), UVM_MEDIUM);
+            end
+          join_any
+          csr_utils_pkg::wait_no_outstanding_access();
+          disable fork;
+          if (ping_index > 0) run_ping_interrupt_seqs(ping_index);
+        end
       join
     end
   endtask : body

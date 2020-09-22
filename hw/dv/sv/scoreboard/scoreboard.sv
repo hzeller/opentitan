@@ -10,30 +10,32 @@
 // - Support multi-cast
 // - Support data transform from source to destination
 
-class scoreboard#(type ITEM_T = uvm_object,
-                  type RAL_T  = dv_base_reg_block,
-                  type CFG_T  = dv_base_env_cfg,
-                  type COV_T  = dv_base_env_cov) extends dv_base_scoreboard#(RAL_T, CFG_T, COV_T);
+class scoreboard #(
+  type ITEM_T = uvm_object,
+  type RAL_T  = dv_base_reg_block,
+  type CFG_T  = dv_base_env_cfg,
+  type COV_T  = dv_base_env_cov
+) extends dv_base_scoreboard#(RAL_T, CFG_T, COV_T);
 
-  uvm_tlm_analysis_fifo #(ITEM_T)   item_fifos[string];
+  uvm_tlm_analysis_fifo #(ITEM_T) item_fifos[string];
   // Port direction
-  port_dir_e                        port_dir[string];
+  port_dir_e                      port_dir[string];
   // Queues for pending items
-  scoreboard_queue#(ITEM_T)         item_queues[string];
-  int unsigned                      timeout_cycle_limit = 10000;
-  bit [63:0]                        ref_timer;
-  bit [63:0]                        last_activity_cycle;
-  int unsigned                      num_of_exp_item;
-  int unsigned                      num_of_act_item;
-  int unsigned                      timeout_check_cycle_interval = 100;
-  bit                               enable_logging = 1'b0;
-  uvm_phase                         run_phase_h;
-  semaphore                         token;
-  string                            log_filename;
-  int                               log_fd;
-  virtual clk_rst_if                clk_vif;
-  bit                               allow_packet_drop;
-  bit                               disable_scoreboard;
+  scoreboard_queue #(ITEM_T)      item_queues[string];
+  int unsigned                    timeout_cycle_limit          = 10000;
+  bit [63:0]                      ref_timer;
+  bit [63:0]                      last_activity_cycle;
+  int unsigned                    num_of_exp_item;
+  int unsigned                    num_of_act_item;
+  int unsigned                    timeout_check_cycle_interval = 100;
+  bit                             enable_logging               = 1'b0;
+  uvm_phase                       run_phase_h;
+  semaphore                       token;
+  string                          log_filename;
+  int                             log_fd;
+  virtual clk_rst_if              clk_vif;
+  bit                             allow_packet_drop;
+  bit                             disable_scoreboard;
 
   `uvm_component_param_utils(scoreboard#(ITEM_T, dv_base_reg_block,
                                          dv_base_env_cfg, dv_base_env_cov))
@@ -63,12 +65,11 @@ class scoreboard#(type ITEM_T = uvm_object,
     end
     `uvm_info(get_full_name(), $sformatf(
               "Adding port :%0s(%0s)", port_name, direction.name()), UVM_HIGH)
-    port_dir[port_name] = direction;
+    port_dir[port_name]   = direction;
     item_fifos[port_name] = new(port_name, this);
   endfunction
 
-  virtual function void add_item_queue(string queue_name,
-                                       checking_policy_e policy = kInOrderCheck);
+  virtual function void add_item_queue(string queue_name, checking_policy_e policy = kInOrderCheck);
     if (item_queues.exists(queue_name)) begin
       `uvm_fatal(get_full_name(), $sformatf(
                  "Queue %0s already exists, cannot be added again", queue_name))
@@ -88,32 +89,32 @@ class scoreboard#(type ITEM_T = uvm_object,
       timeout_monitor();
       ref_timer_thread();
     join_none
-    foreach(item_fifos[port_name]) begin
+    foreach (item_fifos[port_name]) begin
       fork
         automatic string t_port_name = port_name;
         port_monitor(t_port_name);
       join_none
     end
     wait fork;
-  endtask: run_phase
+  endtask : run_phase
 
   // Collect items from analysis FIFO, send to corresponding queues
   virtual task port_monitor(string port_name);
     ITEM_T tr;
     ITEM_T transformed_tr[$];
     string queue_name;
-    while(1) begin
+    while (1) begin
       item_fifos[port_name].get(tr);
       last_activity_cycle = ref_timer;
       `uvm_info(get_full_name(), $sformatf("Got an item from port %0s:\n%0s",
                 port_name, tr.sprint()), UVM_HIGH)
       if (port_dir[port_name] == kSrcPort) begin
         process_src_packet(tr, port_name, transformed_tr);
-        foreach(transformed_tr[i]) begin
+        foreach (transformed_tr[i]) begin
           queue_name = get_queue_name(transformed_tr[i], port_name);
           // destination ports
           if (!item_queues.exists(queue_name)) begin
-             `uvm_fatal(get_full_name(), $sformatf("%0s queue doesn't exist", queue_name))
+            `uvm_fatal(get_full_name(), $sformatf("%0s queue doesn't exist", queue_name))
           end
           if (enable_logging) begin
             $fwrite(log_fd, $sformatf("EXP @%0t [%0s][%0s] %0s\n", $realtime, port_name,
@@ -129,10 +130,10 @@ class scoreboard#(type ITEM_T = uvm_object,
         queue_name = get_queue_name(tr, port_name);
         // destination ports
         if (!item_queues.exists(queue_name)) begin
-           `uvm_fatal(get_full_name(), $sformatf("%0s queue doesn't exist", queue_name))
+          `uvm_fatal(get_full_name(), $sformatf("%0s queue doesn't exist", queue_name))
         end
         process_dst_packet(tr, port_name, tr_modified);
-        #0; // avoid race condition when item is received in both queue in same cycle
+        #0;  // avoid race condition when item is received in both queue in same cycle
         if (enable_logging) begin
           $fwrite(log_fd, $sformatf("ACT @%0t [%0s][%0s] %0s\n", $realtime, port_name,
                                      queue_name, tr_modified.convert2string()));
@@ -156,8 +157,7 @@ class scoreboard#(type ITEM_T = uvm_object,
                   item_queues[queue_name].actual_items.size()), UVM_LOW)
       end
     end else begin
-      `uvm_info(get_full_name(), $sformatf("Totally %0d items processed",
-                 num_of_act_item), UVM_LOW)
+      `uvm_info(get_full_name(), $sformatf("Totally %0d items processed", num_of_act_item), UVM_LOW)
     end
     foreach (item_queues[i]) item_queues[i].final_queue_size_check(i);
     foreach (item_fifos[i]) `DV_EOT_PRINT_TLM_FIFO_CONTENTS(ITEM_T, item_fifos[i]);
@@ -190,14 +190,14 @@ class scoreboard#(type ITEM_T = uvm_object,
   // Scoreboard timeout detection
   virtual task timeout_monitor;
     if (timeout_cycle_limit > 0) begin
-      while(1) begin
-        repeat(timeout_check_cycle_interval) @(posedge clk_vif.clk);
+      while (1) begin
+        repeat (timeout_check_cycle_interval) @(posedge clk_vif.clk);
         if ((ref_timer - last_activity_cycle > timeout_cycle_limit) &&
            (num_of_act_item != num_of_exp_item)) begin
           if (!allow_packet_drop) begin
             `uvm_error(get_full_name(), $sformatf("Scoreboard timeout, act/exp items = %0d/%0d",
                                        num_of_act_item, num_of_exp_item))
-            foreach(item_queues[q]) begin
+            foreach (item_queues[q]) begin
               if (item_queues[q].expected_items.size() > 0) begin
                 `uvm_info(get_full_name(), $sformatf("Queue[%0s] pending item[0]:%0s", q,
                           item_queues[q].expected_items[0].convert2string()), UVM_LOW)
@@ -223,7 +223,7 @@ class scoreboard#(type ITEM_T = uvm_object,
 
   virtual function void reset(string kind = "HARD");
     last_activity_cycle = ref_timer;
-    foreach (item_fifos[i])  item_fifos[i].flush();
+    foreach (item_fifos[i]) item_fifos[i].flush();
     foreach (item_queues[i]) item_queues[i].reset();
     num_of_act_item = 0;
     num_of_exp_item = 0;

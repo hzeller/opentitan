@@ -34,7 +34,7 @@ class esc_receiver_driver extends alert_esc_base_driver;
 
   virtual task esc_ping_detector();
     forever begin
-      int cnt ;
+      int cnt;
       wait(under_reset == 0);
       fork
         begin
@@ -80,7 +80,7 @@ class esc_receiver_driver extends alert_esc_base_driver;
           seq_item_port.put_response(rsp);
         end
       join_none
-    end // end forever
+    end  // end forever
   endtask : rsp_escalator
 
   // this task drives resp_p/n according to the req
@@ -140,7 +140,7 @@ class esc_receiver_driver extends alert_esc_base_driver;
   // If request int_err: random drives resp_p/n for two cycles
   task toggle_resp_signal(alert_esc_seq_item req);
     bit first_cycle_finished;
-    repeat(2) begin
+    repeat (2) begin
       if (req.int_err) random_drive_resp_signal();
       else begin
         if (!first_cycle_finished) set_resp();

@@ -7,35 +7,39 @@
 // and one for the response side.
 
 module tlul_fifo_sync #(
-  parameter int unsigned ReqPass  = 1'b1,
-  parameter int unsigned RspPass  = 1'b1,
-  parameter int unsigned ReqDepth = 2,
-  parameter int unsigned RspDepth = 2,
+  parameter int unsigned ReqPass   = 1'b1,
+  parameter int unsigned RspPass   = 1'b1,
+  parameter int unsigned ReqDepth  = 2,
+  parameter int unsigned RspDepth  = 2,
   parameter int unsigned SpareReqW = 1,
   parameter int unsigned SpareRspW = 1
 ) (
-  input                     clk_i,
-  input                     rst_ni,
-  input  tlul_pkg::tl_h2d_t tl_h_i,
-  output tlul_pkg::tl_d2h_t tl_h_o,
-  output tlul_pkg::tl_h2d_t tl_d_o,
-  input  tlul_pkg::tl_d2h_t tl_d_i,
-  input  [SpareReqW-1:0]    spare_req_i,
-  output [SpareReqW-1:0]    spare_req_o,
-  input  [SpareRspW-1:0]    spare_rsp_i,
-  output [SpareRspW-1:0]    spare_rsp_o
+  input                                     clk_i,
+  input                                     rst_ni,
+  input  tlul_pkg::tl_h2d_t                 tl_h_i,
+  output tlul_pkg::tl_d2h_t                 tl_h_o,
+  output tlul_pkg::tl_h2d_t                 tl_d_o,
+  input  tlul_pkg::tl_d2h_t                 tl_d_i,
+  input                     [SpareReqW-1:0] spare_req_i,
+  output                    [SpareReqW-1:0] spare_req_o,
+  input                     [SpareRspW-1:0] spare_rsp_i,
+  output                    [SpareRspW-1:0] spare_rsp_o
 );
 
   // Put everything on the request side into one FIFO
-  localparam int unsigned REQFIFO_WIDTH = $bits(tlul_pkg::tl_h2d_t) -2 + SpareReqW;
+  localparam int unsigned REQFIFO_WIDTH = $bits(tlul_pkg::tl_h2d_t) - 2 + SpareReqW;
 
-  prim_fifo_sync #(.Width(REQFIFO_WIDTH), .Pass(ReqPass), .Depth(ReqDepth)) reqfifo (
-    .clk_i,
-    .rst_ni,
-    .clr_i         (1'b0          ),
-    .wvalid_i      (tl_h_i.a_valid),
-    .wready_o      (tl_h_o.a_ready),
-    .wdata_i       ({tl_h_i.a_opcode ,
+  prim_fifo_sync #(
+      .Width(REQFIFO_WIDTH),
+      .Pass (ReqPass),
+      .Depth(ReqDepth)
+  ) reqfifo (
+      .clk_i,
+      .rst_ni,
+      .clr_i(1'b0),
+      .wvalid_i(tl_h_i.a_valid),
+      .wready_o(tl_h_o.a_ready),
+      .wdata_i       ({tl_h_i.a_opcode ,
                      tl_h_i.a_param  ,
                      tl_h_i.a_size   ,
                      tl_h_i.a_source ,
@@ -44,10 +48,10 @@ module tlul_fifo_sync #(
                      tl_h_i.a_data   ,
                      tl_h_i.a_user   ,
                      spare_req_i}),
-    .depth_o       (),
-    .rvalid_o      (tl_d_o.a_valid),
-    .rready_i      (tl_d_i.a_ready),
-    .rdata_o       ({tl_d_o.a_opcode ,
+      .depth_o(),
+      .rvalid_o(tl_d_o.a_valid),
+      .rready_i(tl_d_i.a_ready),
+      .rdata_o       ({tl_d_o.a_opcode ,
                      tl_d_o.a_param  ,
                      tl_d_o.a_size   ,
                      tl_d_o.a_source ,
@@ -55,19 +59,24 @@ module tlul_fifo_sync #(
                      tl_d_o.a_mask   ,
                      tl_d_o.a_data   ,
                      tl_d_o.a_user   ,
-                     spare_req_o}));
+                     spare_req_o})
+  );
 
   // Put everything on the response side into the other FIFO
 
-  localparam int unsigned RSPFIFO_WIDTH = $bits(tlul_pkg::tl_d2h_t) -2 + SpareRspW;
+  localparam int unsigned RSPFIFO_WIDTH = $bits(tlul_pkg::tl_d2h_t) - 2 + SpareRspW;
 
-  prim_fifo_sync #(.Width(RSPFIFO_WIDTH), .Pass(RspPass), .Depth(RspDepth)) rspfifo (
-    .clk_i,
-    .rst_ni,
-    .clr_i         (1'b0          ),
-    .wvalid_i      (tl_d_i.d_valid),
-    .wready_o      (tl_d_o.d_ready),
-    .wdata_i       ({tl_d_i.d_opcode,
+  prim_fifo_sync #(
+      .Width(RSPFIFO_WIDTH),
+      .Pass (RspPass),
+      .Depth(RspDepth)
+  ) rspfifo (
+      .clk_i,
+      .rst_ni,
+      .clr_i(1'b0),
+      .wvalid_i(tl_d_i.d_valid),
+      .wready_o(tl_d_o.d_ready),
+      .wdata_i       ({tl_d_i.d_opcode,
                      tl_d_i.d_param ,
                      tl_d_i.d_size  ,
                      tl_d_i.d_source,
@@ -77,10 +86,10 @@ module tlul_fifo_sync #(
                      tl_d_i.d_user  ,
                      tl_d_i.d_error ,
                      spare_rsp_i}),
-    .depth_o       (),
-    .rvalid_o      (tl_h_o.d_valid),
-    .rready_i      (tl_h_i.d_ready),
-    .rdata_o       ({tl_h_o.d_opcode,
+      .depth_o(),
+      .rvalid_o(tl_h_o.d_valid),
+      .rready_i(tl_h_i.d_ready),
+      .rdata_o       ({tl_h_o.d_opcode,
                      tl_h_o.d_param ,
                      tl_h_o.d_size  ,
                      tl_h_o.d_source,
@@ -88,6 +97,7 @@ module tlul_fifo_sync #(
                      tl_h_o.d_data  ,
                      tl_h_o.d_user  ,
                      tl_h_o.d_error ,
-                     spare_rsp_o}));
+                     spare_rsp_o})
+  );
 
 endmodule

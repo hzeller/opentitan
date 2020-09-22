@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-`define HOST_CB   cfg.vif.host_mp.host_cb
+`define HOST_CB cfg.vif.host_mp.host_cb
 `define DEVICE_CB cfg.vif.device_mp.device_cb
 
-class jtag_driver extends dv_base_driver #(jtag_item, jtag_agent_cfg);
+class jtag_driver extends dv_base_driver#(jtag_item, jtag_agent_cfg);
   `uvm_component_utils(jtag_driver)
 
   // the base class provides the following handles for use:
@@ -22,10 +22,9 @@ class jtag_driver extends dv_base_driver #(jtag_item, jtag_agent_cfg);
   virtual task reset_signals();
     if (cfg.if_mode == Host) begin
       cfg.vif.tck_en <= 1'b0;
-      `HOST_CB.tms <= 1'b0;
-      `HOST_CB.tdi <= 1'b0;
-    end
-    else begin
+      `HOST_CB.tms   <= 1'b0;
+      `HOST_CB.tdi   <= 1'b0;
+    end else begin
       `DEVICE_CB.tdo <= 1'b0;
       `DEVICE_CB.tdo_oe <= 1'b0;
     end
@@ -35,8 +34,7 @@ class jtag_driver extends dv_base_driver #(jtag_item, jtag_agent_cfg);
   virtual task get_and_drive();
     if (cfg.if_mode == Host) begin
       get_and_drive_host_mode();
-    end
-    else begin
+    end else begin
       `uvm_fatal(`gfn, "jtag driver in device mode is not supported yet")
     end
   endtask
@@ -57,8 +55,7 @@ class jtag_driver extends dv_base_driver #(jtag_item, jtag_agent_cfg);
   endtask
 
   // drive jtag req and retrieve rsp
-  virtual task drive_jtag_req(input  jtag_item req,
-                              output jtag_item rsp);
+  virtual task drive_jtag_req(input jtag_item req, output jtag_item rsp);
     logic [JTAG_DRW-1:0] din;
     drive_jtag_ir(req.addr_len, req.addr);
     drive_jtag_dr(req.data_len, req.data, din);
@@ -83,7 +80,7 @@ class jtag_driver extends dv_base_driver #(jtag_item, jtag_agent_cfg);
     // ShiftIR
     `HOST_CB.tms <= 1'b0;
     `HOST_CB.tdi <= 1'b0;
-    for(int i = 0; i < len; i++) begin
+    for (int i = 0; i < len; i++) begin
       @(`HOST_CB);
       // ExitIR if end of addr
       `HOST_CB.tms <= (i == len - 1) ? 1'b1 : 1'b0;
@@ -115,20 +112,20 @@ class jtag_driver extends dv_base_driver #(jtag_item, jtag_agent_cfg);
     // go to ShiftDR
     `HOST_CB.tms <= 1'b0;
     `HOST_CB.tdi <= 1'b0;
-    for(int i = 0; i < len - 1; i++) begin
+    for (int i = 0; i < len - 1; i++) begin
       @(`HOST_CB);
       // stay in ShiftDR
       `HOST_CB.tms <= 1'b0;
       `HOST_CB.tdi <= dout[i];
       @(`HOST_CB);
-      din[i] =`HOST_CB.tdo;
+      din[i] = `HOST_CB.tdo;
     end
     @(`HOST_CB);
     // go to Exit1DR
     `HOST_CB.tms <= 1'b1;
     `HOST_CB.tdi <= dout[len - 1];
     @(`HOST_CB);
-    din[len - 1] =`HOST_CB.tdo;
+    din[len - 1] = `HOST_CB.tdo;
     @(`HOST_CB);
     // go to UpdateIR
     `HOST_CB.tms <= 1'b1;

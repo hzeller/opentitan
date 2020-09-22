@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module keymgr_kmac_if import keymgr_pkg::*;(
+module keymgr_kmac_if
+import keymgr_pkg::*;
+(
   input clk_i,
   input rst_ni,
 
@@ -15,7 +17,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
   input [AdvDataWidth-1:0] adv_data_i,
   input [IdDataWidth-1:0] id_data_i,
   input [GenDataWidth-1:0] gen_data_i,
-  input [3:0] inputs_invalid_i, // probably should break down into categories later
+  input [3:0] inputs_invalid_i,  // probably should break down into categories later
   output logic inputs_invalid_o,
 
   // keymgr control to select appropriate inputs
@@ -27,7 +29,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
 
   // actual connection to kmac
   output kmac_data_req_t kmac_data_o,
-  input kmac_data_rsp_t kmac_data_i,
+  input  kmac_data_rsp_t kmac_data_i,
 
   // entropy input
   input [31:0] entropy_i,
@@ -47,24 +49,24 @@ module keymgr_kmac_if import keymgr_pkg::*;(
   } data_state_e;
 
   localparam int AdvRem = AdvDataWidth % KmacDataIfWidth;
-  localparam int IdRem  = IdDataWidth  % KmacDataIfWidth;
+  localparam int IdRem = IdDataWidth % KmacDataIfWidth;
   localparam int GenRem = GenDataWidth % KmacDataIfWidth;
 
   // the remainder must be in number of bytes
   `ASSERT_INIT(AdvRemBytes_A, AdvRem % 8 == 0)
-  `ASSERT_INIT(IdRemBytes_A,  IdRem  % 8 == 0)
+  `ASSERT_INIT(IdRemBytes_A, IdRem % 8 == 0)
   `ASSERT_INIT(GenRemBytes_A, GenRem % 8 == 0)
 
   // Number of kmac transactions required
   localparam int AdvRounds = AdvDataWidth / KmacDataIfWidth + (AdvRem > 0);
-  localparam int IdRounds  = IdDataWidth  / KmacDataIfWidth + (IdRem > 0);
+  localparam int IdRounds = IdDataWidth / KmacDataIfWidth + (IdRem > 0);
   localparam int GenRounds = GenDataWidth / KmacDataIfWidth + (GenRem > 0);
-  localparam int MaxRounds = KDFMaxWidth  / KmacDataIfWidth;
+  localparam int MaxRounds = KDFMaxWidth / KmacDataIfWidth;
 
   // Total transmitted bits, this is the same as *DataWidth if it all
   // fits into kmac data interface
   localparam int AdvWidth = KmacDataIfWidth * AdvRounds;
-  localparam int IdWidth  = KmacDataIfWidth * IdRounds;
+  localparam int IdWidth = KmacDataIfWidth * IdRounds;
   localparam int GenWidth = KmacDataIfWidth * GenRounds;
 
   // calculated parameters for number of roudns and interface width
@@ -79,7 +81,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
   localparam logic [IfBytes-1:0] GenByteMask = (GenRem > 0) ? (2**(GenRem/8)-1) : {IfBytes{1'b1}};
 
   logic [AdvRounds-1:0][KmacDataIfWidth-1:0] adv_data;
-  logic [IdRounds-1:0 ][KmacDataIfWidth-1:0] id_data;
+  logic [IdRounds-1:0][KmacDataIfWidth-1:0] id_data;
   logic [GenRounds-1:0][KmacDataIfWidth-1:0] gen_data;
   logic [CntWidth-1:0] cnt;
   logic [CntWidth-1:0] rounds;
@@ -95,7 +97,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
   // 0 pad to the appropriate width
   // this is basically for scenarios where *DataWidth % KmacDataIfWidth != 0
   assign adv_data = AdvWidth'(adv_data_i);
-  assign id_data  = IdWidth'(id_data_i);
+  assign id_data = IdWidth'(id_data_i);
   assign gen_data = GenWidth'(gen_data_i);
 
   assign start = adv_en_i | id_en_i | gen_en_i;
@@ -108,7 +110,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
       cnt <= '0;
     end else if (cnt_set) begin
       cnt <= rounds;
-    end else if (cnt_en && cnt >'0) begin
+    end else if (cnt_en && cnt > '0) begin
       cnt <= cnt - 1'b1;
     end
   end
@@ -158,7 +160,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
 
       StTx: begin
         valid = 1'b1;
-        strb = {IfBytes{1'b1}};
+        strb  = {IfBytes{1'b1}};
 
         // transaction accepted
         if (kmac_data_i.ready) begin
@@ -189,7 +191,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
 
       StOpWait: begin
         if (kmac_data_i.done) begin
-          done_o = 1'b1;
+          done_o  = 1'b1;
           state_d = StClean;
         end
       end
@@ -208,7 +210,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
       end
 
 
-    endcase // unique case (state_q)
+    endcase  // unique case (state_q)
   end
 
   assign data_o = start && done_o ? {kmac_data_i.digest_share1, kmac_data_i.digest_share0} :
@@ -224,8 +226,7 @@ module keymgr_kmac_if import keymgr_pkg::*;(
     end else if (valid) begin
       inputs_invalid_d[OpAdvance]  = adv_en_i & (inputs_invalid_i[OpAdvance] |
                                                  inputs_invalid_q[OpAdvance]);
-      inputs_invalid_d[OpGenId]    = id_en_i  & (inputs_invalid_i[OpGenId]   |
-                                                 inputs_invalid_q[OpGenId]);
+      inputs_invalid_d[OpGenId] = id_en_i & (inputs_invalid_i[OpGenId] | inputs_invalid_q[OpGenId]);
       inputs_invalid_d[OpGenSwOut] = gen_en_i & (inputs_invalid_i[OpGenSwOut]|
                                                  inputs_invalid_q[OpGenSwOut]);
       inputs_invalid_d[OpGenHwOut] = gen_en_i & (inputs_invalid_i[OpGenHwOut]|
@@ -241,15 +242,15 @@ module keymgr_kmac_if import keymgr_pkg::*;(
   // alternatively we can also reverse the order of the input
   assign decoy_data = {DecoyCopies{entropy_i}};
   always_comb begin
-    kmac_data_o.data  = decoy_data;
+    kmac_data_o.data = decoy_data;
     if (|cmd_error_o || inputs_invalid_o || fsm_error_o) begin
-      kmac_data_o.data  = decoy_data;
+      kmac_data_o.data = decoy_data;
     end else if (valid && adv_en_i) begin
-      kmac_data_o.data  = adv_data[AdvRounds-1-cnt];
+      kmac_data_o.data = adv_data[AdvRounds-1-cnt];
     end else if (valid && id_en_i) begin
-      kmac_data_o.data  = id_data[IdRounds-1-cnt];
+      kmac_data_o.data = id_data[IdRounds-1-cnt];
     end else if (valid && gen_en_i) begin
-      kmac_data_o.data  = gen_data[GenRounds-1-cnt];
+      kmac_data_o.data = gen_data[GenRounds-1-cnt];
     end
   end
 
@@ -262,4 +263,4 @@ module keymgr_kmac_if import keymgr_pkg::*;(
   assign enables_sub = enables - 1'b1;
   assign cmd_error_o = |(enables & enables_sub);
 
-endmodule // keymgr_kmac_if
+endmodule  // keymgr_kmac_if

@@ -8,42 +8,42 @@
 `include "prim_assert.sv"
 
 module otp_ctrl_part_unbuf
-  import otp_ctrl_pkg::*;
-  import otp_ctrl_reg_pkg::*;
+import otp_ctrl_pkg::*;
+import otp_ctrl_reg_pkg::*;
 #(
   // Partition information.
   parameter part_info_t Info
 ) (
-  input                               clk_i,
-  input                               rst_ni,
+  input                                            clk_i,
+  input                                            rst_ni,
   // Pulse to start partition initialisation (required once per power cycle).
-  input                               init_req_i,
-  output logic                        init_done_o,
+  input                                            init_req_i,
+  output logic                                     init_done_o,
   // Escalation input. This moves the FSM into a terminal state and locks down
   // the partition.
-  input  lc_tx_t                      escalate_en_i,
+  input  lc_tx_t                                   escalate_en_i,
   // Output error state of partition, to be consumed by OTP error/alert logic.
   // Note that most errors are not recoverable and move the partition FSM into
   // a terminal error state.
-  output otp_err_e                    error_o,
+  output otp_err_e                                 error_o,
   // Access/lock status
-  input  part_access_t                access_i, // runtime lock from CSRs
-  output part_access_t                access_o,
+  input  part_access_t                             access_i,  // runtime lock from CSRs
+  output part_access_t                             access_o,
   // Buffered 64bit digest output.
-  output logic [ScrmblBlockWidth-1:0] digest_o,
+  output logic              [ScrmblBlockWidth-1:0] digest_o,
   // Bus Interface (device) for window
-  input  tlul_pkg::tl_h2d_t           tl_i,
-  output tlul_pkg::tl_d2h_t           tl_o,
+  input  tlul_pkg::tl_h2d_t                        tl_i,
+  output tlul_pkg::tl_d2h_t                        tl_o,
   // OTP interface
-  output logic                        otp_req_o,
-  output prim_otp_cmd_e               otp_cmd_o,
-  output logic [OtpSizeWidth-1:0]     otp_size_o,
-  output logic [OtpIfWidth-1:0]       otp_wdata_o,
-  output logic [OtpAddrWidth-1:0]     otp_addr_o,
-  input                               otp_gnt_i,
-  input                               otp_rvalid_i,
-  input  [ScrmblBlockWidth-1:0]       otp_rdata_i,
-  input  otp_err_e                    otp_err_i
+  output logic                                     otp_req_o,
+  output prim_otp_cmd_e                            otp_cmd_o,
+  output logic              [    OtpSizeWidth-1:0] otp_size_o,
+  output logic              [      OtpIfWidth-1:0] otp_wdata_o,
+  output logic              [    OtpAddrWidth-1:0] otp_addr_o,
+  input                                            otp_gnt_i,
+  input                                            otp_rvalid_i,
+  input                     [ScrmblBlockWidth-1:0] otp_rdata_i,
+  input  otp_err_e                                 otp_err_i
 );
 
   ////////////////////////
@@ -52,12 +52,12 @@ module otp_ctrl_part_unbuf
 
   import prim_util_pkg::vbits;
 
-  localparam int PartAddrWidth = prim_util_pkg::vbits(Info.size/4);
-  localparam int DigestOffset = (Info.offset + (Info.size - (ScrmblBlockWidth/8)));
+  localparam int PartAddrWidth = prim_util_pkg::vbits(Info.size / 4);
+  localparam int DigestOffset = (Info.offset + (Info.size - (ScrmblBlockWidth / 8)));
 
   // Integration checks for parameters.
-  `ASSERT_INIT(OffsetMustBeBlockAligned_A, Info.offset % ScrmblBlockWidth/8 == 0)
-  `ASSERT_INIT(SizeMustBeBlockAligned_A, Info.size % ScrmblBlockWidth/8 == 0)
+  `ASSERT_INIT(OffsetMustBeBlockAligned_A, Info.offset % ScrmblBlockWidth / 8 == 0)
+  `ASSERT_INIT(SizeMustBeBlockAligned_A, Info.size % ScrmblBlockWidth / 8 == 0)
 
   ///////////////////////
   // OTP Partition FSM //
@@ -93,7 +93,7 @@ module otp_ctrl_part_unbuf
 
   typedef enum logic {
     DigestAddr = 1'b0,
-    DataAddr = 1'b1
+    DataAddr   = 1'b1
   } addr_sel_e;
 
   state_e state_d, state_q;
@@ -103,7 +103,7 @@ module otp_ctrl_part_unbuf
   logic digest_reg_en;
   logic tlul_req, tlul_gnt, tlul_rvalid;
   logic [PartAddrWidth-1:0] tlul_addr_d, tlul_addr_q;
-  logic [1:0]  tlul_rerror;
+  logic [1:0] tlul_rerror;
   logic parity_err;
 
   // Output partition error state.
@@ -112,19 +112,19 @@ module otp_ctrl_part_unbuf
   // This partition cannot do any write accesses, hence we tie this
   // constantly off.
   assign otp_wdata_o = '0;
-  assign otp_cmd_o   = OtpRead;
+  assign otp_cmd_o = OtpRead;
 
   `ASSERT_KNOWN(FsmStateKnown_A, state_q)
   always_comb begin : p_fsm
     // Default assignments
-    state_d = state_q;
+    state_d       = state_q;
 
     // Response to init request
-    init_done_o = 1'b0;
+    init_done_o   = 1'b0;
 
     // OTP signals
-    otp_req_o   = 1'b0;
-    otp_addr_sel = DigestAddr;
+    otp_req_o     = 1'b0;
+    otp_addr_sel  = DigestAddr;
 
     // TL-UL signals
     tlul_gnt      = 1'b0;
@@ -135,7 +135,7 @@ module otp_ctrl_part_unbuf
     digest_reg_en = 1'b0;
 
     // Error Register
-    error_d = error_q;
+    error_d       = error_q;
 
     unique case (state_q)
       ///////////////////////////////////////////////////////////////////
@@ -183,8 +183,8 @@ module otp_ctrl_part_unbuf
       IdleSt: begin
         init_done_o = 1'b1;
         if (tlul_req) begin
-          error_d = NoErr; // clear recoverable soft errors.
-          state_d = ReadSt;
+          error_d  = NoErr;  // clear recoverable soft errors.
+          state_d  = ReadSt;
           tlul_gnt = 1'b1;
         end
       end
@@ -204,9 +204,9 @@ module otp_ctrl_part_unbuf
           end
         end else begin
           state_d = IdleSt;
-          error_d = AccessErr; // Signal this error, but do not go into terminal error state.
+          error_d = AccessErr;  // Signal this error, but do not go into terminal error state.
           tlul_rvalid = 1'b1;
-          tlul_rerror = 2'b11; // This causes the TL-UL adapter to return a bus error.
+          tlul_rerror = 2'b11;  // This causes the TL-UL adapter to return a bus error.
         end
       end
       ///////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ module otp_ctrl_part_unbuf
         state_d = ErrorSt;
       end
       ///////////////////////////////////////////////////////////////////
-    endcase // state_q
+    endcase  // state_q
 
     if (state_q != ErrorSt) begin
       // Unconditionally jump into the termninal error state in case of
@@ -269,25 +269,25 @@ module otp_ctrl_part_unbuf
   ///////////////////
 
   tlul_adapter_sram #(
-    .SramAw      ( PartAddrWidth ),
-    .SramDw      ( 32            ),
-    .Outstanding ( 1             ),
-    .ByteAccess  ( 0             ),
-    .ErrOnWrite  ( 1             ) // No write accesses allowed here.
+      .SramAw     (PartAddrWidth),
+      .SramDw     (32),
+      .Outstanding(1),
+      .ByteAccess (0),
+      .ErrOnWrite (1)  // No write accesses allowed here.
   ) u_tlul_adapter_sram (
-    .clk_i,
-    .rst_ni,
-    .tl_i,
-    .tl_o,
-    .req_o    ( tlul_req          ),
-    .gnt_i    ( tlul_gnt          ),
-    .we_o     (                   ), // unused
-    .addr_o   ( tlul_addr_d       ),
-    .wdata_o  (                   ), // unused
-    .wmask_o  (                   ), // unused
-    .rdata_i  ( otp_rdata_i[31:0] ),
-    .rvalid_i ( tlul_rvalid       ),
-    .rerror_i ( tlul_rerror       )
+      .clk_i,
+      .rst_ni,
+      .tl_i,
+      .tl_o,
+      .req_o   (tlul_req),
+      .gnt_i   (tlul_gnt),
+      .we_o    (),  // unused
+      .addr_o  (tlul_addr_d),
+      .wdata_o (),  // unused
+      .wmask_o (),  // unused
+      .rdata_i (otp_rdata_i[31:0]),
+      .rvalid_i(tlul_rvalid),
+      .rerror_i(tlul_rerror)
   );
 
   // Note that OTP works on halfword (16bit) addresses, hence need to
@@ -304,16 +304,16 @@ module otp_ctrl_part_unbuf
   ////////////////
 
   otp_ctrl_parity_reg #(
-    .Width ( ScrmblBlockWidth ),
-    .Depth ( 1                )
+      .Width(ScrmblBlockWidth),
+      .Depth(1)
   ) u_otp_ctrl_parity_reg (
-    .clk_i,
-    .rst_ni,
-    .wren_i        ( digest_reg_en ),
-    .addr_i        ( '0            ),
-    .wdata_i       ( otp_rdata_i   ),
-    .data_o        ( digest_o      ),
-    .parity_err_o  ( parity_err    )
+      .clk_i,
+      .rst_ni,
+      .wren_i      (digest_reg_en),
+      .addr_i      ('0),
+      .wdata_i     (otp_rdata_i),
+      .data_o      (digest_o),
+      .parity_err_o(parity_err)
   );
 
   ////////////////////////
@@ -329,7 +329,7 @@ module otp_ctrl_part_unbuf
     `ASSERT(DigestWriteLocksPartition_A, digest_o |-> access_o.write_lock == Locked)
 
   end else begin : gen_no_digest_write_lock
-      assign access_o.write_lock =
+    assign access_o.write_lock =
           (~init_done_o || access_i.write_lock != Unlocked) ? Locked : Unlocked;
   end
 
@@ -342,7 +342,7 @@ module otp_ctrl_part_unbuf
     `ASSERT(DigestReadLocksPartition_A, digest_o |-> access_o.read_lock == Locked)
 
   end else begin : gen_no_digest_read_lock
-      assign access_o.read_lock =
+    assign access_o.read_lock =
           (~init_done_o || access_i.read_lock != Unlocked) ? Locked : Unlocked;
   end
 
@@ -352,12 +352,12 @@ module otp_ctrl_part_unbuf
 
   always_ff @(posedge clk_i or negedge rst_ni) begin : p_regs
     if (!rst_ni) begin
-      state_q       <= ResetSt;
-      error_q       <= NoErr;
-      tlul_addr_q   <= '0;
+      state_q     <= ResetSt;
+      error_q     <= NoErr;
+      tlul_addr_q <= '0;
     end else begin
-      state_q       <= state_d;
-      error_q       <= error_d;
+      state_q <= state_d;
+      error_q <= error_d;
       if (tlul_gnt) begin
         tlul_addr_q <= tlul_addr_d;
       end
@@ -369,45 +369,30 @@ module otp_ctrl_part_unbuf
   ////////////////
 
   // Known assertions
-  `ASSERT_KNOWN(InitDoneKnown_A,  init_done_o)
-  `ASSERT_KNOWN(ErrorKnown_A,     error_o)
-  `ASSERT_KNOWN(AccessKnown_A,    access_o)
-  `ASSERT_KNOWN(DigestKnown_A,    digest_o)
-  `ASSERT_KNOWN(TlKnown_A,        tl_o)
-  `ASSERT_KNOWN(OtpReqKnown_A,    otp_req_o)
-  `ASSERT_KNOWN(OtpCmdKnown_A,    otp_cmd_o)
-  `ASSERT_KNOWN(OtpSizeKnown_A,   otp_size_o)
-  `ASSERT_KNOWN(OtpWdataKnown_A,  otp_wdata_o)
-  `ASSERT_KNOWN(OtpAddrKnown_A,   otp_addr_o)
+  `ASSERT_KNOWN(InitDoneKnown_A, init_done_o)
+  `ASSERT_KNOWN(ErrorKnown_A, error_o)
+  `ASSERT_KNOWN(AccessKnown_A, access_o)
+  `ASSERT_KNOWN(DigestKnown_A, digest_o)
+  `ASSERT_KNOWN(TlKnown_A, tl_o)
+  `ASSERT_KNOWN(OtpReqKnown_A, otp_req_o)
+  `ASSERT_KNOWN(OtpCmdKnown_A, otp_cmd_o)
+  `ASSERT_KNOWN(OtpSizeKnown_A, otp_size_o)
+  `ASSERT_KNOWN(OtpWdataKnown_A, otp_wdata_o)
+  `ASSERT_KNOWN(OtpAddrKnown_A, otp_addr_o)
 
   // Uninitialized partitions should always be locked, no matter what.
-  `ASSERT(InitWriteLocksPartition_A,
-      ~init_done_o
-      |->
-      access_o.write_lock == Locked)
-  `ASSERT(InitReadLocksPartition_A,
-      ~init_done_o
-      |->
-      access_o.read_lock == Locked)
+  `ASSERT(InitWriteLocksPartition_A, ~init_done_o |-> access_o.write_lock == Locked)
+  `ASSERT(InitReadLocksPartition_A, ~init_done_o |-> access_o.read_lock == Locked)
   // Incoming Lock propagation
-  `ASSERT(WriteLockPropagation_A,
-      access_i.write_lock != Unlocked
-      |->
-      access_o.write_lock == Locked)
-  `ASSERT(ReadLockPropagation_A,
-      access_i.read_lock != Unlocked
-      |->
-      access_o.read_lock == Locked)
+  `ASSERT(WriteLockPropagation_A, access_i.write_lock != Unlocked |-> access_o.write_lock == Locked)
+  `ASSERT(ReadLockPropagation_A, access_i.read_lock != Unlocked |-> access_o.read_lock == Locked)
   // If the partition is read locked, the TL-UL access must error out
   `ASSERT(TlulReadOnReadLock_A,
       tlul_req && tlul_gnt ##1 access_o.read_lock != Unlocked
       |=>
       tlul_rerror > '0 && tlul_rvalid)
   // Parity error
-  `ASSERT(ParityErrorState_A,
-      parity_err
-      |=>
-      state_q == ErrorSt)
+  `ASSERT(ParityErrorState_A, parity_err |=> state_q == ErrorSt)
   // OTP error response
   `ASSERT(OtpErrorState_A,
       state_q inside {InitWaitSt, ReadWaitSt} && otp_rvalid_i &&

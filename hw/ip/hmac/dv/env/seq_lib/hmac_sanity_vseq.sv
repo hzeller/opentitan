@@ -6,9 +6,7 @@ class hmac_sanity_vseq extends hmac_base_vseq;
   `uvm_object_utils(hmac_sanity_vseq)
   `uvm_object_new
 
-  constraint num_trans_c {
-    num_trans inside {[1:100]};
-  }
+  constraint num_trans_c {num_trans inside {[1 : 100]};}
 
   rand bit        hmac_en;
   rand bit        sha_en;
@@ -33,20 +31,27 @@ class hmac_sanity_vseq extends hmac_base_vseq;
 
   constraint msg_c {
     msg.size() dist {
-        0       :/ 1,
-        [1 :60] :/ 8,
-        [61:64] :/ 1
-    }; // upto 64 bytes (16 words, 512 bits)
+      0 :/ 1,
+      [1 : 60] :/ 8,
+      [61 : 64] :/ 1
+    };  // upto 64 bytes (16 words, 512 bits)
   }
 
-  constraint burst_wr_c {
-    burst_wr_length inside {[1 : HMAC_MSG_FIFO_DEPTH]};
-  }
+  constraint burst_wr_c {burst_wr_length inside {[1 : HMAC_MSG_FIFO_DEPTH]};}
 
   constraint intr_enable_c {
-    intr_fifo_empty_en dist {1'b1 := 8, 1'b0 := 2};
-    intr_hmac_done_en dist {1'b1 := 8, 1'b0 := 2};
-    intr_hmac_err_en  dist {1'b1 := 8, 1'b0 := 2};
+    intr_fifo_empty_en dist {
+      1'b1 := 8,
+      1'b0 := 2
+    };
+    intr_hmac_done_en dist {
+      1'b1 := 8,
+      1'b0 := 2
+    };
+    intr_hmac_err_en dist {
+      1'b1 := 8,
+      1'b0 := 2
+    };
   }
 
   virtual task pre_start();
@@ -86,11 +91,11 @@ class hmac_sanity_vseq extends hmac_base_vseq;
         if (do_burst_wr) burst_wr_msg(msg, burst_wr_length);
         else wr_msg(msg);
         if (!sha_en) begin
-          if ($urandom_range(0, 1)) begin // restream in the message
+          if ($urandom_range(0, 1)) begin  // restream in the message
             sha_enable();
             if (do_hash_start) trigger_hash();
             wr_msg(msg);
-          end else begin // discard current transaction
+          end else begin  // discard current transaction
             continue;
           end
         end

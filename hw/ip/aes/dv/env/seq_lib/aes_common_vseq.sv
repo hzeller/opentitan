@@ -5,9 +5,7 @@
 class aes_common_vseq extends aes_base_vseq;
   `uvm_object_utils(aes_common_vseq)
 
-  constraint num_trans_c {
-    num_trans inside {[1:2]};
-  }
+  constraint num_trans_c {num_trans inside {[1 : 2]};}
   `uvm_object_new
 
 

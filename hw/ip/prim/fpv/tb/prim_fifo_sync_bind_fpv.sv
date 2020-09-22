@@ -15,10 +15,10 @@ module prim_fifo_sync_bind_fpv;
   ////////////////////
 
   bind i_nopass1 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b0),
-    .Depth(1),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b0),
+      .Depth(1),
+      .EnableDataCheck(1'b1)
   ) i_nopass1_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -33,10 +33,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_nopass7 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b0),
-    .Depth(7),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b0),
+      .Depth(7),
+      .EnableDataCheck(1'b1)
   ) i_nopass7_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -51,10 +51,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_nopass8 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b0),
-    .Depth(8),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b0),
+      .Depth(8),
+      .EnableDataCheck(1'b1)
   ) i_nopass8_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -69,10 +69,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_nopass15 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b0),
-    .Depth(15),
-    .EnableDataCheck(1'b0)
+      .Width(Width),
+      .Pass(1'b0),
+      .Depth(15),
+      .EnableDataCheck(1'b0)
   ) i_nopass15_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -87,10 +87,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_nopass16 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b0),
-    .Depth(16),
-    .EnableDataCheck(1'b0)
+      .Width(Width),
+      .Pass(1'b0),
+      .Depth(16),
+      .EnableDataCheck(1'b0)
   ) i_nopass16_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -109,10 +109,10 @@ module prim_fifo_sync_bind_fpv;
   ////////////////
 
   bind i_pass0 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b1),
-    .Depth(0),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b1),
+      .Depth(0),
+      .EnableDataCheck(1'b1)
   ) i_pass0_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -127,10 +127,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_pass1 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b1),
-    .Depth(1),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b1),
+      .Depth(1),
+      .EnableDataCheck(1'b1)
   ) i_pass1_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -145,10 +145,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_pass7 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b1),
-    .Depth(7),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b1),
+      .Depth(7),
+      .EnableDataCheck(1'b1)
   ) i_pass7_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -163,10 +163,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_pass8 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b1),
-    .Depth(8),
-    .EnableDataCheck(1'b1)
+      .Width(Width),
+      .Pass(1'b1),
+      .Depth(8),
+      .EnableDataCheck(1'b1)
   ) i_pass8_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -181,10 +181,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_pass15 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b1),
-    .Depth(15),
-    .EnableDataCheck(1'b0)
+      .Width(Width),
+      .Pass(1'b1),
+      .Depth(15),
+      .EnableDataCheck(1'b0)
   ) i_pass15_assert_fpv (
     .clk_i,
     .rst_ni,
@@ -199,10 +199,10 @@ module prim_fifo_sync_bind_fpv;
   );
 
   bind i_pass16 prim_fifo_sync_assert_fpv #(
-    .Width(Width),
-    .Pass(1'b1),
-    .Depth(16),
-    .EnableDataCheck(1'b0)
+      .Width(Width),
+      .Pass(1'b1),
+      .Depth(16),
+      .EnableDataCheck(1'b0)
   ) i_pass16_assert_fpv (
     .clk_i,
     .rst_ni,

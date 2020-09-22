@@ -4,7 +4,12 @@
 
 `include "prim_assert.sv"
 
-interface push_pull_if #(parameter int DataWidth = 32) (input wire clk, input wire rst_n);
+interface push_pull_if #(
+  parameter int DataWidth = 32
+) (
+  input wire clk,
+  input wire rst_n
+);
 
   // Pins for the push handshake (ready/valid)
   logic ready;
@@ -26,27 +31,27 @@ interface push_pull_if #(parameter int DataWidth = 32) (input wire clk, input wi
 
   // clocking blocks
   clocking host_push_cb @(posedge clk);
-    input   ready;
-    output  valid;
-    output  data;
+    input ready;
+    output valid;
+    output data;
   endclocking
 
   clocking device_push_cb @(posedge clk);
-    output  ready;
-    input   valid;
-    input   data;
+    output ready;
+    input valid;
+    input data;
   endclocking
 
   clocking host_pull_cb @(posedge clk);
-    output  req;
-    input   ack;
-    input   data;
+    output req;
+    input ack;
+    input data;
   endclocking
 
   clocking device_pull_cb @(posedge clk);
-    input   req;
-    output  ack;
-    output  data;
+    input req;
+    output ack;
+    output data;
   endclocking
 
   clocking mon_cb @(posedge clk);

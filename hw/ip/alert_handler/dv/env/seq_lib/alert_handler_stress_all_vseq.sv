@@ -10,7 +10,7 @@ class alert_handler_stress_all_vseq extends alert_handler_base_vseq;
   `uvm_object_new
 
   task body();
-    bit entropy_test_flag; // this flag ensures entropy test only runs once due to its long runtime
+    bit entropy_test_flag;  // this flag ensures entropy test only runs once due to its long runtime
     string seq_names[] = {"alert_handler_sanity_vseq",
                           "alert_handler_random_alerts_vseq",
                           "alert_handler_random_classes_vseq",
@@ -19,7 +19,7 @@ class alert_handler_stress_all_vseq extends alert_handler_base_vseq;
                           "alert_handler_sig_int_fail_vseq",
                           "alert_handler_entropy_vseq"};
     for (int i = 1; i <= num_trans; i++) begin
-      uvm_sequence            seq;
+      uvm_sequence seq;
       alert_handler_base_vseq alert_vseq;
       uint seq_idx = entropy_test_flag ? $urandom_range(0, seq_names.size - 2) :
                                          $urandom_range(0, seq_names.size - 1);
@@ -31,11 +31,11 @@ class alert_handler_stress_all_vseq extends alert_handler_base_vseq;
       // if upper seq disables do_dut_init for this seq, then can't issue reset
       // as upper seq may drive reset
       if (do_dut_init) begin
-        alert_vseq.do_dut_init = $urandom_range(0, 1);
+        alert_vseq.do_dut_init   = $urandom_range(0, 1);
         // config_locked will be set unless reset is issued
         alert_vseq.config_locked = alert_vseq.do_dut_init ? 0 : config_locked;
       end else begin
-        alert_vseq.do_dut_init = 0;
+        alert_vseq.do_dut_init   = 0;
         alert_vseq.config_locked = config_locked;
       end
 

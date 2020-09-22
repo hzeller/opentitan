@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // this is a base sequence for esc_receiver side
-class esc_receiver_base_seq extends dv_base_seq #(
-    .REQ         (alert_esc_seq_item),
-    .CFG_T       (alert_esc_agent_cfg),
-    .SEQUENCER_T (alert_esc_sequencer)
-  );
+class esc_receiver_base_seq extends dv_base_seq#(
+    .REQ        (alert_esc_seq_item),
+    .CFG_T      (alert_esc_agent_cfg),
+    .SEQUENCER_T(alert_esc_sequencer)
+);
 
   `uvm_object_utils(esc_receiver_base_seq)
   `uvm_object_new

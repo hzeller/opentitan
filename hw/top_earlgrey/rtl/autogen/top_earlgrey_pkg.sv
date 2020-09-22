@@ -27,22 +27,22 @@ package top_earlgrey_pkg;
 
   // Enumeration for DIO pins.
   typedef enum {
-    TopEarlgreyDioPinUsbdevDn = 0,
-    TopEarlgreyDioPinUsbdevDp = 1,
-    TopEarlgreyDioPinUsbdevD = 2,
-    TopEarlgreyDioPinUsbdevSuspend = 3,
+    TopEarlgreyDioPinUsbdevDn       = 0,
+    TopEarlgreyDioPinUsbdevDp       = 1,
+    TopEarlgreyDioPinUsbdevD        = 2,
+    TopEarlgreyDioPinUsbdevSuspend  = 3,
     TopEarlgreyDioPinUsbdevTxModeSe = 4,
     TopEarlgreyDioPinUsbdevDnPullup = 5,
     TopEarlgreyDioPinUsbdevDpPullup = 6,
-    TopEarlgreyDioPinUsbdevSe0 = 7,
-    TopEarlgreyDioPinUsbdevSense = 8,
-    TopEarlgreyDioPinUartTx = 9,
-    TopEarlgreyDioPinUartRx = 10,
-    TopEarlgreyDioPinSpiDeviceSdo = 11,
-    TopEarlgreyDioPinSpiDeviceSdi = 12,
-    TopEarlgreyDioPinSpiDeviceCsb = 13,
-    TopEarlgreyDioPinSpiDeviceSck = 14,
-    TopEarlgreyDioPinCount = 15
+    TopEarlgreyDioPinUsbdevSe0      = 7,
+    TopEarlgreyDioPinUsbdevSense    = 8,
+    TopEarlgreyDioPinUartTx         = 9,
+    TopEarlgreyDioPinUartRx         = 10,
+    TopEarlgreyDioPinSpiDeviceSdo   = 11,
+    TopEarlgreyDioPinSpiDeviceSdi   = 12,
+    TopEarlgreyDioPinSpiDeviceCsb   = 13,
+    TopEarlgreyDioPinSpiDeviceSck   = 14,
+    TopEarlgreyDioPinCount          = 15
   } top_earlgrey_dio_pin_e;
 
   // TODO: Enumeration for PLIC Interrupt source peripheral.

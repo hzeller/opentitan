@@ -7,7 +7,10 @@
 
 `include "prim_assert.sv"
 
-module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
+module flash_mp
+import flash_ctrl_pkg::*;
+import flash_ctrl_reg_pkg::*;
+(
   input clk_i,
   input rst_ni,
 
@@ -49,7 +52,7 @@ module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
 );
 
   // Total number of regions including default region
-  localparam int TotalRegions = MpRegions+1;
+  localparam int TotalRegions = MpRegions + 1;
 
   // Hardware interface permission table
   localparam int HwInfoRules = 3;
@@ -107,47 +110,42 @@ module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
   // the address extends beyond the end of the partition in question
   // the bank selection is invalid
   // if the address overflowed the control counters
-  assign end_addr = data_part_sel ? DataPartitionEndAddr :
-                                    InfoPartitionEndAddr[info_sel_i];
+  assign end_addr = data_part_sel ? DataPartitionEndAddr : InfoPartitionEndAddr[info_sel_i];
 
-  assign addr_invalid = req_i &
-                        (page_addr > end_addr |
-                         bank_invalid |
-                         addr_ovfl_i
-                        );
+  assign addr_invalid = req_i & (page_addr > end_addr | bank_invalid | addr_ovfl_i);
 
   ////////////////////////////////////////
   // Check data partition access
   ////////////////////////////////////////
   logic invalid_data_txn;
-  data_region_attr_t sw_data_attrs [TotalRegions];
+  data_region_attr_t sw_data_attrs[TotalRegions];
   mp_region_cfg_t sw_sel_cfg;
   mp_region_cfg_t hw_sel_cfg;
 
   // wrap software configurations into software attributes
-  for(genvar i = 0; i < TotalRegions; i++) begin : gen_region_attrs
+  for (genvar i = 0; i < TotalRegions; i++) begin : gen_region_attrs
     assign sw_data_attrs[i].phase = PhaseInvalid;
-    assign sw_data_attrs[i].cfg = region_cfgs_i[i];
+    assign sw_data_attrs[i].cfg   = region_cfgs_i[i];
   end
 
   flash_mp_data_region_sel #(
-    .Regions(TotalRegions)
+      .Regions(TotalRegions)
   ) u_sw_sel (
-    .req_i(req_i & ~hw_sel),
-    .phase_i(PhaseInvalid),
-    .addr_i(bank_page_addr),
-    .region_attrs_i(sw_data_attrs),
-    .sel_cfg_o(sw_sel_cfg)
+      .req_i(req_i & ~hw_sel),
+      .phase_i(PhaseInvalid),
+      .addr_i(bank_page_addr),
+      .region_attrs_i(sw_data_attrs),
+      .sel_cfg_o(sw_sel_cfg)
   );
 
   flash_mp_data_region_sel #(
-    .Regions(HwDataRules)
+      .Regions(HwDataRules)
   ) u_hw_sel (
-    .req_i(req_i & hw_sel),
-    .phase_i(phase_i),
-    .addr_i(bank_page_addr),
-    .region_attrs_i(HwDataAttr),
-    .sel_cfg_o(hw_sel_cfg)
+      .req_i(req_i & hw_sel),
+      .phase_i(phase_i),
+      .addr_i(bank_page_addr),
+      .region_attrs_i(HwDataAttr),
+      .sel_cfg_o(hw_sel_cfg)
   );
 
   // select between hardware and software interfaces
@@ -169,11 +167,11 @@ module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
   end
 
   logic data_en;
-  assign data_en          = data_part_sel             & data_region_cfg.en.q;
-  assign data_rd_en       = data_en & rd_i            & data_region_cfg.rd_en.q;
-  assign data_prog_en     = data_en & prog_i          & data_region_cfg.prog_en.q;
-  assign data_pg_erase_en = data_en & pg_erase_i      & data_region_cfg.erase_en.q;
-  assign data_bk_erase_en = data_en & bk_erase_i      & |bk_erase_en;
+  assign data_en = data_part_sel & data_region_cfg.en.q;
+  assign data_rd_en = data_en & rd_i & data_region_cfg.rd_en.q;
+  assign data_prog_en = data_en & prog_i & data_region_cfg.prog_en.q;
+  assign data_pg_erase_en = data_en & pg_erase_i & data_region_cfg.erase_en.q;
+  assign data_bk_erase_en = data_en & bk_erase_i & |bk_erase_en;
   assign data_scramble_en = data_en & (rd_i | prog_i) & data_region_cfg.scramble_en.q;
 
 
@@ -205,7 +203,7 @@ module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
     hw_page_cfg = '0;
     unused_rule_match = '0;
     if (hw_sel && req_i) begin
-      for (int unsigned i = 0; i < HwInfoRules; i++) begin: hw_info_region_comps
+      for (int unsigned i = 0; i < HwInfoRules; i++) begin : hw_info_region_comps
         // select the appropriate hardware page
         if (bank_page_addr == HwInfoPageAttr[i].page.addr &&
             info_sel_i == HwInfoPageAttr[i].page.sel &&
@@ -222,26 +220,25 @@ module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
   assign page_cfg = hw_sel ? hw_page_cfg : info_page_cfgs_i[bank_addr][info_sel_i][info_page_addr];
 
   // final operation
-  assign info_en          = info_part_sel             & page_cfg.en.q;
-  assign info_rd_en       = info_en & rd_i            & page_cfg.rd_en.q;
-  assign info_prog_en     = info_en & prog_i          & page_cfg.prog_en.q;
-  assign info_erase_en    = info_en & pg_erase_i      & page_cfg.erase_en.q;
+  assign info_en = info_part_sel & page_cfg.en.q;
+  assign info_rd_en = info_en & rd_i & page_cfg.rd_en.q;
+  assign info_prog_en = info_en & prog_i & page_cfg.prog_en.q;
+  assign info_erase_en = info_en & pg_erase_i & page_cfg.erase_en.q;
   assign info_scramble_en = info_en & (rd_i | prog_i) & page_cfg.scramble_en.q;
 
   // check for invalid transactions
-  assign invalid_info_txn = req_i & info_part_sel &
-                            ~(info_rd_en | info_prog_en | info_erase_en);
+  assign invalid_info_txn = req_i & info_part_sel & ~(info_rd_en | info_prog_en | info_erase_en);
 
 
   ////////////////////////////////////////
   // Combine all check results
   ////////////////////////////////////////
-  assign rd_o          = req_i & (data_rd_en | info_rd_en);
-  assign prog_o        = req_i & (data_prog_en | info_prog_en);
-  assign pg_erase_o    = req_i & (data_pg_erase_en | info_erase_en);
-  assign bk_erase_o    = req_i & data_bk_erase_en;
+  assign rd_o = req_i & (data_rd_en | info_rd_en);
+  assign prog_o = req_i & (data_prog_en | info_prog_en);
+  assign pg_erase_o = req_i & (data_pg_erase_en | info_erase_en);
+  assign bk_erase_o = req_i & data_bk_erase_en;
   assign scramble_en_o = req_i & (data_scramble_en | info_scramble_en);
-  assign req_o         = rd_o | prog_o | pg_erase_o | bk_erase_o;
+  assign req_o = rd_o | prog_o | pg_erase_o | bk_erase_o;
 
   logic txn_err;
   logic no_allowed_txn;
@@ -292,4 +289,4 @@ module flash_mp import flash_ctrl_pkg::*; import flash_ctrl_reg_pkg::*; (
                                                         info_prog_en,
                                                         info_erase_en})
 
-endmodule // flash_erase_ctrl
+endmodule  // flash_erase_ctrl

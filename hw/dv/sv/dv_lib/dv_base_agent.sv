@@ -2,13 +2,15 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class dv_base_agent #(type CFG_T            = dv_base_agent_cfg,
-                      type DRIVER_T         = dv_base_driver,
-                      type HOST_DRIVER_T    = DRIVER_T,
-                      type DEVICE_DRIVER_T  = DRIVER_T,
-                      type SEQUENCER_T      = dv_base_sequencer,
-                      type MONITOR_T        = dv_base_monitor,
-                      type COV_T            = dv_base_agent_cov) extends uvm_agent;
+class dv_base_agent #(
+  type CFG_T           = dv_base_agent_cfg,
+  type DRIVER_T        = dv_base_driver,
+  type HOST_DRIVER_T   = DRIVER_T,
+  type DEVICE_DRIVER_T = DRIVER_T,
+  type SEQUENCER_T     = dv_base_sequencer,
+  type MONITOR_T       = dv_base_monitor,
+  type COV_T           = dv_base_agent_cov
+) extends uvm_agent;
 
   `uvm_component_param_utils(dv_base_agent #(CFG_T, DRIVER_T, HOST_DRIVER_T, DEVICE_DRIVER_T,
                                              SEQUENCER_T, MONITOR_T, COV_T))
@@ -31,7 +33,7 @@ class dv_base_agent #(type CFG_T            = dv_base_agent_cfg,
 
     // create components
     if (cfg.en_cov) begin
-      cov = COV_T ::type_id::create("cov", this);
+      cov = COV_T::type_id::create("cov", this);
       cov.cfg = cfg;
     end
 

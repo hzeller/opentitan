@@ -16,16 +16,25 @@ module tb;
   wire clk, rst_n;
   wire devmode;
   wire [NUM_MAX_INTERRUPTS-1:0] interrupts;
-  alert_esc_if alert_if[NUM_ALERTS](.clk(clk), .rst_n(rst_n));
-  prim_alert_pkg::alert_rx_t [NUM_ALERTS-1:0] alert_rx;
-  prim_alert_pkg::alert_tx_t [NUM_ALERTS-1:0] alert_tx;
+  alert_esc_if alert_if[NUM_ALERTS] (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  prim_alert_pkg::alert_rx_t[NUM_ALERTS-1:0] alert_rx;
+  prim_alert_pkg::alert_tx_t[NUM_ALERTS-1:0] alert_tx;
 
   // interfaces
-  clk_rst_if clk_rst_if(.clk(clk), .rst_n(rst_n));
-  pins_if #(NUM_MAX_INTERRUPTS) intr_if(interrupts);
+  clk_rst_if clk_rst_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
+  pins_if #(NUM_MAX_INTERRUPTS) intr_if (interrupts);
 
-  pins_if #(1) devmode_if(devmode);
-  tl_if tl_if(.clk(clk), .rst_n(rst_n));
+  pins_if #(1) devmode_if (devmode);
+  tl_if tl_if (
+      .clk  (clk),
+      .rst_n(rst_n)
+  );
 
   for (genvar k = 0; k < NUM_ALERTS; k++) begin : connect_alerts_pins
     assign alert_rx[k] = alert_if[k].alert_rx;
@@ -38,16 +47,16 @@ module tb;
 
   // dut
   aes dut (
-    .clk_i                (clk        ),
-    .rst_ni               (rst_n      ),
+      .clk_i (clk),
+      .rst_ni(rst_n),
 
-    .idle_o               (           ),
+      .idle_o(),
 
-    .tl_i                 (tl_if.h2d  ),
-    .tl_o                 (tl_if.d2h  ),
+      .tl_i(tl_if.h2d),
+      .tl_o(tl_if.d2h),
 
-    .alert_rx_i           ( alert_rx  ),
-    .alert_tx_o           ( alert_tx  )
+      .alert_rx_i(alert_rx),
+      .alert_tx_o(alert_tx)
   );
 
   initial begin

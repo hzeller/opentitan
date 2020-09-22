@@ -19,7 +19,7 @@ class tl_device_driver extends tl_base_driver;
       a_channel_thread();
       d_channel_thread();
     join_none
- endtask
+  endtask
 
   // reset signals every time reset occurs.
   virtual task reset_signals();
@@ -38,7 +38,7 @@ class tl_device_driver extends tl_base_driver;
 
     forever begin
       ready_delay = $urandom_range(cfg.a_ready_delay_min, cfg.a_ready_delay_max);
-      repeat(ready_delay) @(cfg.vif.device_cb);
+      repeat (ready_delay) @(cfg.vif.device_cb);
       cfg.vif.device_cb.d2h_int.a_ready <= 1'b1;
       @(cfg.vif.device_cb);
       cfg.vif.device_cb.d2h_int.a_ready <= 1'b0;
@@ -83,14 +83,14 @@ class tl_device_driver extends tl_base_driver;
 
   function void invalidate_d_channel();
     cfg.vif.d2h_int.d_opcode <= tlul_pkg::tl_d_op_e'('x);
-    cfg.vif.d2h_int.d_param <= '{default:'x};
-    cfg.vif.d2h_int.d_size <= '{default:'x};
-    cfg.vif.d2h_int.d_source <= '{default:'x};
-    cfg.vif.d2h_int.d_sink <= '{default:'x};
-    cfg.vif.d2h_int.d_data <= '{default:'x};
-    cfg.vif.d2h_int.d_user <= '{default:'x};
-    cfg.vif.d2h_int.d_error <= 1'bx;
-    cfg.vif.d2h_int.d_valid <= 1'b0;
+    cfg.vif.d2h_int.d_param  <= '{default: 'x};
+    cfg.vif.d2h_int.d_size   <= '{default: 'x};
+    cfg.vif.d2h_int.d_source <= '{default: 'x};
+    cfg.vif.d2h_int.d_sink   <= '{default: 'x};
+    cfg.vif.d2h_int.d_data   <= '{default: 'x};
+    cfg.vif.d2h_int.d_user   <= '{default: 'x};
+    cfg.vif.d2h_int.d_error  <= 1'bx;
+    cfg.vif.d2h_int.d_valid  <= 1'b0;
   endfunction : invalidate_d_channel
 
 endclass

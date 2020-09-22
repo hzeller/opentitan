@@ -27,8 +27,7 @@ class tl_host_driver extends tl_base_driver;
           end else begin
             // avoid zero delay loop and always align with clock edge to send item
             if (reset_asserted) #1ns;
-            `DV_SPINWAIT_EXIT(@(cfg.vif.host_cb);,
-                              wait(reset_asserted);)
+            `DV_SPINWAIT_EXIT(@(cfg.vif.host_cb);, wait(reset_asserted);)
           end
         end
       end
@@ -61,8 +60,7 @@ class tl_host_driver extends tl_base_driver;
       a_valid_delay = $urandom_range(cfg.a_valid_delay_min, cfg.a_valid_delay_max);
     end
     // break delay loop if reset asserted to release blocking
-    `DV_SPINWAIT_EXIT(repeat (a_valid_delay) @(cfg.vif.host_cb);,
-                      wait(reset_asserted);)
+    `DV_SPINWAIT_EXIT(repeat (a_valid_delay) @(cfg.vif.host_cb);, wait(reset_asserted);)
     // wait until no outstanding transaction with same source id
     `DV_SPINWAIT_EXIT(while (is_source_in_pending_req(req.a_source)) @(cfg.vif.host_cb);,
                       wait(reset_asserted);)
@@ -79,10 +77,9 @@ class tl_host_driver extends tl_base_driver;
       cfg.vif.host_cb.h2d_int.a_source  <= req.a_source;
       cfg.vif.host_cb.h2d_int.a_valid   <= 1'b1;
       // bypass delay in case of reset
-      `DV_SPINWAIT_EXIT(@(cfg.vif.host_cb);,
-                        wait(reset_asserted);)
+      `DV_SPINWAIT_EXIT(@(cfg.vif.host_cb);, wait(reset_asserted);)
     end else begin
-      seq_item_port.put_response(req); // if reset, skip data phase
+      seq_item_port.put_response(req);  // if reset, skip data phase
     end
     `DV_SPINWAIT_EXIT(while(!cfg.vif.host_cb.d2h.a_ready) @(cfg.vif.host_cb);,
                       wait(reset_asserted);)
@@ -98,7 +95,7 @@ class tl_host_driver extends tl_base_driver;
   // host responds d_ready
   virtual task d_ready_rsp();
     int unsigned d_ready_delay;
-    tl_seq_item rsp;
+    tl_seq_item  rsp;
 
     forever begin
       bit req_found;
@@ -116,7 +113,7 @@ class tl_host_driver extends tl_base_driver;
   // Collect ack from D channel
   virtual task d_channel_thread();
     int unsigned d_ready_delay;
-    tl_seq_item rsp;
+    tl_seq_item  rsp;
 
     forever begin
       bit req_found;
@@ -128,12 +125,12 @@ class tl_host_driver extends tl_base_driver;
           if ((pending_a_req[i].a_source == cfg.vif.host_cb.d2h.d_source) | reset_asserted) begin
             rsp = pending_a_req[i];
             rsp.d_opcode = cfg.vif.host_cb.d2h.d_opcode;
-            rsp.d_data   = cfg.vif.host_cb.d2h.d_data;
-            rsp.d_param  = cfg.vif.host_cb.d2h.d_param;
-            rsp.d_error  = cfg.vif.host_cb.d2h.d_error;
-            rsp.d_sink   = cfg.vif.host_cb.d2h.d_sink;
-            rsp.d_size   = cfg.vif.host_cb.d2h.d_size;
-            rsp.d_user   = cfg.vif.host_cb.d2h.d_user;
+            rsp.d_data = cfg.vif.host_cb.d2h.d_data;
+            rsp.d_param = cfg.vif.host_cb.d2h.d_param;
+            rsp.d_error = cfg.vif.host_cb.d2h.d_error;
+            rsp.d_sink = cfg.vif.host_cb.d2h.d_sink;
+            rsp.d_size = cfg.vif.host_cb.d2h.d_size;
+            rsp.d_user = cfg.vif.host_cb.d2h.d_user;
             // make sure every req has a rsp with same source even during reset
             if (reset_asserted) rsp.d_source = rsp.a_source;
             else                rsp.d_source = cfg.vif.host_cb.d2h.d_source;
@@ -153,8 +150,7 @@ class tl_host_driver extends tl_base_driver;
       end else if (reset_asserted) begin
         wait(!reset_asserted);
       end
-      `DV_SPINWAIT_EXIT(@(cfg.vif.host_cb);,
-                        wait(reset_asserted);)
+      `DV_SPINWAIT_EXIT(@(cfg.vif.host_cb);, wait(reset_asserted);)
     end
   endtask : d_channel_thread
 
@@ -167,13 +163,13 @@ class tl_host_driver extends tl_base_driver;
 
   function void invalidate_a_channel();
     cfg.vif.h2d_int.a_opcode <= tlul_pkg::tl_a_op_e'('x);
-    cfg.vif.h2d_int.a_param <= '{default:'x};
-    cfg.vif.h2d_int.a_size <= '{default:'x};
-    cfg.vif.h2d_int.a_source <= '{default:'x};
-    cfg.vif.h2d_int.a_address <= '{default:'x};
-    cfg.vif.h2d_int.a_mask <= '{default:'x};
-    cfg.vif.h2d_int.a_data <= '{default:'x};
-    cfg.vif.h2d_int.a_user <= '{default:'x};
+    cfg.vif.h2d_int.a_param <= '{default: 'x};
+    cfg.vif.h2d_int.a_size <= '{default: 'x};
+    cfg.vif.h2d_int.a_source <= '{default: 'x};
+    cfg.vif.h2d_int.a_address <= '{default: 'x};
+    cfg.vif.h2d_int.a_mask <= '{default: 'x};
+    cfg.vif.h2d_int.a_data <= '{default: 'x};
+    cfg.vif.h2d_int.a_user <= '{default: 'x};
     cfg.vif.h2d_int.a_valid <= 1'b0;
   endfunction : invalidate_a_channel
 

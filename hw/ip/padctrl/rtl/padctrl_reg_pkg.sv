@@ -16,50 +16,46 @@ package padctrl_reg_pkg;
   ////////////////////////////
   typedef struct packed {
     logic [9:0] q;
-    logic        qe;
+    logic qe;
   } padctrl_reg2hw_dio_pads_mreg_t;
 
   typedef struct packed {
     logic [9:0] q;
-    logic        qe;
+    logic qe;
   } padctrl_reg2hw_mio_pads_mreg_t;
 
 
-  typedef struct packed {
-    logic [9:0] d;
-  } padctrl_hw2reg_dio_pads_mreg_t;
+  typedef struct packed {logic [9:0] d;} padctrl_hw2reg_dio_pads_mreg_t;
 
-  typedef struct packed {
-    logic [9:0] d;
-  } padctrl_hw2reg_mio_pads_mreg_t;
+  typedef struct packed {logic [9:0] d;} padctrl_hw2reg_mio_pads_mreg_t;
 
 
   ///////////////////////////////////////
   // Register to internal design logic //
   ///////////////////////////////////////
   typedef struct packed {
-    padctrl_reg2hw_dio_pads_mreg_t [3:0] dio_pads; // [219:176]
-    padctrl_reg2hw_mio_pads_mreg_t [15:0] mio_pads; // [175:0]
+    padctrl_reg2hw_dio_pads_mreg_t [3:0] dio_pads;  // [219:176]
+    padctrl_reg2hw_mio_pads_mreg_t [15:0] mio_pads;  // [175:0]
   } padctrl_reg2hw_t;
 
   ///////////////////////////////////////
   // Internal design logic to register //
   ///////////////////////////////////////
   typedef struct packed {
-    padctrl_hw2reg_dio_pads_mreg_t [3:0] dio_pads; // [199:160]
-    padctrl_hw2reg_mio_pads_mreg_t [15:0] mio_pads; // [159:0]
+    padctrl_hw2reg_dio_pads_mreg_t [3:0] dio_pads;  // [199:160]
+    padctrl_hw2reg_mio_pads_mreg_t [15:0] mio_pads;  // [159:0]
   } padctrl_hw2reg_t;
 
   // Register Address
-  parameter logic [5:0] PADCTRL_REGEN_OFFSET = 6'h 0;
-  parameter logic [5:0] PADCTRL_DIO_PADS_0_OFFSET = 6'h 4;
-  parameter logic [5:0] PADCTRL_DIO_PADS_1_OFFSET = 6'h 8;
-  parameter logic [5:0] PADCTRL_MIO_PADS_0_OFFSET = 6'h c;
-  parameter logic [5:0] PADCTRL_MIO_PADS_1_OFFSET = 6'h 10;
-  parameter logic [5:0] PADCTRL_MIO_PADS_2_OFFSET = 6'h 14;
-  parameter logic [5:0] PADCTRL_MIO_PADS_3_OFFSET = 6'h 18;
-  parameter logic [5:0] PADCTRL_MIO_PADS_4_OFFSET = 6'h 1c;
-  parameter logic [5:0] PADCTRL_MIO_PADS_5_OFFSET = 6'h 20;
+  parameter logic [5:0] PADCTRL_REGEN_OFFSET = 6'h0;
+  parameter logic [5:0] PADCTRL_DIO_PADS_0_OFFSET = 6'h4;
+  parameter logic [5:0] PADCTRL_DIO_PADS_1_OFFSET = 6'h8;
+  parameter logic [5:0] PADCTRL_MIO_PADS_0_OFFSET = 6'hc;
+  parameter logic [5:0] PADCTRL_MIO_PADS_1_OFFSET = 6'h10;
+  parameter logic [5:0] PADCTRL_MIO_PADS_2_OFFSET = 6'h14;
+  parameter logic [5:0] PADCTRL_MIO_PADS_3_OFFSET = 6'h18;
+  parameter logic [5:0] PADCTRL_MIO_PADS_4_OFFSET = 6'h1c;
+  parameter logic [5:0] PADCTRL_MIO_PADS_5_OFFSET = 6'h20;
 
 
   // Register Index

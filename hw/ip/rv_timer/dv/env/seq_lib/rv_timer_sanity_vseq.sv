@@ -20,23 +20,15 @@ class rv_timer_sanity_vseq extends rv_timer_base_vseq;
 
   uint64 max_clks_until_expiry = 5_000_000;
 
-  constraint assert_reset_c {
-    (assert_reset == 1'b0);
-  }
+  constraint assert_reset_c {(assert_reset == 1'b0);}
 
-  constraint num_trans_c {
-    num_trans inside {[1:6]};
-  }
+  constraint num_trans_c {num_trans inside {[1 : 6]};}
 
   // at least 1 timer enabled
-  constraint en_timers_c {
-    (|en_timers == 1'b1);
-  }
+  constraint en_timers_c {(|en_timers == 1'b1);}
 
   // at least 1 hart enabled
-  constraint en_harts_c {
-    (|en_harts == 1'b1);
-  }
+  constraint en_harts_c {(|en_harts == 1'b1);}
 
   // prescaler less than max prescale for enabled hart
   constraint prescale_c {
@@ -50,20 +42,14 @@ class rv_timer_sanity_vseq extends rv_timer_base_vseq;
   // step less than max step for enabled hart
   constraint step_c {
     solve en_harts before step;
-    foreach (step[i]) {
-      if (en_harts[i])  step[i] inside {[1:max_step]};
-      else              step[i] == 0;
-    }
+    foreach (step[i]) {if (en_harts[i])  step[i] inside {[1:max_step]};
+      else              step[i] == 0;}
   }
 
   // ticks * prescale < max clks
   constraint ticks_c {
     solve prescale before ticks;
-    foreach (ticks[i]) {
-      if (en_harts[i]) {
-        (ticks[i] * (prescale[i] + 1)) <= max_clks_until_expiry;
-      }
-    }
+    foreach (ticks[i]) {if (en_harts[i]) {(ticks[i] * (prescale[i] + 1)) <= max_clks_until_expiry;}}
   }
 
   // timer expiry needs to occur within reasonable amount of time

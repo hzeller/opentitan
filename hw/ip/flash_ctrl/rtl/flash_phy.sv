@@ -10,7 +10,9 @@
 // The top level flash_phy is only responsible for dispatching transactions and
 // correctly collecting the responses in order.
 
-module flash_phy import flash_ctrl_pkg::*; (
+module flash_phy
+import flash_ctrl_pkg::*;
+(
   input clk_i,
   input rst_ni,
   input host_req_i,
@@ -40,29 +42,29 @@ module flash_phy import flash_ctrl_pkg::*; (
   // consumed.
 
   // host to flash_phy interface
-  logic [BankW-1:0]     host_bank_sel;
-  logic [BankW-1:0]     rsp_bank_sel;
-  logic [NumBanks-1:0]  host_req_rdy;
-  logic [NumBanks-1:0]  host_req_done;
-  logic [NumBanks-1:0]  host_rsp_avail;
-  logic [NumBanks-1:0]  host_rsp_vld;
-  logic [NumBanks-1:0]  host_rsp_ack;
-  logic [BusWidth-1:0]  host_rsp_data [NumBanks];
-  logic [NumBanks-1:0]  host_rsp_err;
+  logic [    BankW-1:0] host_bank_sel;
+  logic [    BankW-1:0] rsp_bank_sel;
+  logic [ NumBanks-1:0] host_req_rdy;
+  logic [ NumBanks-1:0] host_req_done;
+  logic [ NumBanks-1:0] host_rsp_avail;
+  logic [ NumBanks-1:0] host_rsp_vld;
+  logic [ NumBanks-1:0] host_rsp_ack;
+  logic [ BusWidth-1:0] host_rsp_data    [NumBanks];
+  logic [ NumBanks-1:0] host_rsp_err;
   logic                 seq_fifo_rdy;
   logic                 seq_fifo_pending;
 
   // flash_ctrl to flash_phy interface
-  logic [BankW-1:0]     ctrl_bank_sel;
-  logic [NumBanks-1:0]  rd_done;
-  logic [NumBanks-1:0]  prog_done;
-  logic [NumBanks-1:0]  erase_done;
-  logic [NumBanks-1:0]  init_busy;
-  logic [ProgTypes-1:0] prog_type_avail [NumBanks];
+  logic [    BankW-1:0] ctrl_bank_sel;
+  logic [ NumBanks-1:0] rd_done;
+  logic [ NumBanks-1:0] prog_done;
+  logic [ NumBanks-1:0] erase_done;
+  logic [ NumBanks-1:0] init_busy;
+  logic [ProgTypes-1:0] prog_type_avail  [NumBanks];
 
   // common interface
-  logic [BusWidth-1:0] rd_data [NumBanks];
-  logic [NumBanks-1:0] rd_err;
+  logic [ BusWidth-1:0] rd_data          [NumBanks];
+  logic [ NumBanks-1:0] rd_err;
 
   // select which bank each is operating on
   assign host_bank_sel = host_req_i ? host_addr_i[BusAddrW-1 -: BankW] : '0;
@@ -87,42 +89,42 @@ module flash_phy import flash_ctrl_pkg::*; (
 
   // This fifo holds the expected return order
   prim_fifo_sync #(
-    .Width   (BankW),
-    .Pass    (0),
-    .Depth   (SeqFifoDepth)
+      .Width(BankW),
+      .Pass (0),
+      .Depth(SeqFifoDepth)
   ) i_bank_sequence_fifo (
-    .clk_i,
-    .rst_ni,
-    .clr_i   (1'b0),
-    .wvalid_i(host_req_i & host_req_rdy_o),
-    .wready_o(seq_fifo_rdy),
-    .wdata_i (host_bank_sel),
-    .depth_o (),
-    .rvalid_o(seq_fifo_pending),
-    .rready_i(host_req_done_o),
-    .rdata_o (rsp_bank_sel)
+      .clk_i,
+      .rst_ni,
+      .clr_i   (1'b0),
+      .wvalid_i(host_req_i & host_req_rdy_o),
+      .wready_o(seq_fifo_rdy),
+      .wdata_i (host_bank_sel),
+      .depth_o (),
+      .rvalid_o(seq_fifo_pending),
+      .rready_i(host_req_done_o),
+      .rdata_o (rsp_bank_sel)
   );
 
   // Generate host scramble_en indication, broadcasted to all banks
   localparam int TotalRegions = MpRegions + 1;
   logic host_scramble_en;
-  data_region_attr_t region_attrs [TotalRegions];
+  data_region_attr_t region_attrs[TotalRegions];
   mp_region_cfg_t region_cfg, unused_cfg;
 
-  for(genvar i = 0; i < TotalRegions; i++) begin : gen_region_attrs
+  for (genvar i = 0; i < TotalRegions; i++) begin : gen_region_attrs
     assign region_attrs[i].phase = PhaseInvalid;
-    assign region_attrs[i].cfg = flash_ctrl_i.region_cfgs[i];
+    assign region_attrs[i].cfg   = flash_ctrl_i.region_cfgs[i];
   end
 
   // the region decode only accepts page address
   flash_mp_data_region_sel #(
-    .Regions(TotalRegions)
+      .Regions(TotalRegions)
   ) u_region_sel (
-    .req_i(host_req_i),
-    .phase_i(PhaseInvalid),
-    .addr_i(host_addr_i[BusAddrW-1 -: AllPagesW]),
-    .region_attrs_i(region_attrs),
-    .sel_cfg_o(region_cfg)
+      .req_i(host_req_i),
+      .phase_i(PhaseInvalid),
+      .addr_i(host_addr_i[BusAddrW-1 -: AllPagesW]),
+      .region_attrs_i(region_attrs),
+      .sel_cfg_o(region_cfg)
   );
 
   // most attributes are unused
@@ -137,20 +139,20 @@ module flash_phy import flash_ctrl_pkg::*; (
     assign host_rsp_ack[bank] = host_req_done_o & (rsp_bank_sel == bank);
 
     prim_fifo_sync #(
-      .Width   (BusWidth + 1),
-      .Pass    (1'b1),
-      .Depth   (FlashMacroOustanding)
+        .Width(BusWidth + 1),
+        .Pass (1'b1),
+        .Depth(FlashMacroOustanding)
     ) i_host_rsp_fifo (
-      .clk_i,
-      .rst_ni,
-      .clr_i   (1'b0),
-      .wvalid_i(host_req_done[bank]),
-      .wready_o(host_rsp_avail[bank]),
-      .wdata_i ({rd_err[bank], rd_data[bank]}),
-      .depth_o (),
-      .rvalid_o(host_rsp_vld[bank]),
-      .rready_i(host_rsp_ack[bank]),
-      .rdata_o ({host_rsp_err[bank], host_rsp_data[bank]})
+        .clk_i,
+        .rst_ni,
+        .clr_i   (1'b0),
+        .wvalid_i(host_req_done[bank]),
+        .wready_o(host_rsp_avail[bank]),
+        .wdata_i ({rd_err[bank], rd_data[bank]}),
+        .depth_o (),
+        .rvalid_o(host_rsp_vld[bank]),
+        .rready_i(host_rsp_ack[bank]),
+        .rdata_o ({host_rsp_err[bank], host_rsp_data[bank]})
     );
 
     logic host_req;
@@ -159,35 +161,35 @@ module flash_phy import flash_ctrl_pkg::*; (
     assign ctrl_req = flash_ctrl_i.req & (ctrl_bank_sel == bank);
 
     flash_phy_core i_core (
-      .clk_i,
-      .rst_ni,
-      .req_i(ctrl_req),
-      .scramble_en_i(flash_ctrl_i.scramble_en),
-      // host request must be suppressed if response fifo cannot hold more
-      // otherwise the flash_phy_core and flash_phy will get out of sync
-      .host_req_i(host_req),
-      .host_scramble_en_i(host_scramble_en),
-      .host_addr_i(host_addr_i[0 +: BusBankAddrW]),
-      .rd_i(flash_ctrl_i.rd),
-      .prog_i(flash_ctrl_i.prog),
-      .pg_erase_i(flash_ctrl_i.pg_erase),
-      .bk_erase_i(flash_ctrl_i.bk_erase),
-      .part_i(flash_ctrl_i.part),
-      .addr_i(flash_ctrl_i.addr[0 +: BusBankAddrW]),
-      .prog_data_i(flash_ctrl_i.prog_data),
-      .prog_last_i(flash_ctrl_i.prog_last),
-      .prog_type_i(flash_ctrl_i.prog_type),
-      .addr_key_i(flash_ctrl_i.addr_key),
-      .data_key_i(flash_ctrl_i.data_key),
-      .prog_type_avail_o(prog_type_avail[bank]),
-      .host_req_rdy_o(host_req_rdy[bank]),
-      .host_req_done_o(host_req_done[bank]),
-      .rd_done_o(rd_done[bank]),
-      .prog_done_o(prog_done[bank]),
-      .erase_done_o(erase_done[bank]),
-      .rd_data_o(rd_data[bank]),
-      .rd_err_o(rd_err[bank]),
-      .init_busy_o(init_busy[bank])
+        .clk_i,
+        .rst_ni,
+        .req_i(ctrl_req),
+        .scramble_en_i(flash_ctrl_i.scramble_en),
+        // host request must be suppressed if response fifo cannot hold more
+        // otherwise the flash_phy_core and flash_phy will get out of sync
+        .host_req_i(host_req),
+        .host_scramble_en_i(host_scramble_en),
+        .host_addr_i(host_addr_i[0 +: BusBankAddrW]),
+        .rd_i(flash_ctrl_i.rd),
+        .prog_i(flash_ctrl_i.prog),
+        .pg_erase_i(flash_ctrl_i.pg_erase),
+        .bk_erase_i(flash_ctrl_i.bk_erase),
+        .part_i(flash_ctrl_i.part),
+        .addr_i(flash_ctrl_i.addr[0 +: BusBankAddrW]),
+        .prog_data_i(flash_ctrl_i.prog_data),
+        .prog_last_i(flash_ctrl_i.prog_last),
+        .prog_type_i(flash_ctrl_i.prog_type),
+        .addr_key_i(flash_ctrl_i.addr_key),
+        .data_key_i(flash_ctrl_i.data_key),
+        .prog_type_avail_o(prog_type_avail[bank]),
+        .host_req_rdy_o(host_req_rdy[bank]),
+        .host_req_done_o(host_req_done[bank]),
+        .rd_done_o(rd_done[bank]),
+        .prog_done_o(prog_done[bank]),
+        .erase_done_o(erase_done[bank]),
+        .rd_data_o(rd_data[bank]),
+        .rd_err_o(rd_err[bank]),
+        .init_busy_o(init_busy[bank])
     );
   end
 
@@ -204,6 +206,6 @@ module flash_phy import flash_ctrl_pkg::*; (
   end
 
   // all banks must support the same kinds of programs
-  `ASSERT(homogenousProg_a,  unused_prog_type == '0)
+  `ASSERT(homogenousProg_a, unused_prog_type == '0)
 
-endmodule // flash_phy
+endmodule  // flash_phy

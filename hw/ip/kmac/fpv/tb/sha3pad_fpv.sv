@@ -4,7 +4,7 @@
 //
 
 module sha3pad_fpv
-  import kmac_pkg::*;
+import kmac_pkg::*;
 #(
   parameter int EnMasking = 0,
   localparam int Share = (EnMasking) ? 2 : 1
@@ -15,11 +15,11 @@ module sha3pad_fpv
   // Message interface (FIFO)
   input                       msg_valid_i,
   input        [MsgWidth-1:0] msg_data_i [Share],
-  input        [MsgStrbW-1:0] msg_mask_i,         // one masking for shares
+  input        [MsgStrbW-1:0] msg_mask_i,  // one masking for shares
   output logic                msg_ready_o,
 
   // N, S: Used in cSHAKE mode only
-  input [NSRegisterSize*8-1:0] ns_data_i, // See kmac_pkg for details
+  input [NSRegisterSize*8-1:0] ns_data_i,  // See kmac_pkg for details
 
   // configurations
   input sha3_mode_e       mode_i,
@@ -39,68 +39,68 @@ module sha3pad_fpv
   logic                      keccak_valid;
   logic                      keccak_ready;
   logic [KeccakMsgAddrW-1:0] keccak_addr;
-  logic [MsgWidth-1:0]       keccak_data [Share];
+  logic [      MsgWidth-1:0] keccak_data  [Share];
 
   logic keccak_run, keccak_complete;
 
-  logic [1599:0] state [Share];
+  logic [1599:0] state[Share];
 
   logic rand_valid, rand_consumed;
   logic [1599:0] rand_data;
 
   sha3pad #(
-    .EnMasking(EnMasking)
+      .EnMasking(EnMasking)
   ) u_pad (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    .msg_valid_i,
-    .msg_data_i,
-    .msg_mask_i,
-    .msg_ready_o,
+      .msg_valid_i,
+      .msg_data_i,
+      .msg_mask_i,
+      .msg_ready_o,
 
-    .ns_data_i,
+      .ns_data_i,
 
-    .keccak_valid_o (keccak_valid),
-    .keccak_ready_i (keccak_ready),
-    .keccak_addr_o  (keccak_addr),
-    .keccak_data_o  (keccak_data),
+      .keccak_valid_o(keccak_valid),
+      .keccak_ready_i(keccak_ready),
+      .keccak_addr_o (keccak_addr),
+      .keccak_data_o (keccak_data),
 
-    .keccak_run_o      (keccak_run),
-    .keccak_complete_i (keccak_complete),
+      .keccak_run_o     (keccak_run),
+      .keccak_complete_i(keccak_complete),
 
-    .mode_i,
-    .strength_i,
+      .mode_i,
+      .strength_i,
 
-    .start_i,
-    .process_i,
-    .done_i ,
+      .start_i,
+      .process_i,
+      .done_i,
 
-    .absorbed_o
+      .absorbed_o
   );
 
   keccak_round #(
-    .Width     (1600),
-    .DInWidth  (MsgWidth),
-    .EnMasking (EnMasking)
+      .Width    (1600),
+      .DInWidth (MsgWidth),
+      .EnMasking(EnMasking)
   ) u_keccak (
-    .valid_i    (keccak_valid),
-    .ready_o    (keccak_ready),
-    .addr_i     (keccak_addr),
-    .data_i     (keccak_data),
+      .valid_i(keccak_valid),
+      .ready_o(keccak_ready),
+      .addr_i (keccak_addr),
+      .data_i (keccak_data),
 
-    .run_i      (keccak_run),
-    .complete_o (keccak_complete),
+      .run_i     (keccak_run),
+      .complete_o(keccak_complete),
 
-    .rand_valid_i    (rand_valid),
-    .rand_data_i     (rand_data),
-    .rand_consumed_o (rand_consumed),
+      .rand_valid_i   (rand_valid),
+      .rand_data_i    (rand_data),
+      .rand_consumed_o(rand_consumed),
 
-    .state_o    (state),
+      .state_o(state),
 
-    .clear_i    (done_i),
+      .clear_i(done_i),
 
-    .*
+      .*
   );
 
   // Test vectors (big-endian)
@@ -135,7 +135,7 @@ module sha3pad_fpv
 
   //`ASSUME(DoneStayZero_A, $rose(absorbed_o) |=> ##3 done_i ##1 !done_i)
   //`ASSUME(DoneStayZeroEnd_A, done_i == 0 throughout (start_i ##[1:$] absorbed_o))
-  `ASSUME(DoneControl_a, absorbed_o |=> ##5 done_i )
+  `ASSUME(DoneControl_a, absorbed_o |=> ##5 done_i)
 
   // Empty Vector check
   //`ASSUME(EmptyInputVector_A, start_i |=> ##3 process_i , clk_i, !rst_ni)
@@ -159,7 +159,7 @@ module sha3pad_fpv
     ##1 msg_valid_i == 1'b0) ##1 process_i && $stable(msg_valid_i)
     ##1 !process_i && $stable(msg_valid_i)
     ##[0:$] $stable(msg_valid_i))
-  `ASSUME(AbcInputMask_A, msg_mask_i == 8'b 0000_0111)
+  `ASSUME(AbcInputMask_A, msg_mask_i == 8'b0000_0111)
 
   `ASSERT(AbcVector_A, absorbed_o |->
   256'({<<8{state[0][255:0]}}) == 256'h 3a985da74fe225b2_045c172d6bd390bd_855f086e3e9d525b_46bfe24511431532)

@@ -7,7 +7,7 @@
 `include "prim_assert.sv"
 
 module sha3pad
-  import kmac_pkg::*;
+import kmac_pkg::*;
 #(
   parameter int EnMasking = 0,
   localparam int Share = (EnMasking) ? 2 : 1
@@ -18,17 +18,17 @@ module sha3pad
   // Message interface (FIFO)
   input                       msg_valid_i,
   input        [MsgWidth-1:0] msg_data_i [Share],
-  input        [MsgStrbW-1:0] msg_mask_i,         // one masking for shares
+  input        [MsgStrbW-1:0] msg_mask_i,  // one masking for shares
   output logic                msg_ready_o,
 
   // N, S: Used in cSHAKE mode only
-  input [NSRegisterSize*8-1:0] ns_data_i, // See kmac_pkg for details
+  input [NSRegisterSize*8-1:0] ns_data_i,  // See kmac_pkg for details
 
   // output to keccak_round: message path
-  output logic                       keccak_valid_o,
-  output logic [KeccakMsgAddrW-1:0]  keccak_addr_o,
-  output logic [MsgWidth-1:0]        keccak_data_o [Share],
-  input  logic                       keccak_ready_i,
+  output logic                      keccak_valid_o,
+  output logic [KeccakMsgAddrW-1:0] keccak_addr_o,
+  output logic [      MsgWidth-1:0] keccak_data_o [Share],
+  input  logic                      keccak_ready_i,
 
   // keccak_round control and status
   // `run` initiates the keccak_round to process full keccak_f (24rounds).
@@ -105,11 +105,11 @@ module sha3pad
   } pad_st_e;
 
   typedef enum logic [2:0] {
-    MuxNone    = 3'b 000,
-    MuxFifo    = 3'b 001,
-    MuxPrefix  = 3'b 010,
-    MuxFuncPad = 3'b 011,
-    MuxZeroEnd = 3'b 100
+    MuxNone    = 3'b000,
+    MuxFifo    = 3'b001,
+    MuxPrefix  = 3'b010,
+    MuxFuncPad = 3'b011,
+    MuxZeroEnd = 3'b100
   } mux_sel_e;
 
   ////////////////////
@@ -161,7 +161,7 @@ module sha3pad
     else if (inc_sentmsg) sent_message <= sent_message + 1'b 1;
   end
 
-  assign inc_sentmsg = keccak_valid_o & keccak_ready_i ;
+  assign inc_sentmsg = keccak_valid_o & keccak_ready_i;
 
   // Prefix index to slice the `prefix` n-bits into multiple of 64bit.
   logic [KeccakMsgAddrW-1:0] prefix_index;
@@ -188,18 +188,18 @@ module sha3pad
 
   // FSM moves to StPrefix only when cSHAKE is enabled
   logic mode_eq_cshake;
-  assign mode_eq_cshake = (mode_i == CShake) ? 1'b 1 : 1'b 0;
+  assign mode_eq_cshake = (mode_i == CShake) ? 1'b1 : 1'b0;
 
   // `sent_blocksize` indicates the pad logic pushed block size data into
   // keccak round logic.
   logic sent_blocksize;
 
-  assign sent_blocksize = (sent_message == block_addr_limit) ? 1'b 1 : 1'b 0;
+  assign sent_blocksize = (sent_message == block_addr_limit) ? 1'b1 : 1'b0;
 
   // `keccak_ack` indicates the request is accepted in keccak_round
   logic keccak_ack;
 
-  assign keccak_ack = keccak_valid_o & keccak_ready_i ;
+  assign keccak_ack = keccak_valid_o & keccak_ready_i;
 
   // msg_partial indicates the incoming message is partial write or not.
   // This is used to check if the incoming message need to be latched inside or
@@ -209,7 +209,7 @@ module sha3pad
   // there will be no msg_valid_i till process_latched.
   // Shall be used with msg_valid_i together.
   logic msg_partial;
-  assign msg_partial = (&msg_mask_i != 1'b 1);
+  assign msg_partial = (&msg_mask_i != 1'b1);
 
 
   // `process_latched` latches the `process_i` input before it is seen in the
@@ -220,12 +220,12 @@ module sha3pad
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      process_latched <= 1'b 0;
-    // TODO: Reconsider the set condition, what if process_i comes without
-    // `start_i` ?
+      process_latched <= 1'b0;
+      // TODO: Reconsider the set condition, what if process_i comes without
+      // `start_i` ?
     end else if (process_i) begin
-      process_latched <= 1'b 1;
-    // TODO: Reconsider the clear indicator, done_i is good enough?
+      process_latched <= 1'b1;
+      // TODO: Reconsider the clear indicator, done_i is good enough?
     end else if (done_i) begin
       process_latched <= 1'b0;
     end
@@ -250,21 +250,21 @@ module sha3pad
   end
 
   always_comb begin
-    st_d = StIdle;
+    st_d             = StIdle;
 
     // FSM output : default values
-    keccak_run_o = 1'b 0;
-    sel_mux      = MuxNone;
+    keccak_run_o     = 1'b0;
+    sel_mux          = MuxNone;
 
-    fsm_keccak_valid = 1'b 0;
+    fsm_keccak_valid = 1'b0;
 
-    hold_msg = 1'b 0;
-    clr_sentmsg = 1'b 0;
+    hold_msg         = 1'b0;
+    clr_sentmsg      = 1'b0;
 
-    en_msgbuf = 1'b 0;
-    clr_msgbuf = 1'b 0;
+    en_msgbuf        = 1'b0;
+    clr_msgbuf       = 1'b0;
 
-    absorbed_d = 1'b 0;
+    absorbed_d       = 1'b0;
 
     unique case (st)
 
@@ -302,13 +302,13 @@ module sha3pad
           st_d = StPrefixWait;
 
           // TODO: Set keccak to run, drop the keccak valid
-          keccak_run_o = 1'b 1;
-          fsm_keccak_valid = 1'b 0;
-          clr_sentmsg = 1'b 1;
+          keccak_run_o = 1'b1;
+          fsm_keccak_valid = 1'b0;
+          clr_sentmsg = 1'b1;
         end else begin
           st_d = StPrefix;
 
-          fsm_keccak_valid = 1'b 1;
+          fsm_keccak_valid = 1'b1;
         end
       end
 
@@ -330,14 +330,14 @@ module sha3pad
         if (msg_valid_i && msg_partial) begin
           st_d = StMessage;
 
-          en_msgbuf = 1'b 1;
+          en_msgbuf = 1'b1;
         end else if (sent_blocksize) begin
           // Check block completion first even process is set.
           st_d = StMessageWait;
 
-          keccak_run_o = 1'b 1;
-          clr_sentmsg = 1'b 1;
-          hold_msg = 1'b 1;
+          keccak_run_o = 1'b1;
+          clr_sentmsg = 1'b1;
+          hold_msg = 1'b1;
         end else if (process_latched) begin
           st_d = StPad;
         end else begin
@@ -347,7 +347,7 @@ module sha3pad
       end
 
       StMessageWait: begin
-        hold_msg = 1'b 1;
+        hold_msg = 1'b1;
 
         if (keccak_complete_i) begin
           st_d = StMessage;
@@ -363,7 +363,7 @@ module sha3pad
       StPad: begin
         sel_mux = MuxFuncPad;
 
-        fsm_keccak_valid = 1'b 1;
+        fsm_keccak_valid = 1'b1;
 
         if (keccak_ack && end_of_block) begin
           // If padding is the last block, don't have to move to StPad01, just
@@ -371,11 +371,11 @@ module sha3pad
           st_d = StPadRun;
 
           // always clear the latched msgbuf
-          clr_msgbuf = 1'b 1;
-          clr_sentmsg = 1'b 1;
+          clr_msgbuf = 1'b1;
+          clr_sentmsg = 1'b1;
         end else if (keccak_ack) begin
           st_d = StPad01;
-          clr_msgbuf = 1'b 1;
+          clr_msgbuf = 1'b1;
         end else begin
           st_d = StPad;
         end
@@ -384,8 +384,8 @@ module sha3pad
       StPadRun: begin
         st_d = StFlush;
 
-        keccak_run_o = 1'b 1;
-        clr_sentmsg = 1'b 1;
+        keccak_run_o = 1'b1;
+        clr_sentmsg = 1'b1;
       end
 
       // Pad01 pushes the end bit of pad10*1() function. As keccak accepts byte
@@ -401,26 +401,26 @@ module sha3pad
         if (sent_blocksize) begin
           st_d = StFlush;
 
-          fsm_keccak_valid = 1'b 0;
+          fsm_keccak_valid = 1'b0;
           // TODO: Trigger keccak_round
-          keccak_run_o = 1'b 1;
-          clr_sentmsg = 1'b 1;
+          keccak_run_o = 1'b1;
+          clr_sentmsg = 1'b1;
         end else begin
           st_d = StPad01;
 
-          fsm_keccak_valid = 1'b 1;
+          fsm_keccak_valid = 1'b1;
         end
       end
 
       StFlush: begin
         // Wait completion from keccak_round or wait SW indicator.
-        clr_sentmsg = 1'b 1;
-        clr_msgbuf = 1'b 1;
+        clr_sentmsg = 1'b1;
+        clr_msgbuf  = 1'b1;
 
         if (keccak_complete_i) begin
           st_d = StIdle;
 
-          absorbed_d = 1'b 1;
+          absorbed_d = 1'b1;
           // TODO: Clear internal variables to fresh start
         end else begin
           st_d = StFlush;
@@ -446,13 +446,13 @@ module sha3pad
 
   always_comb begin
     unique case (strength_i)
-      L128: encode_bytepad = 16'h A801; // cSHAKE128
-      L224: encode_bytepad = 16'h 9001; // not used
-      L256: encode_bytepad = 16'h 8801; // cSHAKE256
-      L384: encode_bytepad = 16'h 6801; // not used
-      L512: encode_bytepad = 16'h 4801; // not used
+      L128: encode_bytepad = 16'hA801;  // cSHAKE128
+      L224: encode_bytepad = 16'h9001;  // not used
+      L256: encode_bytepad = 16'h8801;  // cSHAKE256
+      L384: encode_bytepad = 16'h6801;  // not used
+      L512: encode_bytepad = 16'h4801;  // not used
 
-      default: encode_bytepad = 16'h 0000;
+      default: encode_bytepad = 16'h0000;
     endcase
   end
 
@@ -469,16 +469,16 @@ module sha3pad
   assign prefix = {ns_data_i, encode_bytepad};
 
   logic [MsgWidth-1:0] prefix_sliced;
-  logic [MsgWidth-1:0] prefix_data [Share];
+  logic [MsgWidth-1:0] prefix_data[Share];
 
   prim_slicer #(
-    .InW (PrefixSize*8),
-    .IndexW(KeccakMsgAddrW),
-    .OutW(MsgWidth)
+      .InW(PrefixSize * 8),
+      .IndexW(KeccakMsgAddrW),
+      .OutW(MsgWidth)
   ) u_prefix_slicer (
-    .sel_i  (prefix_index),
-    .data_i (prefix),
-    .data_o (prefix_sliced)
+      .sel_i (prefix_index),
+      .data_i(prefix),
+      .data_o(prefix_sliced)
   );
 
   if (EnMasking) begin : gen_prefix_masked
@@ -501,18 +501,18 @@ module sha3pad
   // It means always `1` is followed by the function pad.
   logic [4:0] funcpad;
 
-  logic [MsgWidth-1:0] funcpad_merged [Share];
-  logic [MsgWidth-1:0] funcpad_data [Share];
+  logic [MsgWidth-1:0] funcpad_merged[Share];
+  logic [MsgWidth-1:0] funcpad_data[Share];
 
   always_comb begin
     unique case (mode_i)
-      Sha3:   funcpad = 5'b 00110;
-      Shake:  funcpad = 5'b 11111;
-      CShake: funcpad = 5'b 00100;
+      Sha3:   funcpad = 5'b00110;
+      Shake:  funcpad = 5'b11111;
+      CShake: funcpad = 5'b00100;
 
       default: begin
         // Just create non-padding but pad10*1 only
-        funcpad = 5'b 00001;
+        funcpad = 5'b00001;
       end
     endcase
   end
@@ -523,19 +523,21 @@ module sha3pad
   // TODO: Decide if it needs to compare with the FSM in {StPad, StPad01} or not
   logic end_of_block;
 
-  assign end_of_block = ((sent_message+1) == block_addr_limit) ? 1'b 1 : 1'b 0;
+  assign end_of_block = ((sent_message + 1) == block_addr_limit) ? 1'b1 : 1'b0;
 
   // ==========================================================================
   // `zero_with_endbit` contains all zero unless the message is for the last
   // MsgWidth beat in the block. If it is the end of the block, the last bit
   // will be set to complete pad10*1() functionality.
-  logic [MsgWidth-1:0] zero_with_endbit [Share];
+  logic [MsgWidth-1:0] zero_with_endbit[Share];
 
-  if (EnMasking) begin : gen_zeroend_masked;
+  if (EnMasking) begin : gen_zeroend_masked
+    ;
     assign zero_with_endbit[0]               = '0;
     assign zero_with_endbit[1][MsgWidth-1]   = end_of_block;
     assign zero_with_endbit[1][MsgWidth-2:0] = '0;
-  end else begin : gen_zeroend_unmasked;
+  end else begin : gen_zeroend_unmasked
+    ;
     assign zero_with_endbit[0][MsgWidth-1]   = end_of_block;
     assign zero_with_endbit[0][MsgWidth-2:0] = '0;
   end
@@ -553,7 +555,7 @@ module sha3pad
       MuxZeroEnd: keccak_data_o = zero_with_endbit;
 
       // MuxNone
-      default:  keccak_data_o = '{default:'0};
+      default: keccak_data_o = '{default: '0};
     endcase
   end
 
@@ -566,7 +568,7 @@ module sha3pad
       MuxZeroEnd: keccak_valid_o = fsm_keccak_valid;
 
       // MuxNone
-      default:  keccak_valid_o = 1'b 0;
+      default: keccak_valid_o = 1'b0;
     endcase
   end
 
@@ -579,7 +581,7 @@ module sha3pad
       MuxZeroEnd: msg_ready_o = 1'b 0;
 
       // MuxNone
-      default: msg_ready_o = 1'b 1;
+      default: msg_ready_o = 1'b1;
     endcase
   end
 
@@ -617,12 +619,12 @@ module sha3pad
 
   // internal buffer to store partial write. It doesn't have to store last byte as it
   // stores only when partial write.
-  logic [MsgWidth-8-1:0] msg_buf [Share];
+  logic [MsgWidth-8-1:0] msg_buf  [Share];
   logic [MsgStrbW-1-1:0] msg_mask;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      msg_buf  <= '{default:'0};
+      msg_buf  <= '{default: '0};
       msg_mask <= '0;
     end else if (en_msgbuf) begin
       for (int i = 0 ; i < Share ; i++) begin
@@ -630,7 +632,7 @@ module sha3pad
       end
       msg_mask <= msg_mask_i[0+:(MsgStrbW-1)];
     end else if (clr_msgbuf) begin
-      msg_buf  <= '{default:'0};
+      msg_buf  <= '{default: '0};
       msg_mask <= '0;
     end
   end
@@ -638,55 +640,55 @@ module sha3pad
   if (EnMasking) begin : gen_funcpad_data_masked
     always_comb begin
       unique case (msg_mask)
-        7'b 000_0000: begin
+        7'b000_0000: begin
           funcpad_data[0] = '0;
-          funcpad_data[1] = {end_of_block, 63'(funcpad)                  };
+          funcpad_data[1] = {end_of_block, 63'(funcpad)};
         end
-        7'b 000_0001: begin
-          funcpad_data[0] = {56'h0,                      msg_buf[0][ 7:0]};
-          funcpad_data[1] = {end_of_block, 55'(funcpad), msg_buf[1][ 7:0]};
+        7'b000_0001: begin
+          funcpad_data[0] = {56'h0, msg_buf[0][7:0]};
+          funcpad_data[1] = {end_of_block, 55'(funcpad), msg_buf[1][7:0]};
         end
-        7'b 000_0011: begin
-          funcpad_data[0] = {48'h0,                      msg_buf[0][15:0]};
+        7'b000_0011: begin
+          funcpad_data[0] = {48'h0, msg_buf[0][15:0]};
           funcpad_data[1] = {end_of_block, 47'(funcpad), msg_buf[1][15:0]};
         end
-        7'b 000_0111: begin
-          funcpad_data[0] = {40'h0,                      msg_buf[0][23:0]};
+        7'b000_0111: begin
+          funcpad_data[0] = {40'h0, msg_buf[0][23:0]};
           funcpad_data[1] = {end_of_block, 39'(funcpad), msg_buf[1][23:0]};
         end
-        7'b 000_1111: begin
-          funcpad_data[0] = {32'h0,                      msg_buf[0][31:0]};
+        7'b000_1111: begin
+          funcpad_data[0] = {32'h0, msg_buf[0][31:0]};
           funcpad_data[1] = {end_of_block, 31'(funcpad), msg_buf[1][31:0]};
         end
-        7'b 001_1111: begin
-          funcpad_data[0] = {24'h0,                      msg_buf[0][39:0]};
+        7'b001_1111: begin
+          funcpad_data[0] = {24'h0, msg_buf[0][39:0]};
           funcpad_data[1] = {end_of_block, 23'(funcpad), msg_buf[1][39:0]};
         end
-        7'b 011_1111: begin
-          funcpad_data[0] = {16'h0,                      msg_buf[0][47:0]};
+        7'b011_1111: begin
+          funcpad_data[0] = {16'h0, msg_buf[0][47:0]};
           funcpad_data[1] = {end_of_block, 15'(funcpad), msg_buf[1][47:0]};
         end
-        7'b 111_1111: begin
-          funcpad_data[0] = { 8'h0,                      msg_buf[0][55:0]};
-          funcpad_data[1] = {end_of_block,  7'(funcpad), msg_buf[1][55:0]};
+        7'b111_1111: begin
+          funcpad_data[0] = {8'h0, msg_buf[0][55:0]};
+          funcpad_data[1] = {end_of_block, 7'(funcpad), msg_buf[1][55:0]};
         end
 
-        default: funcpad_data = '{default:'0};
+        default: funcpad_data = '{default: '0};
       endcase
     end
   end else begin : gen_funcpad_data_unmasked
     always_comb begin
       unique case (msg_mask)
-        7'b 000_0000: funcpad_data[0] = {end_of_block, 63'(funcpad)                  };
-        7'b 000_0001: funcpad_data[0] = {end_of_block, 55'(funcpad), msg_buf[0][ 7:0]};
-        7'b 000_0011: funcpad_data[0] = {end_of_block, 47'(funcpad), msg_buf[0][15:0]};
-        7'b 000_0111: funcpad_data[0] = {end_of_block, 39'(funcpad), msg_buf[0][23:0]};
-        7'b 000_1111: funcpad_data[0] = {end_of_block, 31'(funcpad), msg_buf[0][31:0]};
-        7'b 001_1111: funcpad_data[0] = {end_of_block, 23'(funcpad), msg_buf[0][39:0]};
-        7'b 011_1111: funcpad_data[0] = {end_of_block, 15'(funcpad), msg_buf[0][47:0]};
-        7'b 111_1111: funcpad_data[0] = {end_of_block,  7'(funcpad), msg_buf[0][55:0]};
+        7'b000_0000: funcpad_data[0] = {end_of_block, 63'(funcpad)};
+        7'b000_0001: funcpad_data[0] = {end_of_block, 55'(funcpad), msg_buf[0][7:0]};
+        7'b000_0011: funcpad_data[0] = {end_of_block, 47'(funcpad), msg_buf[0][15:0]};
+        7'b000_0111: funcpad_data[0] = {end_of_block, 39'(funcpad), msg_buf[0][23:0]};
+        7'b000_1111: funcpad_data[0] = {end_of_block, 31'(funcpad), msg_buf[0][31:0]};
+        7'b001_1111: funcpad_data[0] = {end_of_block, 23'(funcpad), msg_buf[0][39:0]};
+        7'b011_1111: funcpad_data[0] = {end_of_block, 15'(funcpad), msg_buf[0][47:0]};
+        7'b111_1111: funcpad_data[0] = {end_of_block, 7'(funcpad), msg_buf[0][55:0]};
 
-        default: funcpad_data = '{default:'0};
+        default: funcpad_data = '{default: '0};
       endcase
     end
   end
@@ -696,7 +698,7 @@ module sha3pad
   ////////////////
 
   // Prefix size is smaller than the smallest Keccak Block Size, which is 72 bytes.
-  `ASSERT_INIT(PrefixLessThanBlock_A, PrefixSize/8 < KeccakRate[4])
+  `ASSERT_INIT(PrefixLessThanBlock_A, PrefixSize / 8 < KeccakRate[4])
 
   // Some part of datapath in sha3pad assumes Data width as 64bit.
   // If data width need to be changed, funcpad_data part should be changed too.
@@ -728,30 +730,30 @@ module sha3pad
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      start_valid <= 1'b 1;
+      start_valid <= 1'b1;
     end else if (start_i) begin
-      start_valid <= 1'b 0;
+      start_valid <= 1'b0;
     end else if (done_i) begin
-      start_valid <= 1'b 1;
+      start_valid <= 1'b1;
     end
   end
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      process_valid <= 1'b 0;
+      process_valid <= 1'b0;
     end else if (start_i) begin
-      process_valid <= 1'b 1;
+      process_valid <= 1'b1;
     end else if (process_i) begin
-      process_valid <= 1'b 0;
+      process_valid <= 1'b0;
     end
   end
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
     if (!rst_ni) begin
-      done_valid <= 1'b 0;
+      done_valid <= 1'b0;
     end else if (absorbed_o) begin
-      done_valid <= 1'b 1;
+      done_valid <= 1'b1;
     end else if (done_i) begin
-      done_valid <= 1'b 0;
+      done_valid <= 1'b0;
     end
   end
 `endif
@@ -765,7 +767,7 @@ module sha3pad
   `ASSERT(CompleteBlockWhenProcess_A, process_i && !sent_blocksize &&
     !(st inside {StPrefixWait, StMessageWait}) |=> ##[1:5] keccak_valid_o)
   // If `process_i` is asserted, eventually sha3pad trigger run signal
-  `ASSERT(ProcessToRun_A, process_i |-> strong(##[2:$] keccak_run_o))
+  `ASSERT(ProcessToRun_A, process_i |-> strong (##[2:$] keccak_run_o))
 
   // If process_i asserted, completion shall be asserted shall be asserted
   //`ASSERT(ProcessToAbsorbed_A, process_i |=> strong(##[24*Share:$] absorbed_o))
@@ -782,8 +784,7 @@ module sha3pad
 
   // Keccak control interface
   // Keccak run triggered -> completion should come
-  `ASSUME(RunThenComplete_A,
-    keccak_run_o |-> strong(##[24*Share:$] keccak_complete_i))
+  `ASSUME(RunThenComplete_A, keccak_run_o |-> strong (##[24*Share:$] keccak_complete_i))
 
   // No partial write is allowed for Message FIFO interface
   `ASSUME(NoPartialMsgFifo_A,

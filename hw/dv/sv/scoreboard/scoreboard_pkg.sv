@@ -14,7 +14,7 @@ package scoreboard_pkg;
   } port_dir_e;
 
   typedef enum bit [1:0] {
-    kInOrderCheck = 2'b0,
+    kInOrderCheck    = 2'b0,
     kOutOfOrderCheck,
     kCustomCheck
   } checking_policy_e;

@@ -26,21 +26,21 @@
 `include "prim_assert.sv"
 
 module prim_dom_and_2share #(
-  parameter int DW = 64, // Input width
-  parameter int EnNegedge  = 0 // Enable negedge of clk for register
+  parameter int DW = 64,  // Input width
+  parameter int EnNegedge = 0  // Enable negedge of clk for register
 ) (
   input clk_i,
   input rst_ni,
 
-  input [DW-1:0] a0_i, // share0 of a
-  input [DW-1:0] a1_i, // share1 of a
-  input [DW-1:0] b0_i, // share0 of b
-  input [DW-1:0] b1_i, // share1 of b
-  input          c_valid_i, // random number input validity
-  input [DW-1:0] c0_i, // share0 of random number
-  input [DW-1:0] c1_i, // share1 of random number
+  input [DW-1:0] a0_i,  // share0 of a
+  input [DW-1:0] a1_i,  // share1 of a
+  input [DW-1:0] b0_i,  // share0 of b
+  input [DW-1:0] b1_i,  // share1 of b
+  input          c_valid_i,  // random number input validity
+  input [DW-1:0] c0_i,  // share0 of random number
+  input [DW-1:0] c1_i,  // share1 of random number
 
-  output logic [DW-1:0] q0_o, // share0 of q
+  output logic [DW-1:0] q0_o,  // share0 of q
   output logic [DW-1:0] q1_o  // share1 of q
 );
 
@@ -54,10 +54,10 @@ module prim_dom_and_2share #(
   // Preserve the logic sequence for XOR not to preceed the AND
   assign t_a0b1 = a0_i & b1_i;
   assign t_a1b0 = a1_i & b0_i;
-  assign t0_d = t_a0b1 ^ c0_i;
-  assign t1_d = t_a1b0 ^ c1_i;
+  assign t0_d   = t_a0b1 ^ c0_i;
+  assign t1_d   = t_a1b0 ^ c1_i;
 
-  if (EnNegedge == 1) begin: gen_negreg
+  if (EnNegedge == 1) begin : gen_negreg
     // TODO: Make inverted clock and use.
     always_ff @(negedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
@@ -68,7 +68,7 @@ module prim_dom_and_2share #(
         t1_q <= t1_d;
       end
     end
-  end else begin: gen_posreg
+  end else begin : gen_posreg
     always_ff @(posedge clk_i or negedge rst_ni) begin
       if (!rst_ni) begin
         t0_q <= '0;
@@ -82,8 +82,8 @@ module prim_dom_and_2share #(
 
   assign t_a0b0 = a0_i & b0_i;
   assign t_a1b1 = a1_i & b1_i;
-  assign q0_o = t_a0b0 ^ t0_q;
-  assign q1_o = t_a1b1 ^ t1_q;
+  assign q0_o   = t_a0b0 ^ t0_q;
+  assign q1_o   = t_a1b1 ^ t1_q;
 
   // Negative Edge isn't yet supported. Need inverted clock and use
   // inside always_ff not `negedge clk_i`.

@@ -17,36 +17,28 @@
 // Base class for AMO instruction stream
 class riscv_amo_base_instr_stream extends riscv_mem_access_stream;
 
-  rand int unsigned  num_amo;
-  rand int unsigned  num_mixed_instr;
-  rand int           offset[];
-  rand riscv_reg_t   rs1_reg[];
-  rand int           num_of_rs1_reg;
-  int unsigned       data_page_id;
-  int unsigned       max_offset;
+  rand int unsigned num_amo;
+  rand int unsigned num_mixed_instr;
+  rand int          offset[];
+  rand riscv_reg_t  rs1_reg[];
+  rand int          num_of_rs1_reg;
+  int unsigned      data_page_id;
+  int unsigned      max_offset;
 
   // User can specify a small group of available registers to generate various hazard condition
-  rand riscv_reg_t   avail_regs[];
+  rand riscv_reg_t  avail_regs[];
 
-  constraint num_of_rs1_reg_c {
-    num_of_rs1_reg == 1;
-  }
+  constraint num_of_rs1_reg_c {num_of_rs1_reg == 1;}
 
   constraint rs1_c {
     solve num_of_rs1_reg before rs1_reg;
     rs1_reg.size() == num_of_rs1_reg;
     offset.size() == num_of_rs1_reg;
-    foreach (rs1_reg[i]) {
-      !(rs1_reg[i] inside {cfg.reserved_regs, reserved_rd, ZERO});
-    }
+    foreach (rs1_reg[i]) {!(rs1_reg[i] inside {cfg.reserved_regs, reserved_rd, ZERO});}
     unique {rs1_reg};
   }
 
-  constraint addr_range_c {
-    foreach (offset[i]) {
-      offset[i] inside {[0 : max_offset - 1]};
-    }
-  }
+  constraint addr_range_c {foreach (offset[i]) {offset[i] inside {[0 : max_offset - 1]};}}
 
   constraint aligned_amo_c {
     foreach (offset[i]) {
@@ -102,7 +94,7 @@ class riscv_lr_sc_instr_stream extends riscv_amo_base_instr_stream;
 
   constraint legal_c {
     num_amo == 1;
-    num_mixed_instr inside {[0:15]};
+    num_mixed_instr inside {[0 : 15]};
   }
 
   `uvm_object_utils(riscv_lr_sc_instr_stream)

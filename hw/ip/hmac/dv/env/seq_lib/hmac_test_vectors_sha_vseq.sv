@@ -8,8 +8,8 @@ class hmac_test_vectors_sha_vseq extends hmac_base_vseq;
   `uvm_object_utils(hmac_test_vectors_sha_vseq)
   `uvm_object_new
 
-  rand bit [31:0] key[8]; // random because sha256 will not calculate key
-  bit hmac_en; // sha256 only
+  rand bit [31:0] key[8];  // random because sha256 will not calculate key
+  bit hmac_en;  // sha256 only
   string vector_list[] = test_vectors_pkg::sha_file_list;
 
   virtual task pre_start();
@@ -34,7 +34,7 @@ class hmac_test_vectors_sha_vseq extends hmac_base_vseq;
                                   parsed_vectors[j].msg_length_byte), UVM_LOW)
 
         if ($urandom_range(0, 1) && !hmac_en) begin
-          `DV_CHECK_RANDOMIZE_FATAL(this) // only key is randomized
+          `DV_CHECK_RANDOMIZE_FATAL(this)  // only key is randomized
           wr_key(key);
         end else begin
           wr_key(parsed_vectors[j].keys);

@@ -7,7 +7,9 @@
 
 `include "prim_assert.sv"
 
-module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
+module pwrmgr
+import pwrmgr_pkg::*;
+import pwrmgr_reg_pkg::*;
 (
   // Clocks and resets
   input clk_slow_i,
@@ -44,11 +46,11 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   input  pwr_flash_rsp_t pwr_flash_i,
 
   // processor interface
-  input  pwr_cpu_t pwr_cpu_i,
+  input pwr_cpu_t pwr_cpu_i,
 
   // peripherals wakeup and reset requests
-  input  [NumWkups-1:0] wakeups_i,
-  input  [HwRstReqs-1:0] rstreqs_i,
+  input [ NumWkups-1:0] wakeups_i,
+  input [HwRstReqs-1:0] rstreqs_i,
 
   output intr_wakeup_o
 
@@ -76,7 +78,7 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   logic ack_pwrdn;
   pwrup_cause_e pwrup_cause;
 
-  logic capture_en_pulse; // begin capture wakeup causes
+  logic capture_en_pulse;  // begin capture wakeup causes
   logic low_power_fall_through;
   logic low_power_abort;
 
@@ -115,17 +117,17 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   logic clr_cfg_lock;
 
   pwrmgr_reg_top u_reg (
-    .clk_i,
-    .rst_ni,
-    .tl_i,
-    .tl_o,
-    .reg2hw,
-    .hw2reg,
-    .devmode_i  (1'b1)
+      .clk_i,
+      .rst_ni,
+      .tl_i,
+      .tl_o,
+      .reg2hw,
+      .hw2reg,
+      .devmode_i(1'b1)
   );
 
   // whenever low power entry begins, wipe the hint
-  assign hw2reg.control.low_power_hint.d = 1'b0;
+  assign hw2reg.control.low_power_hint.d  = 1'b0;
   assign hw2reg.control.low_power_hint.de = clr_hint;
 
   always_ff @(posedge clk_i or negedge rst_ni) begin
@@ -145,51 +147,51 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   ////////////////////////////
 
   pwrmgr_cdc i_cdc (
-    .clk_i,
-    .rst_ni,
-    .clk_slow_i,
-    .rst_slow_ni,
+      .clk_i,
+      .rst_ni,
+      .clk_slow_i,
+      .rst_slow_ni,
 
-    // slow domain signals
-    .slow_req_pwrup_i(slow_req_pwrup),
-    .slow_ack_pwrdn_i(slow_ack_pwrdn),
-    .slow_pwrup_cause_toggle_i(slow_pwrup_cause_toggle),
-    .slow_pwrup_cause_i(slow_pwrup_cause),
-    .slow_wakeup_en_o(slow_wakeup_en),
-    .slow_reset_en_o(slow_reset_en),
-    .slow_main_pd_no(slow_main_pd_n),
-    .slow_io_clk_en_o(slow_io_clk_en),
-    .slow_core_clk_en_o(slow_core_clk_en),
-    .slow_req_pwrdn_o(slow_req_pwrdn),
-    .slow_ack_pwrup_o(slow_ack_pwrup),
-    .slow_ast_o(slow_ast),
-    .slow_peri_reqs_o(slow_peri_reqs),
-    .slow_peri_reqs_masked_i(slow_peri_reqs_masked),
+      // slow domain signals
+      .slow_req_pwrup_i(slow_req_pwrup),
+      .slow_ack_pwrdn_i(slow_ack_pwrdn),
+      .slow_pwrup_cause_toggle_i(slow_pwrup_cause_toggle),
+      .slow_pwrup_cause_i(slow_pwrup_cause),
+      .slow_wakeup_en_o(slow_wakeup_en),
+      .slow_reset_en_o(slow_reset_en),
+      .slow_main_pd_no(slow_main_pd_n),
+      .slow_io_clk_en_o(slow_io_clk_en),
+      .slow_core_clk_en_o(slow_core_clk_en),
+      .slow_req_pwrdn_o(slow_req_pwrdn),
+      .slow_ack_pwrup_o(slow_ack_pwrup),
+      .slow_ast_o(slow_ast),
+      .slow_peri_reqs_o(slow_peri_reqs),
+      .slow_peri_reqs_masked_i(slow_peri_reqs_masked),
 
-    // fast domain signals
-    .req_pwrdn_i(req_pwrdn),
-    .ack_pwrup_i(ack_pwrup),
-    .cfg_cdc_sync_i(reg2hw.cfg_cdc_sync.qe & reg2hw.cfg_cdc_sync.q),
-    .cdc_sync_done_o(hw2reg.cfg_cdc_sync.de),
-    .wakeup_en_i(reg2hw.wakeup_en),
-    .reset_en_i(reg2hw.reset_en.q),
-    .main_pd_ni(reg2hw.control.main_pd_n.q),
-    .io_clk_en_i(reg2hw.control.io_clk_en.q),
-    .core_clk_en_i(reg2hw.control.core_clk_en.q),
-    .ack_pwrdn_o(ack_pwrdn),
-    .req_pwrup_o(req_pwrup),
-    .pwrup_cause_o(pwrup_cause),
-    .peri_reqs_o(peri_reqs_masked),
+      // fast domain signals
+      .req_pwrdn_i(req_pwrdn),
+      .ack_pwrup_i(ack_pwrup),
+      .cfg_cdc_sync_i(reg2hw.cfg_cdc_sync.qe & reg2hw.cfg_cdc_sync.q),
+      .cdc_sync_done_o(hw2reg.cfg_cdc_sync.de),
+      .wakeup_en_i(reg2hw.wakeup_en),
+      .reset_en_i(reg2hw.reset_en.q),
+      .main_pd_ni(reg2hw.control.main_pd_n.q),
+      .io_clk_en_i(reg2hw.control.io_clk_en.q),
+      .core_clk_en_i(reg2hw.control.core_clk_en.q),
+      .ack_pwrdn_o(ack_pwrdn),
+      .req_pwrup_o(req_pwrup),
+      .pwrup_cause_o(pwrup_cause),
+      .peri_reqs_o(peri_reqs_masked),
 
-    // AST signals
-    .ast_i(pwr_ast_i),
+      // AST signals
+      .ast_i(pwr_ast_i),
 
-    // peripheral signals
-    .peri_i(peri_reqs_raw),
+      // peripheral signals
+      .peri_i(peri_reqs_raw),
 
-    // flash handshake
-    .flash_i(pwr_flash_i),
-    .flash_o(flash_rsp)
+      // flash handshake
+      .flash_i(pwr_flash_i),
+      .flash_o(flash_rsp)
   );
 
   assign hw2reg.cfg_cdc_sync.d = 1'b0;
@@ -227,25 +229,25 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   ////////////////////////////
 
   pwrmgr_slow_fsm i_slow_fsm (
-    .clk_i                (clk_slow_i),
-    .rst_ni               (rst_slow_ni),
-    .wakeup_i             (|slow_peri_reqs_masked.wakeups),
-    .reset_req_i          (|slow_peri_reqs_masked.rstreqs),
-    .ast_i                (slow_ast),
-    .req_pwrup_o          (slow_req_pwrup),
-    .pwrup_cause_o        (slow_pwrup_cause),
-    .pwrup_cause_toggle_o (slow_pwrup_cause_toggle),
-    .ack_pwrup_i          (slow_ack_pwrup),
-    .req_pwrdn_i          (slow_req_pwrdn),
-    .ack_pwrdn_o          (slow_ack_pwrdn),
+      .clk_i               (clk_slow_i),
+      .rst_ni              (rst_slow_ni),
+      .wakeup_i            (|slow_peri_reqs_masked.wakeups),
+      .reset_req_i         (|slow_peri_reqs_masked.rstreqs),
+      .ast_i               (slow_ast),
+      .req_pwrup_o         (slow_req_pwrup),
+      .pwrup_cause_o       (slow_pwrup_cause),
+      .pwrup_cause_toggle_o(slow_pwrup_cause_toggle),
+      .ack_pwrup_i         (slow_ack_pwrup),
+      .req_pwrdn_i         (slow_req_pwrdn),
+      .ack_pwrdn_o         (slow_ack_pwrdn),
 
-    .main_pd_ni           (slow_main_pd_n),
-    .io_clk_en_i          (slow_io_clk_en),
-    .core_clk_en_i        (slow_core_clk_en),
+      .main_pd_ni   (slow_main_pd_n),
+      .io_clk_en_i  (slow_io_clk_en),
+      .core_clk_en_i(slow_core_clk_en),
 
-    // outputs to AST - These are on the slow clock domain
-    // TBD - need to check this with partners
-    .ast_o                (pwr_ast_o)
+      // outputs to AST - These are on the slow clock domain
+      // TBD - need to check this with partners
+      .ast_o(pwr_ast_o)
   );
 
 
@@ -256,51 +258,51 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   assign low_power_hint = reg2hw.control.low_power_hint.q == LowPower;
 
   pwrmgr_fsm i_fsm (
-    .clk_i,
-    .rst_ni,
+      .clk_i,
+      .rst_ni,
 
-    // interface with slow_fsm
-    .req_pwrup_i       (req_pwrup),
-    .pwrup_cause_i     (pwrup_cause), // por, wake or reset request
-    .ack_pwrup_o       (ack_pwrup),
-    .req_pwrdn_o       (req_pwrdn),
-    .ack_pwrdn_i       (ack_pwrdn),
-    .low_power_entry_i (pwr_cpu_i.core_sleeping & low_power_hint),
-    .reset_req_i       (|peri_reqs_masked.rstreqs),
+      // interface with slow_fsm
+      .req_pwrup_i      (req_pwrup),
+      .pwrup_cause_i    (pwrup_cause),  // por, wake or reset request
+      .ack_pwrup_o      (ack_pwrup),
+      .req_pwrdn_o      (req_pwrdn),
+      .ack_pwrdn_i      (ack_pwrdn),
+      .low_power_entry_i(pwr_cpu_i.core_sleeping & low_power_hint),
+      .reset_req_i      (|peri_reqs_masked.rstreqs),
 
-    // cfg
-    .main_pd_ni        (reg2hw.control.main_pd_n.q),
+      // cfg
+      .main_pd_ni(reg2hw.control.main_pd_n.q),
 
-    // consumed in pwrmgr
-    .wkup_record_o     (capture_en_pulse),
-    .wkup_o            (wkup),
-    .clr_cfg_lock_o    (clr_cfg_lock),
-    .fall_through_o    (low_power_fall_through),
-    .abort_o           (low_power_abort),
-    .clr_hint_o        (clr_hint),
+      // consumed in pwrmgr
+      .wkup_record_o (capture_en_pulse),
+      .wkup_o        (wkup),
+      .clr_cfg_lock_o(clr_cfg_lock),
+      .fall_through_o(low_power_fall_through),
+      .abort_o       (low_power_abort),
+      .clr_hint_o    (clr_hint),
 
-    // rstmgr
-    .pwr_rst_o         (pwr_rst_o),
-    .pwr_rst_i         (pwr_rst_i),
+      // rstmgr
+      .pwr_rst_o(pwr_rst_o),
+      .pwr_rst_i(pwr_rst_i),
 
-    // clkmgr
-    .ips_clk_en_o      (pwr_clk_o.ip_clk_en),
-    .clk_en_status_i   (pwr_clk_i.clk_status),
+      // clkmgr
+      .ips_clk_en_o   (pwr_clk_o.ip_clk_en),
+      .clk_en_status_i(pwr_clk_i.clk_status),
 
-    // otp
-    .otp_init_o        (pwr_otp_o.otp_init),
-    .otp_done_i        (pwr_otp_i.otp_done),
-    .otp_idle_i        (pwr_otp_i.otp_idle),
+      // otp
+      .otp_init_o(pwr_otp_o.otp_init),
+      .otp_done_i(pwr_otp_i.otp_done),
+      .otp_idle_i(pwr_otp_i.otp_idle),
 
-    // lc
-    .lc_init_o         (pwr_lc_o.lc_init),
-    .lc_done_i         (pwr_lc_i.lc_done),
-    .lc_idle_i         (pwr_lc_i.lc_idle),
+      // lc
+      .lc_init_o(pwr_lc_o.lc_init),
+      .lc_done_i(pwr_lc_i.lc_done),
+      .lc_idle_i(pwr_lc_i.lc_idle),
 
-    // flash
-    .flash_init_o      (pwr_flash_o.flash_init),
-    .flash_done_i      (flash_rsp.flash_done),
-    .flash_idle_i      (flash_rsp.flash_idle)
+      // flash
+      .flash_init_o(pwr_flash_o.flash_init),
+      .flash_done_i(flash_rsp.flash_done),
+      .flash_idle_i(flash_rsp.flash_idle)
   );
 
   ////////////////////////////
@@ -319,16 +321,16 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
                            reg2hw.wake_info.reasons.q};
 
   pwrmgr_wake_info i_wake_info (
-    .clk_i,
-    .rst_ni,
-    .wr_i            (wake_info_wen),
-    .data_i          (wake_info_data),
-    .start_capture_i (capture_en_pulse),
-    .record_dis_i    (reg2hw.wake_info_capture_dis.q),
-    .wakeups_i       (peri_reqs_masked.wakeups),
-    .fall_through_i  (low_power_fall_through),
-    .abort_i         (low_power_abort),
-    .info_o          (hw2reg.wake_info)
+      .clk_i,
+      .rst_ni,
+      .wr_i           (wake_info_wen),
+      .data_i         (wake_info_data),
+      .start_capture_i(capture_en_pulse),
+      .record_dis_i   (reg2hw.wake_info_capture_dis.q),
+      .wakeups_i      (peri_reqs_masked.wakeups),
+      .fall_through_i (low_power_fall_through),
+      .abort_i        (low_power_abort),
+      .info_o         (hw2reg.wake_info)
   );
 
   ////////////////////////////
@@ -337,17 +339,19 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
 
   // This interrupt is asserted whenever the fast FSM transitions
   // into active state.  However, it does not assert during POR
-  prim_intr_hw #(.Width(1)) intr_wakeup (
-    .clk_i,
-    .rst_ni,
-    .event_intr_i           (wkup),
-    .reg2hw_intr_enable_q_i (reg2hw.intr_enable.q),
-    .reg2hw_intr_test_q_i   (reg2hw.intr_test.q),
-    .reg2hw_intr_test_qe_i  (reg2hw.intr_test.qe),
-    .reg2hw_intr_state_q_i  (reg2hw.intr_state.q),
-    .hw2reg_intr_state_de_o (hw2reg.intr_state.de),
-    .hw2reg_intr_state_d_o  (hw2reg.intr_state.d),
-    .intr_o                 (intr_wakeup_o)
+  prim_intr_hw #(
+      .Width(1)
+  ) intr_wakeup (
+      .clk_i,
+      .rst_ni,
+      .event_intr_i          (wkup),
+      .reg2hw_intr_enable_q_i(reg2hw.intr_enable.q),
+      .reg2hw_intr_test_q_i  (reg2hw.intr_test.q),
+      .reg2hw_intr_test_qe_i (reg2hw.intr_test.qe),
+      .reg2hw_intr_state_q_i (reg2hw.intr_state.q),
+      .hw2reg_intr_state_de_o(hw2reg.intr_state.de),
+      .hw2reg_intr_state_d_o (hw2reg.intr_state.d),
+      .intr_o                (intr_wakeup_o)
   );
 
 
@@ -356,4 +360,4 @@ module pwrmgr import pwrmgr_pkg::*; import pwrmgr_reg_pkg::*;
   ////////////////////////////
 
 
-endmodule // pwrmgr
+endmodule  // pwrmgr

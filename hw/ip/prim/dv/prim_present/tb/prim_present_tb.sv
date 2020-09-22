@@ -12,12 +12,12 @@
 
 module prim_present_tb;
 
-//////////////////////////////////////////////////////
-// config
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // config
+  //////////////////////////////////////////////////////
 
-// Default to {data_width:64, key_width:128} configuration.
-// Data width and key width can be overriden from command-line if desired.
+  // Default to {data_width:64, key_width:128} configuration.
+  // Data width and key width can be overriden from command-line if desired.
 
 `ifdef DATA_WIDTH
   localparam int unsigned DataWidth = `DATA_WIDTH;
@@ -43,42 +43,41 @@ module prim_present_tb;
   localparam KeySize80 = (KeyWidth == 80);
 
 
-//////////////////////////////////////////////////////
-// DUTs for both encryption and decryption
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // DUTs for both encryption and decryption
+  //////////////////////////////////////////////////////
 
   // data_in[0]: encryption, data_in[1]: decryption.
   // Same scheme used for key_in, data_out, key_out.
-  logic [1:0][NumRounds-1:0][DataWidth-1:0] data_in;
-  logic [1:0][NumRounds-1:0][KeyWidth-1 :0] key_in;
-  logic [1:0][NumRounds-1:0][DataWidth-1:0] data_out;
-  logic [1:0][NumRounds-1:0][KeyWidth-1 :0] key_out;
+  logic [1:0][NumRounds-1:0][ DataWidth-1:0] data_in;
+  logic [1:0][NumRounds-1:0][KeyWidth-1 : 0] key_in;
+  logic [1:0][NumRounds-1:0][ DataWidth-1:0] data_out;
+  logic [1:0][NumRounds-1:0][KeyWidth-1 : 0] key_out;
 
   for (genvar j = 0; j < 2; j++) begin : gen_encrypt_decrypt
     for (genvar k = 0; k < NumRounds; k++) begin : gen_duts
       prim_present #(
-        .DataWidth  ( DataWidth ),
-        .KeyWidth   ( KeyWidth  ),
-        .NumRounds  ( k+1       ),
-        .Decrypt    ( j         )
+          .DataWidth(DataWidth),
+          .KeyWidth (KeyWidth),
+          .NumRounds(k + 1),
+          .Decrypt  (j)
       ) dut (
-        .data_i     ( data_in[j][k]  ),
-        .key_i      ( key_in[j][k]   ),
-        .data_o     ( data_out[j][k] ),
-        .key_o      ( key_out[j][k]  )
+          .data_i(data_in[j][k]),
+          .key_i (key_in[j][k]),
+          .data_o(data_out[j][k]),
+          .key_o (key_out[j][k])
       );
     end
   end
 
 
-//////////////////////////////////////////////////////
-// API called by the testbench to drive/check stimulus
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // API called by the testbench to drive/check stimulus
+  //////////////////////////////////////////////////////
 
   // Top level API task that should be called to run a full pass
   // of encryption and decryption on some input data and key.
-  task test_present(bit [DataWidth-1:0] plaintext,
-                    bit [KeyWidth-1:0]  key);
+  task test_present(bit [DataWidth-1:0] plaintext, bit [KeyWidth-1:0] key);
 
     bit [NumRounds:0][63:0] key_schedule;
     bit [NumRounds-1:0][DataWidth-1:0] encrypted_text;
@@ -112,8 +111,7 @@ module prim_present_tb;
     #100ns;
 
     // query DPI model for expected encrypted output.
-    crypto_dpi_present_pkg::sv_dpi_present_encrypt(plaintext, key,
-                                                   KeySize80, expected_ciphertext);
+    crypto_dpi_present_pkg::sv_dpi_present_encrypt(plaintext, key, KeySize80, expected_ciphertext);
 
     check_output(key_schedule[NumRounds:1], expected_ciphertext,
                  key_out[Encrypt], data_out[Encrypt], "Encryption");
@@ -138,7 +136,7 @@ module prim_present_tb;
 
     // Drive input into decryption instances.
     data_in[Decrypt] = ciphertext;
-    key_in[Decrypt] = decryption_keys;
+    key_in[Decrypt]  = decryption_keys;
 
     // Wait a bit for the DUTs to finish calculations.
     #100ns;
@@ -189,14 +187,14 @@ module prim_present_tb;
   endtask
 
 
-//////////////////////////////////////////////////////
-// main testbench body
-//////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////
+  // main testbench body
+  //////////////////////////////////////////////////////
 
   initial begin : p_stimuli
 
     // The key and plaintext/ciphertext to be fed into PRESENT instances.
-    bit [KeyWidth-1:0] key;
+    bit [ KeyWidth-1:0] key;
     bit [DataWidth-1:0] plaintext;
 
     $timeformat(-12, 0, " ps", 12);

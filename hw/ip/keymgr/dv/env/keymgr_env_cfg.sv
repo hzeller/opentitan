@@ -2,7 +2,9 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class keymgr_env_cfg extends cip_base_env_cfg #(.RAL_T(keymgr_reg_block));
+class keymgr_env_cfg extends cip_base_env_cfg#(
+    .RAL_T(keymgr_reg_block)
+);
 
   // ext component cfgs
 

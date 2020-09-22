@@ -2,11 +2,13 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-class push_pull_monitor #(parameter int DataWidth = 32) extends dv_base_monitor #(
-    .ITEM_T (push_pull_item#(DataWidth)),
-    .CFG_T  (push_pull_agent_cfg#(DataWidth)),
-    .COV_T  (push_pull_agent_cov#(DataWidth))
-  );
+class push_pull_monitor #(
+  parameter int DataWidth = 32
+) extends dv_base_monitor#(
+    .ITEM_T(push_pull_item#(DataWidth)),
+    .CFG_T (push_pull_agent_cfg#(DataWidth)),
+    .COV_T (push_pull_agent_cov#(DataWidth))
+);
   `uvm_component_param_utils(push_pull_monitor#(DataWidth))
 
   // the base class provides the following handles for use:
@@ -15,7 +17,7 @@ class push_pull_monitor #(parameter int DataWidth = 32) extends dv_base_monitor 
   // uvm_analysis_port #(push_pull_item): analysis_port
 
   // connected to sequencer to send request responses
-  uvm_analysis_port #(push_pull_item#(DataWidth)) req_port;
+  uvm_analysis_port #(push_pull_item #(DataWidth)) req_port;
 
   `uvm_component_new
 
@@ -33,8 +35,7 @@ class push_pull_monitor #(parameter int DataWidth = 32) extends dv_base_monitor 
       collect_valid_trans();
       // We only need to monitor incoming requests if the agent is configured
       // in device mode and is using Pull protocol.
-      if (cfg.if_mode == dv_utils_pkg::Device &&
-          cfg.agent_type == PullAgent) begin
+      if (cfg.if_mode == dv_utils_pkg::Device && cfg.agent_type == PullAgent) begin
         collect_request();
       end
     join_none
@@ -50,7 +51,7 @@ class push_pull_monitor #(parameter int DataWidth = 32) extends dv_base_monitor 
 
   // TODO : sample covergroups
   virtual protected task collect_valid_trans();
-    push_pull_item#(DataWidth) item;
+    push_pull_item #(DataWidth) item;
     forever begin
       @(cfg.vif.mon_cb);
       if (cfg.agent_type == PushAgent) begin
@@ -83,7 +84,7 @@ class push_pull_monitor #(parameter int DataWidth = 32) extends dv_base_monitor 
   // TODO: This assumes no requests can be dropped, and might need to be fixed
   //       if this is not allowed.
   virtual protected task collect_request();
-    push_pull_item#(DataWidth) item;
+    push_pull_item #(DataWidth) item;
     forever begin
       @(cfg.vif.mon_cb);
       if (cfg.vif.req) begin

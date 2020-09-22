@@ -30,8 +30,7 @@ class i2c_rx_tx_vseq extends i2c_base_vseq;
             `DV_CHECK_RANDOMIZE_FATAL(this)
             // if trans_type is provided, then rw_bit is overridden
             // otherwise, rw_bit is randomized
-            rw_bit = (trans_type  == WriteOnly) ? 1'b0 :
-                     ((trans_type == ReadOnly)  ? 1'b1 : rw_bit);
+            rw_bit = (trans_type == WriteOnly) ? 1'b0 : ((trans_type == ReadOnly) ? 1'b1 : rw_bit);
             get_timing_values();
             program_registers();
           end
@@ -39,8 +38,7 @@ class i2c_rx_tx_vseq extends i2c_base_vseq;
           // if trans_type is provided, then rw_bit is overridden
           // otherwise, rw_bit is randomized
           `DV_CHECK_MEMBER_RANDOMIZE_FATAL(rw_bit)
-          rw_bit = (trans_type  == WriteOnly) ? 1'b0 :
-                   ((trans_type == ReadOnly)  ? 1'b1 : rw_bit);
+          rw_bit = (trans_type == WriteOnly) ? 1'b0 : ((trans_type == ReadOnly) ? 1'b1 : rw_bit);
 
           // program address for folowing transaction types
           chained_read = fmt_item.read && fmt_item.rcont;
@@ -88,7 +86,7 @@ class i2c_rx_tx_vseq extends i2c_base_vseq;
     )
     if (cfg.target_addr_mode == Addr7BitMode) begin
       fmt_item.fbyte = (rw_bit) ? {addr[6:0], BusOpRead} : {addr[6:0], BusOpWrite};
-    end else begin // Addr10BitMode
+    end else begin  // Addr10BitMode
       fmt_item.fbyte = (rw_bit) ? {addr[9:0], BusOpRead} : {addr[9:0], BusOpWrite};
     end
     program_format_flag(fmt_item, "program_address_to_target");
@@ -134,13 +132,13 @@ class i2c_rx_tx_vseq extends i2c_base_vseq;
     rx_overflow  = 1'b0;
     rx_watermark = 1'b0;
     while (!complete_program_fmt_fifo || total_rd_bytes > 0) begin
-      rx_sanity      = !cfg.en_rx_watermark & !cfg.en_rx_overflow;
-      rx_overflow   |= (cfg.en_rx_overflow  & cfg.intr_vif.pins[RxOverflow]);
+      rx_sanity = !cfg.en_rx_watermark & !cfg.en_rx_overflow;
+      rx_overflow |= (cfg.en_rx_overflow & cfg.intr_vif.pins[RxOverflow]);
       if (cfg.en_rx_watermark) begin
         // TODO: Weicai's comments in PR #3128: consider constraining
         // rx_fifo_access_dly to test watermark irq (require revise watermark_vseq)
         csr_rd(.ptr(ral.status.rxfull), .value(rx_full));
-        rx_watermark  |= (cfg.en_rx_watermark & rx_full);
+        rx_watermark |= (cfg.en_rx_watermark & rx_full);
       end else begin
         cfg.clk_rst_vif.wait_clks(1);
       end

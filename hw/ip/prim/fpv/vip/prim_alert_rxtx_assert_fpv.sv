@@ -8,21 +8,21 @@
 `include "prim_assert.sv"
 
 module prim_alert_rxtx_assert_fpv (
-  input        clk_i,
-  input        rst_ni,
+  input clk_i,
+  input rst_ni,
   // for sigint error injection only
-  input        ping_err_pi,
-  input        ping_err_ni,
-  input        ack_err_pi,
-  input        ack_err_ni,
-  input        alert_err_pi,
-  input        alert_err_ni,
+  input ping_err_pi,
+  input ping_err_ni,
+  input ack_err_pi,
+  input ack_err_ni,
+  input alert_err_pi,
+  input alert_err_ni,
   // normal I/Os
-  input        alert_i,
-  input        ping_req_i,
-  input        ping_ok_o,
-  input        integ_fail_o,
-  input        alert_o
+  input alert_i,
+  input ping_req_i,
+  input ping_ok_o,
+  input integ_fail_o,
+  input alert_o
 );
 
   logic error_present;
@@ -31,8 +31,8 @@ module prim_alert_rxtx_assert_fpv (
                          alert_err_pi | alert_err_ni;
 
   // note: we can only detect sigint errors where one wire is flipped.
-  `ASSUME_FPV(PingErrorsAreOH_M,  $onehot0({ping_err_pi, ping_err_ni}),   clk_i, !rst_ni)
-  `ASSUME_FPV(AckErrorsAreOH_M,   $onehot0({ack_err_pi, ack_err_ni}),     clk_i, !rst_ni)
+  `ASSUME_FPV(PingErrorsAreOH_M, $onehot0({ping_err_pi, ping_err_ni}), clk_i, !rst_ni)
+  `ASSUME_FPV(AckErrorsAreOH_M, $onehot0({ack_err_pi, ack_err_ni}), clk_i, !rst_ni)
   `ASSUME_FPV(AlertErrorsAreOH_M, $onehot0({alert_err_pi, alert_err_ni}), clk_i, !rst_ni)
 
   // ping will stay high until ping ok received, then it must be deasserted
@@ -42,13 +42,21 @@ module prim_alert_rxtx_assert_fpv (
       (ping_req_i && ping_ok_o ##1 $fell(ping_req_i)), clk_i, !rst_ni || error_present)
 
   sequence FullHandshake_S;
-    $rose(prim_alert_rxtx_fpv.alert_tx_out.alert_p)   ##1
-    $rose(prim_alert_rxtx_fpv.alert_rx_out.ack_p)     &&
-    $stable(prim_alert_rxtx_fpv.alert_tx_out.alert_p) ##1
-    $fell(prim_alert_rxtx_fpv.alert_tx_out.alert_p)   &&
-    $stable(prim_alert_rxtx_fpv.alert_rx_out.ack_p)   ##1
-    $fell(prim_alert_rxtx_fpv.alert_rx_out.ack_p)     &&
-    $stable(prim_alert_rxtx_fpv.alert_tx_out.alert_p) ;
+    $rose(
+        prim_alert_rxtx_fpv.alert_tx_out.alert_p
+    ) ##1 $rose(
+        prim_alert_rxtx_fpv.alert_rx_out.ack_p
+    ) && $stable(
+        prim_alert_rxtx_fpv.alert_tx_out.alert_p
+    ) ##1 $fell(
+        prim_alert_rxtx_fpv.alert_tx_out.alert_p
+    ) && $stable(
+        prim_alert_rxtx_fpv.alert_rx_out.ack_p
+    ) ##1 $fell(
+        prim_alert_rxtx_fpv.alert_rx_out.ack_p
+    ) && $stable(
+        prim_alert_rxtx_fpv.alert_tx_out.alert_p
+    );
   endsequence
 
   // note: injected errors may lockup the FSMs, and hence the full HS can
